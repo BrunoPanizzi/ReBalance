@@ -1,32 +1,28 @@
 import { z } from "zod";
 
-import { userSchema, loginUserSchema, createUserSchema } from "./userSchemas";
-import type { User, LoginUser, CreateUser } from "./userSchemas";
+import { userSchema } from "./userSchemas";
+import type { LoginUser, CreateUser } from "./userSchemas";
 
 const authResponseSchema = z.object({
   token: z.string(),
   user: userSchema,
 });
 
+type AuthResponse = z.infer<typeof authResponseSchema>;
+
 // TODO: migrate database connection to here, removing need for jwt and making requests faster
 class AuthService {
-  async login(
-    userInfo: unknown | LoginUser
-  ): Promise<z.infer<typeof authResponseSchema>> {
-    const data = loginUserSchema.parse(userInfo);
-
+  async login(userInfo: LoginUser): Promise<AuthResponse> {
     const response = await fetch("http://localhost:5123/auth", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: data.email,
-        password: data.password,
+        email: userInfo.email,
+        password: userInfo.password,
       }),
     });
-
-    console.log(response.status);
 
     if (!response.ok) {
       throw new Error("Response is not ok");
@@ -34,32 +30,21 @@ class AuthService {
 
     const res = await response.json();
 
-    console.log("Response: ", res);
-
     return authResponseSchema.parse(res);
   }
 
-  async createUser(
-    userInfo: unknown
-  ): Promise<z.infer<typeof authResponseSchema>>;
-  async createUser(
-    userInfo: CreateUser
-  ): Promise<z.infer<typeof authResponseSchema>> {
-    const data = createUserSchema.parse(userInfo);
-
+  async createUser(userInfo: CreateUser): Promise<AuthResponse> {
     const response = await fetch("http://localhost:5123/user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userName: data.userName,
-        email: data.email,
-        password: data.password,
+        userName: userInfo.userName,
+        email: userInfo.email,
+        password: userInfo.password,
       }),
     });
-
-    console.log(response.status);
 
     if (!response.ok) {
       throw new Error("Response is not ok");
@@ -69,24 +54,6 @@ class AuthService {
 
     return authResponseSchema.parse(res);
   }
-
-  // async getCurrentUser(request: Request): Promise<User | null> {
-  //   const user = await this.authenticator.isAuthenticated(request);
-  //   const parsed = userSchema.safeParse(user);
-
-  //   if (parsed.success) {
-  //     return parsed.data;
-  //   }
-
-  //   console.warn("[WARNING]: Could not parse user data from the backend.");
-  //   console.warn("Data:", user);
-
-  //   return null;
-  // }
-
-  // async logout(request: Request, redirectTo = "/") {
-  //   return await this.authenticator.logout(request, { redirectTo });
-  // }
 }
 
 export const authSerivce = new AuthService();

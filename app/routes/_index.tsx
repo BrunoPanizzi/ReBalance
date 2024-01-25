@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type {
   ActionFunctionArgs,
   MetaFunction,
@@ -17,20 +18,33 @@ import { createPortal } from "react-dom";
 import { sessionStorage } from "~/services/cookies/session.server";
 
 import { authSerivce } from "~/services/auth/authService.server";
-import { User } from "~/services/auth/userSchemas";
+import type { User } from "~/services/auth/userSchemas";
 
 import { Result } from "~/types/Result";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Stock shop" },
+    { name: "description", content: "Welcome to Stock shop!" },
   ];
+};
+
+const loginFormValidator = z.object({
+  email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+});
+const signupFormValidator = loginFormValidator.extend({
+  userName: z.string().min(1, "Nome de usuário é obrigatório"),
+});
+
+type AuthError = {
+  type: string | "email" | "password" | "backend" | "unknown";
+  error: string;
 };
 
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<Result<User> | TypedResponse<Result<User>>> => {
+}: ActionFunctionArgs): Promise<TypedResponse<Result<User, AuthError[]>>> => {
   const session = await sessionStorage.getSession(
     request.headers.get("Cookie")
   );
@@ -38,23 +52,52 @@ export const action = async ({
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get("mode");
 
-  if (!mode) return { ok: false, error: "Mode was not provided" };
+  if (!mode || (mode !== "login" && mode !== "signup"))
+    return json({
+      ok: false,
+      error: [
+        {
+          type: "unknown",
+          error: "Invalid mode",
+        },
+      ],
+    });
 
   const formData = await request.formData();
-  const userInfo = Object.fromEntries(formData);
+  const rawForm = Object.fromEntries(formData);
 
   try {
     let response;
+
     if (mode === "login") {
-      response = await authSerivce.login(userInfo);
+      const userInfo = loginFormValidator.safeParse(rawForm);
+
+      if (!userInfo.success) {
+        return json({
+          ok: false,
+          error: userInfo.error.errors.map((e) => ({
+            type: e.path.join("."),
+            error: e.message,
+          })),
+        });
+      }
+
+      response = await authSerivce.login(userInfo.data);
     } else if (mode === "signup") {
-      response = await authSerivce.createUser(userInfo);
-    } else {
-      return {
-        ok: false,
-        error: `Mode ${mode} is not supported`,
-      };
-    }
+      const userInfo = signupFormValidator.safeParse(rawForm);
+
+      if (!userInfo.success) {
+        return json({
+          ok: false,
+          error: userInfo.error.errors.map((e) => ({
+            type: e.path.join("."),
+            error: e.message,
+          })),
+        });
+      }
+
+      response = await authSerivce.createUser(userInfo.data);
+    } else throw new Error("Unreachable");
 
     session.set("jwt", response.token);
     session.set("user", response.user);
@@ -71,18 +114,20 @@ export const action = async ({
       }
     );
   } catch (e) {
-    console.log(e);
-    return {
+    console.log("Backend error");
+    return json({
       ok: false,
-      error: "Something went wrong with authService: " + (e as Error).message,
-    };
+      error: [
+        {
+          type: "backend",
+          error: "Something went wrong when authenticating",
+        },
+      ],
+    });
   }
 };
 
 export default function Index() {
-  const actionData = useActionData<typeof action>();
-  console.log("Action: ", actionData);
-
   return (
     <>
       <Modal />
@@ -126,6 +171,9 @@ function Modal() {
 
   const mode = searchParams.get("mode");
   const isDoingStuff = navigation.state === "submitting";
+  const hasError = actionData?.ok === false && !isDoingStuff;
+  const backendError =
+    hasError && actionData.error.some((e) => e.type === "backend");
 
   if (!mode) return null;
 
@@ -141,18 +189,50 @@ function Modal() {
               className="bg-gray-700 rounded p-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-bold mb-4">
-                {mode === "login" ? "Entre na sua conta" : "Criar conta"}
-              </h2>
-              <span></span>
+              <header className=" mb-4">
+                <h2 className="text-xl font-bold">
+                  {mode === "login" ? "Entre na sua conta" : "Criar conta"}
+                </h2>
+                <button
+                  className="text-sm hover:underline text-yellow-50"
+                  onClick={() => {
+                    setSearchParams({
+                      mode: mode === "login" ? "signup" : "login",
+                    });
+                  }}
+                >
+                  {mode === "login"
+                    ? "Não possui conta? Crie uma"
+                    : "Já é usuário? Faça login"}
+                </button>
+              </header>
               <Form
                 className="flex flex-col gap-2"
+                noValidate
                 method="post"
                 id="auth-form"
               >
+                {mode === "signup" && (
+                  <label>
+                    <span className="block text-sm">Username</span>
+                    <ErrorLabel
+                      field="userName"
+                      errors={hasError ? actionData.error : undefined}
+                    />
+                    <input
+                      className="bg-gray-800 rounded px-2 py-1"
+                      name="userName"
+                    />
+                  </label>
+                )}
                 <label>
                   <span className="block text-sm">Email</span>
+                  <ErrorLabel
+                    field="email"
+                    errors={hasError ? actionData.error : undefined}
+                  />
                   <input
+                    autoCorrect="off"
                     className="bg-gray-800 rounded px-2 py-1"
                     type="email"
                     name="email"
@@ -160,12 +240,33 @@ function Modal() {
                 </label>
                 <label>
                   <span className="block text-sm">Password</span>
+                  <ErrorLabel
+                    field="password"
+                    errors={hasError ? actionData.error : undefined}
+                  />
                   <input
                     className="bg-gray-800 rounded px-2 py-1"
                     type="password"
                     name="password"
                   />
                 </label>
+
+                {backendError && (
+                  <span className="text-sm text-red-400">
+                    Algo deu errado ao{" "}
+                    {mode === "login" ? "entrar" : "criar conta"}
+                    <br />
+                    Verifique se os dados inseridos estão corretos
+                  </span>
+                )}
+                {actionData?.ok && (
+                  <span className="text-sm text-green-400">
+                    {mode === "login"
+                      ? "Login efetuado com sucesso!"
+                      : "Conta criada com sucesso!"}
+                  </span>
+                )}
+
                 <button
                   className="px-4 py-1 mt-2 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
                   type="submit"
@@ -184,4 +285,22 @@ function Modal() {
       }
     </ClientOnly>
   );
+}
+
+function ErrorLabel({
+  field,
+  errors,
+}: {
+  field: string;
+  errors?: AuthError[];
+}) {
+  if (!errors) return null;
+
+  const error = errors.find((e) => e.type === field);
+
+  if (!error) return null;
+
+  const message = error.error;
+
+  return <span className="text-red-400 text-sm block pb-1">{message}</span>;
 }

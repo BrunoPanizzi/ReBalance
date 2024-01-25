@@ -21,6 +21,7 @@ import { authSerivce } from "~/services/auth/authService.server";
 import type { User } from "~/services/auth/userSchemas";
 
 import { Result } from "~/types/Result";
+import { Button } from "~/components/ui/button";
 
 export const meta: MetaFunction = () => {
   return [
@@ -139,22 +140,22 @@ export default function Index() {
           <div className="flex gap-4">
             <Link to="/app">app</Link>
             <Form>
-              <button
-                className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
+              <Button
+                // className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
                 name="mode"
                 value="login"
               >
                 Login
-              </button>
+              </Button>
             </Form>
             <Form>
-              <button
-                className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
+              <Button
+                // className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
                 name="mode"
                 value="signup"
               >
                 Criar conta
-              </button>
+              </Button>
             </Form>
           </div>
         </nav>
@@ -193,8 +194,8 @@ function Modal() {
                 <h2 className="text-xl font-bold">
                   {mode === "login" ? "Entre na sua conta" : "Criar conta"}
                 </h2>
-                <button
-                  className="text-sm hover:underline text-yellow-50"
+                <Button
+                  // className="text-sm hover:underline text-yellow-50"
                   onClick={() => {
                     setSearchParams({
                       mode: mode === "login" ? "signup" : "login",
@@ -204,7 +205,7 @@ function Modal() {
                   {mode === "login"
                     ? "Não possui conta? Crie uma"
                     : "Já é usuário? Faça login"}
-                </button>
+                </Button>
               </header>
               <Form
                 className="flex flex-col gap-2"
@@ -267,8 +268,8 @@ function Modal() {
                   </span>
                 )}
 
-                <button
-                  className="px-4 py-1 mt-2 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
+                <Button
+                  // className="px-4 py-1 mt-2 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
                   type="submit"
                 >
                   {isDoingStuff
@@ -276,7 +277,7 @@ function Modal() {
                     : mode === "login"
                     ? "Login"
                     : "Criar conta"}
-                </button>
+                </Button>
               </Form>
             </div>
           </div>,

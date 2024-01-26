@@ -21,7 +21,12 @@ import { authSerivce } from "~/services/auth/authService.server";
 import type { User } from "~/services/auth/userSchemas";
 
 import { Result } from "~/types/Result";
+
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Dialog, DialogContent, DialogHeader } from "~/components/ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export const meta: MetaFunction = () => {
   return [
@@ -134,26 +139,20 @@ export default function Index() {
       <Modal />
 
       <div>
-        <nav className="bg-gray-700 m-2 p-2 rounded flex justify-between">
-          <h1 className="text-2xl text-gray-50 font-semibold">Hello, world!</h1>
+        <nav className="m-2 bg-gray-700 p-2 rounded flex justify-between">
+          <h1 className="text-2xl font-semibold">Hello, world!</h1>
 
           <div className="flex gap-4">
-            <Link to="/app">app</Link>
+            <Button variant="link" asChild>
+              <Link to="/app">app</Link>
+            </Button>
             <Form>
-              <Button
-                // className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
-                name="mode"
-                value="login"
-              >
-                Login
+              <Button variant="ghost" name="mode" value="login">
+                Entrar
               </Button>
             </Form>
             <Form>
-              <Button
-                // className="px-4 py-1 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
-                name="mode"
-                value="signup"
-              >
+              <Button name="mode" value="signup">
                 Criar conta
               </Button>
             </Form>
@@ -179,112 +178,84 @@ function Modal() {
   if (!mode) return null;
 
   return (
-    <ClientOnly>
-      {() =>
-        createPortal(
-          <div
-            className="fixed inset-0 flex justify-center items-center bg-black/50"
-            onClick={() => setSearchParams({})}
+    <Dialog
+      onOpenChange={(to) => {
+        if (!to) setSearchParams({});
+      }}
+      open={mode === "login" || mode === "signup"}
+    >
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <h2 className="text-lg font-semibold">
+            {mode === "login" ? "Entre na sua conta" : "Criar conta"}
+          </h2>
+          <Button
+            variant="link"
+            size="sm"
+            className="p-0 justify-start"
+            onClick={() => {
+              setSearchParams({
+                mode: mode === "login" ? "signup" : "login",
+              });
+            }}
           >
-            <div
-              className="bg-gray-700 rounded p-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <header className=" mb-4">
-                <h2 className="text-xl font-bold">
-                  {mode === "login" ? "Entre na sua conta" : "Criar conta"}
-                </h2>
-                <Button
-                  // className="text-sm hover:underline text-yellow-50"
-                  onClick={() => {
-                    setSearchParams({
-                      mode: mode === "login" ? "signup" : "login",
-                    });
-                  }}
-                >
-                  {mode === "login"
-                    ? "Não possui conta? Crie uma"
-                    : "Já é usuário? Faça login"}
-                </Button>
-              </header>
-              <Form
-                className="flex flex-col gap-2"
-                noValidate
-                method="post"
-                id="auth-form"
-              >
-                {mode === "signup" && (
-                  <label>
-                    <span className="block text-sm">Username</span>
-                    <ErrorLabel
-                      field="userName"
-                      errors={hasError ? actionData.error : undefined}
-                    />
-                    <input
-                      className="bg-gray-800 rounded px-2 py-1"
-                      name="userName"
-                    />
-                  </label>
-                )}
-                <label>
-                  <span className="block text-sm">Email</span>
-                  <ErrorLabel
-                    field="email"
-                    errors={hasError ? actionData.error : undefined}
-                  />
-                  <input
-                    autoCorrect="off"
-                    className="bg-gray-800 rounded px-2 py-1"
-                    type="email"
-                    name="email"
-                  />
-                </label>
-                <label>
-                  <span className="block text-sm">Password</span>
-                  <ErrorLabel
-                    field="password"
-                    errors={hasError ? actionData.error : undefined}
-                  />
-                  <input
-                    className="bg-gray-800 rounded px-2 py-1"
-                    type="password"
-                    name="password"
-                  />
-                </label>
-
-                {backendError && (
-                  <span className="text-sm text-red-400">
-                    Algo deu errado ao{" "}
-                    {mode === "login" ? "entrar" : "criar conta"}
-                    <br />
-                    Verifique se os dados inseridos estão corretos
-                  </span>
-                )}
-                {actionData?.ok && (
-                  <span className="text-sm text-green-400">
-                    {mode === "login"
-                      ? "Login efetuado com sucesso!"
-                      : "Conta criada com sucesso!"}
-                  </span>
-                )}
-
-                <Button
-                  // className="px-4 py-1 mt-2 rounded bg-yellow-600 hover:scale-105 transition text-white font-bold"
-                  type="submit"
-                >
-                  {isDoingStuff
-                    ? "Doing stuff..."
-                    : mode === "login"
-                    ? "Login"
-                    : "Criar conta"}
-                </Button>
-              </Form>
-            </div>
-          </div>,
-          document.getElementById("modal-root")!
-        )
-      }
-    </ClientOnly>
+            {mode === "login"
+              ? "Não possui conta? Crie uma"
+              : "Já é usuário? Faça login"}
+          </Button>
+        </DialogHeader>
+        <Form
+          className="flex flex-col gap-2"
+          noValidate
+          method="post"
+          id="auth-form"
+        >
+          {mode === "signup" && (
+            <>
+              <Label htmlFor="userName">Username</Label>
+              <ErrorLabel
+                field="userName"
+                errors={hasError ? actionData.error : undefined}
+              />
+              <Input name="userName" />
+            </>
+          )}
+          <Label htmlFor="email">Email</Label>
+          <ErrorLabel
+            field="email"
+            errors={hasError ? actionData.error : undefined}
+          />
+          <Input autoCorrect="off" type="email" name="email" />
+          <Label htmlFor="password">Password</Label>
+          <ErrorLabel
+            field="password"
+            errors={hasError ? actionData.error : undefined}
+          />
+          <Input type="password" name="password" />
+          {backendError && (
+            <span className="text-sm text-red-400">
+              Algo deu errado ao {mode === "login" ? "entrar" : "criar conta"}
+              <br />
+              Verifique se os dados inseridos estão corretos
+            </span>
+          )}
+          {actionData?.ok && (
+            <span className="text-sm text-green-400">
+              {mode === "login"
+                ? "Login efetuado com sucesso!"
+                : "Conta criada com sucesso!"}
+            </span>
+          )}
+          <Button type="submit">
+            {isDoingStuff
+              ? "Doing stuff..."
+              : mode === "login"
+              ? "Login"
+              : "Criar conta"}
+          </Button>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

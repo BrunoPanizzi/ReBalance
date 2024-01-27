@@ -1,10 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod'
 import type {
   ActionFunctionArgs,
   MetaFunction,
   TypedResponse,
-} from "@remix-run/node";
-import { ClientOnly } from "remix-utils/client-only";
+} from '@remix-run/node'
 import {
   Form,
   Link,
@@ -12,101 +11,105 @@ import {
   useActionData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
-import { createPortal } from "react-dom";
+} from '@remix-run/react'
 
-import { sessionStorage } from "~/services/cookies/session.server";
+import { sessionStorage } from '~/services/cookies/session.server'
 
-import { authSerivce } from "~/services/auth/authService.server";
-import type { User } from "~/services/auth/userSchemas";
+import { authSerivce } from '~/services/auth/authService.server'
+import type { User } from '~/services/auth/userSchemas'
 
-import { Result } from "~/types/Result";
+import { Result } from '~/types/Result'
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Dialog, DialogContent, DialogHeader } from "~/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
+
+import { ErrorProvider, useError } from '~/context/ErrorContext'
+import InputGroup from '~/components/InputGroup'
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Stock shop" },
-    { name: "description", content: "Welcome to Stock shop!" },
-  ];
-};
+    { title: 'Stock shop' },
+    { name: 'description', content: 'Welcome to Stock shop!' },
+  ]
+}
 
 const loginFormValidator = z.object({
-  email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
-});
+  email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
+  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
+})
 const signupFormValidator = loginFormValidator.extend({
-  userName: z.string().min(1, "Nome de usuário é obrigatório"),
-});
+  userName: z.string().min(1, 'Nome de usuário é obrigatório'),
+})
 
 type AuthError = {
-  type: string | "email" | "password" | "backend" | "unknown";
-  error: string;
-};
+  type: string | 'email' | 'password' | 'backend' | 'unknown'
+  message: string
+}
 
 export const action = async ({
   request,
 }: ActionFunctionArgs): Promise<TypedResponse<Result<User, AuthError[]>>> => {
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
+  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
-  const { searchParams } = new URL(request.url);
-  const mode = searchParams.get("mode");
+  const { searchParams } = new URL(request.url)
+  const mode = searchParams.get('mode')
 
-  if (!mode || (mode !== "login" && mode !== "signup"))
+  if (!mode || (mode !== 'login' && mode !== 'signup'))
     return json({
       ok: false,
       error: [
         {
-          type: "unknown",
-          error: "Invalid mode",
+          type: 'unknown',
+          message: 'Invalid mode',
         },
       ],
-    });
+    })
 
-  const formData = await request.formData();
-  const rawForm = Object.fromEntries(formData);
+  const formData = await request.formData()
+  const rawForm = Object.fromEntries(formData)
 
   try {
-    let response;
+    let response
 
-    if (mode === "login") {
-      const userInfo = loginFormValidator.safeParse(rawForm);
-
-      if (!userInfo.success) {
-        return json({
-          ok: false,
-          error: userInfo.error.errors.map((e) => ({
-            type: e.path.join("."),
-            error: e.message,
-          })),
-        });
-      }
-
-      response = await authSerivce.login(userInfo.data);
-    } else if (mode === "signup") {
-      const userInfo = signupFormValidator.safeParse(rawForm);
+    if (mode === 'login') {
+      const userInfo = loginFormValidator.safeParse(rawForm)
 
       if (!userInfo.success) {
         return json({
           ok: false,
           error: userInfo.error.errors.map((e) => ({
-            type: e.path.join("."),
-            error: e.message,
+            type: e.path.join('.'),
+            message: e.message,
           })),
-        });
+        })
       }
 
-      response = await authSerivce.createUser(userInfo.data);
-    } else throw new Error("Unreachable");
+      response = await authSerivce.login(userInfo.data)
+    } else if (mode === 'signup') {
+      const userInfo = signupFormValidator.safeParse(rawForm)
 
-    session.set("jwt", response.token);
-    session.set("user", response.user);
+      if (!userInfo.success) {
+        return json({
+          ok: false,
+          error: userInfo.error.errors.map((e) => ({
+            type: e.path.join('.'),
+            message: e.message,
+          })),
+        })
+      }
+
+      response = await authSerivce.createUser(userInfo.data)
+    } else throw new Error('Unreachable')
+
+    session.set('jwt', response.token)
+    session.set('user', response.user)
 
     return json(
       {
@@ -115,31 +118,37 @@ export const action = async ({
       },
       {
         headers: {
-          "Set-Cookie": await sessionStorage.commitSession(session),
+          'Set-Cookie': await sessionStorage.commitSession(session),
         },
-      }
-    );
+      },
+    )
   } catch (e) {
-    console.log("Backend error");
+    console.log('Backend error')
     return json({
       ok: false,
       error: [
         {
-          type: "backend",
-          error: "Something went wrong when authenticating",
+          type: 'backend',
+          message: 'Something went wrong when authenticating',
         },
       ],
-    });
+    })
   }
-};
+}
 
 export default function Index() {
+  const actionData = useActionData<typeof action>()
+
+  const errors = !actionData?.ok ? actionData?.error : []
+
   return (
     <>
-      <Modal />
+      <ErrorProvider initialErrors={errors}>
+        <Modal />
+      </ErrorProvider>
 
       <div>
-        <nav className="m-2 bg-gray-700 p-2 rounded flex justify-between">
+        <nav className="m-2 flex justify-between rounded bg-gray-700 p-2">
           <h1 className="text-2xl font-semibold">Hello, world!</h1>
 
           <div className="flex gap-4">
@@ -161,47 +170,47 @@ export default function Index() {
         <h2 className="text-lg text-gray-100">This is the home</h2>
       </div>
     </>
-  );
+  )
 }
 
 function Modal() {
-  const actionData = useActionData<typeof action>();
-  const navigation = useNavigation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const actionData = useActionData<typeof action>()
+  const navigation = useNavigation()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const mode = searchParams.get("mode");
-  const isDoingStuff = navigation.state === "submitting";
-  const hasError = actionData?.ok === false && !isDoingStuff;
+  const mode = searchParams.get('mode')
+  const isDoingStuff = navigation.state === 'submitting'
+  const hasError = actionData?.ok === false && !isDoingStuff
   const backendError =
-    hasError && actionData.error.some((e) => e.type === "backend");
+    hasError && actionData.error.some((e) => e.type === 'backend')
 
-  if (!mode) return null;
+  if (!mode) return null
 
   return (
     <Dialog
       onOpenChange={(to) => {
-        if (!to) setSearchParams({});
+        if (!to) setSearchParams({})
       }}
-      open={mode === "login" || mode === "signup"}
+      open={mode === 'login' || mode === 'signup'}
     >
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <h2 className="text-lg font-semibold">
-            {mode === "login" ? "Entre na sua conta" : "Criar conta"}
-          </h2>
+          <DialogTitle>
+            {mode === 'login' ? 'Entre na sua conta' : 'Criar conta'}
+          </DialogTitle>
           <Button
             variant="link"
             size="sm"
-            className="p-0 justify-start"
+            className="justify-start p-0 text-gray-300 transition-colors hover:text-emerald-200"
             onClick={() => {
               setSearchParams({
-                mode: mode === "login" ? "signup" : "login",
-              });
+                mode: mode === 'login' ? 'signup' : 'login',
+              })
             }}
           >
-            {mode === "login"
-              ? "Não possui conta? Crie uma"
-              : "Já é usuário? Faça login"}
+            {mode === 'login'
+              ? 'Não possui conta? Crie uma'
+              : 'Já é usuário? Faça login'}
           </Button>
         </DialogHeader>
         <Form
@@ -210,69 +219,59 @@ function Modal() {
           method="post"
           id="auth-form"
         >
-          {mode === "signup" && (
-            <>
-              <Label htmlFor="userName">Username</Label>
-              <ErrorLabel
-                field="userName"
-                errors={hasError ? actionData.error : undefined}
-              />
-              <Input name="userName" />
-            </>
+          {mode === 'signup' && (
+            <InputGroup
+              label="Nome de usuário"
+              name="userName"
+              input={{ placeholder: 'Nome...' }}
+            />
           )}
-          <Label htmlFor="email">Email</Label>
-          <ErrorLabel
-            field="email"
-            errors={hasError ? actionData.error : undefined}
+          <InputGroup
+            label="Email"
+            name="email"
+            input={{ placeholder: 'seuemail@exemplo.com', type: 'email' }}
           />
-          <Input autoCorrect="off" type="email" name="email" />
-          <Label htmlFor="password">Password</Label>
-          <ErrorLabel
-            field="password"
-            errors={hasError ? actionData.error : undefined}
+          <InputGroup
+            label="Senha"
+            name="password"
+            input={{ type: 'password' }}
           />
-          <Input type="password" name="password" />
           {backendError && (
             <span className="text-sm text-red-400">
-              Algo deu errado ao {mode === "login" ? "entrar" : "criar conta"}
+              Algo deu errado ao {mode === 'login' ? 'entrar' : 'criar conta'}
               <br />
               Verifique se os dados inseridos estão corretos
             </span>
           )}
           {actionData?.ok && (
             <span className="text-sm text-green-400">
-              {mode === "login"
-                ? "Login efetuado com sucesso!"
-                : "Conta criada com sucesso!"}
+              {mode === 'login'
+                ? 'Login efetuado com sucesso!'
+                : 'Conta criada com sucesso!'}
             </span>
           )}
-          <Button type="submit">
+          <Button type="submit" disabled={isDoingStuff} className="mt-2">
             {isDoingStuff
-              ? "Doing stuff..."
-              : mode === "login"
-              ? "Login"
-              : "Criar conta"}
+              ? 'Enviando...'
+              : mode === 'login'
+                ? 'Login'
+                : 'Criar conta'}
           </Button>
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-function ErrorLabel({
-  field,
-  errors,
-}: {
-  field: string;
-  errors?: AuthError[];
-}) {
-  if (!errors) return null;
+function ErrorLabel({ field }: { field: string }) {
+  const errorContext = useError()
+  if (!errorContext) return null
 
-  const error = errors.find((e) => e.type === field);
+  const error = errorContext.errors.find((e) => e.type === field)
 
-  if (!error) return null;
+  if (!error) return null
 
-  const message = error.error;
+  const message = error.message
 
-  return <span className="text-red-400 text-sm block pb-1">{message}</span>;
+  return <span className="block pb-1 text-sm text-red-400">{message}</span>
 }

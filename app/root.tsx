@@ -1,4 +1,4 @@
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction } from '@remix-run/node'
 import {
   Links,
   LiveReload,
@@ -6,18 +6,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "@remix-run/react";
+} from '@remix-run/react'
 
-import stylesheet from "~/tailwind.css";
+import stylesheet from '~/tailwind.css'
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
+  { rel: 'stylesheet', href: stylesheet },
   {
-    rel: "icon",
-    href: "/favicon.svg",
-    type: "image/svg+xml",
+    rel: 'icon',
+    href: '/favicon.svg',
+    type: 'image/svg+xml',
   },
-];
+]
 
 export default function App() {
   return (
@@ -36,5 +36,5 @@ export default function App() {
         <div id="modal-root"></div>
       </body>
     </html>
-  );
+  )
 }

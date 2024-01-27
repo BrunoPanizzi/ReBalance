@@ -1,9 +1,5 @@
 import { z } from 'zod'
-import type {
-  ActionFunctionArgs,
-  MetaFunction,
-  TypedResponse,
-} from '@remix-run/node'
+import type { ActionFunctionArgs, TypedResponse } from '@remix-run/node'
 import {
   Form,
   Link,
@@ -20,20 +16,14 @@ import type { User } from '~/services/auth/userSchemas'
 
 import { Result } from '~/types/Result'
 
-import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog'
-
 import { ErrorProvider, useError } from '~/context/ErrorContext'
+
+import { Button } from '~/components/ui/button'
+import { Dialog } from '~/components/ui/dialog'
+
 import InputGroup from '~/components/InputGroup'
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return [
     { title: 'Stock shop' },
     { name: 'description', content: 'Welcome to Stock shop!' },
@@ -187,17 +177,17 @@ function Modal() {
   if (!mode) return null
 
   return (
-    <Dialog
+    <Dialog.Root
       onOpenChange={(to) => {
         if (!to) setSearchParams({})
       }}
       open={mode === 'login' || mode === 'signup'}
     >
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>
+      <Dialog.Content className="max-w-sm">
+        <Dialog.Header>
+          <Dialog.Title>
             {mode === 'login' ? 'Entre na sua conta' : 'Criar conta'}
-          </DialogTitle>
+          </Dialog.Title>
           <Button
             variant="link"
             size="sm"
@@ -212,7 +202,7 @@ function Modal() {
               ? 'Não possui conta? Crie uma'
               : 'Já é usuário? Faça login'}
           </Button>
-        </DialogHeader>
+        </Dialog.Header>
         <Form
           className="flex flex-col gap-2"
           noValidate
@@ -258,20 +248,7 @@ function Modal() {
                 : 'Criar conta'}
           </Button>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </Dialog.Content>
+    </Dialog.Root>
   )
-}
-
-function ErrorLabel({ field }: { field: string }) {
-  const errorContext = useError()
-  if (!errorContext) return null
-
-  const error = errorContext.errors.find((e) => e.type === field)
-
-  if (!error) return null
-
-  const message = error.message
-
-  return <span className="block pb-1 text-sm text-red-400">{message}</span>
 }

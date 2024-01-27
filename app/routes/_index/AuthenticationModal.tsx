@@ -11,6 +11,33 @@ import InputGroup from '~/components/InputGroup'
 
 import { action } from './action'
 
+type TextsKeys =
+  | 'modalTitle'
+  | 'changeMode'
+  | 'success'
+  | 'buttonLabel'
+  | 'next'
+
+const texts: {
+  login: Record<TextsKeys, string>
+  signup: Record<TextsKeys, string>
+} = {
+  login: {
+    modalTitle: 'Entre na sua conta',
+    changeMode: 'Não possui conta? Crie uma',
+    success: 'Login efetuado com sucesso!',
+    buttonLabel: 'Login',
+    next: 'signup',
+  },
+  signup: {
+    modalTitle: 'Criar conta',
+    changeMode: 'Já é usuário? Faça login',
+    success: 'Conta criada com sucesso!',
+    buttonLabel: 'Criar conta',
+    next: 'login',
+  },
+}
+
 export default function AuthenticationModal() {
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
@@ -22,33 +49,29 @@ export default function AuthenticationModal() {
   const backendError =
     hasError && actionData.error.some((e) => e.type === 'backend')
 
-  if (!mode) return null
+  if (!mode || (mode !== 'login' && mode !== 'signup')) return null
 
   return (
     <Dialog.Root
       onOpenChange={(to) => {
         if (!to) setSearchParams({})
       }}
-      open={mode === 'login' || mode === 'signup'}
+      defaultOpen
     >
       <Dialog.Content className="max-w-sm">
         <Dialog.Header>
-          <Dialog.Title>
-            {mode === 'login' ? 'Entre na sua conta' : 'Criar conta'}
-          </Dialog.Title>
+          <Dialog.Title>{texts[mode].modalTitle}</Dialog.Title>
           <Button
             variant="link"
             size="sm"
             className="justify-start p-0 text-gray-300 transition-colors hover:text-emerald-200"
             onClick={() => {
               setSearchParams({
-                mode: mode === 'login' ? 'signup' : 'login',
+                mode: texts[mode].next,
               })
             }}
           >
-            {mode === 'login'
-              ? 'Não possui conta? Crie uma'
-              : 'Já é usuário? Faça login'}
+            {texts[mode].changeMode}
           </Button>
         </Dialog.Header>
         <Form
@@ -83,17 +106,11 @@ export default function AuthenticationModal() {
           )}
           {actionData?.ok && (
             <span className="text-sm text-green-400">
-              {mode === 'login'
-                ? 'Login efetuado com sucesso!'
-                : 'Conta criada com sucesso!'}
+              {texts[mode].success}
             </span>
           )}
           <Button type="submit" disabled={isDoingStuff} className="mt-2">
-            {isDoingStuff
-              ? 'Enviando...'
-              : mode === 'login'
-                ? 'Login'
-                : 'Criar conta'}
+            {isDoingStuff ? 'Enviando...' : texts[mode].buttonLabel}
           </Button>
         </Form>
       </Dialog.Content>

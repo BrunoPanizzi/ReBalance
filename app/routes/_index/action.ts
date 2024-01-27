@@ -1,8 +1,11 @@
 import { ActionFunctionArgs, TypedResponse, json } from '@remix-run/node'
 import { z } from 'zod'
 
+import { sessionStorage } from '~/services/cookies/session.server'
 import { authSerivce } from '~/services/auth/authService.server'
 import { User } from '~/services/auth/userSchemas'
+
+import { ErrorT } from '~/context/ErrorContext'
 
 import { Result } from '~/types/Result'
 
@@ -14,14 +17,9 @@ const signupFormValidator = loginFormValidator.extend({
   userName: z.string().min(1, 'Nome de usuário é obrigatório'),
 })
 
-type AuthError = {
-  type: string | 'email' | 'password' | 'backend' | 'unknown'
-  message: string
-}
-
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<TypedResponse<Result<User, AuthError[]>>> => {
+}: ActionFunctionArgs): Promise<TypedResponse<Result<User, ErrorT[]>>> => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const { searchParams } = new URL(request.url)

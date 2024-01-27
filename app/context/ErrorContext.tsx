@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
 // not to be conflicted with Error class
-type ErrorT = {
+export type ErrorT = {
   type: string
   message: string
 }

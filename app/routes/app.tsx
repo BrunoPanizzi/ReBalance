@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -10,22 +11,25 @@ import {
   Outlet,
   useActionData,
   useLoaderData,
+  useNavigation,
   useSearchParams,
 } from '@remix-run/react'
+import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-
 import WalletService, { Wallet as W } from '~/services/walletService'
+
+import { colorsSchema } from '~/constants/availableColors'
+import { Result } from '~/types/Result'
+
+import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
 
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
+import { Slider } from '~/components/ui/slider'
 
 import Wallet from '~/components/Wallet'
-import { BaseGroup, InputGroup, SliderGroup } from '~/components/FormGroups'
-import { colorsSchema } from '~/constants/availableColors'
-import { z } from 'zod'
-import { Result } from '~/types/Result'
-import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
+import { BaseGroup, InputGroup } from '~/components/FormGroups'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -47,7 +51,10 @@ const formSchema = z.object({
     .number()
     .min(0, 'A porcentagem ideal deve ser maior que 0')
     .max(100, 'A porcentagem ideal deve ser menor que 100'),
-  color: colorsSchema,
+  color: z.enum(colorsSchema.options, {
+    invalid_type_error: 'Cor inválida',
+    required_error: 'Selecione uma cor',
+  }),
 })
 
 export const action = async ({
@@ -127,9 +134,12 @@ export default function App() {
 }
 
 function NewWalletModal() {
+  const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const shouldOpen = searchParams.get('new')
+
+  const isSubmitting = navigation.state === 'submitting'
 
   if (shouldOpen === null) return null
 
@@ -157,20 +167,40 @@ function NewWalletModal() {
             input={{ placeholder: 'Nome...' }}
           />
 
-          <SliderGroup
+          <BaseGroup
             label="Quanto você gostaria de investir?"
             name="idealAmount"
-            slider={{}}
-          />
+          >
+            <SliderWithPreview />
+          </BaseGroup>
 
           <BaseGroup name="color" label="Selecione uma cor">
             <ColorSelection />
           </BaseGroup>
 
-          <Button type="submit">Criar</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Criando...' : 'Criar'}
+          </Button>
         </Form>
       </Dialog.Content>
     </Dialog.Root>
+  )
+}
+
+function SliderWithPreview() {
+  const [value, setValue] = useState(0)
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="rounded font-semibold">{value}%</span>
+      <Slider
+        min={0}
+        max={100}
+        step={1}
+        name="idealAmount"
+        onValueChange={([e]) => setValue(e)}
+      />
+    </div>
   )
 }
 

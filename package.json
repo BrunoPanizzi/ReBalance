@@ -8,6 +8,7 @@
     "dev": "remix dev --manual",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/index.js",
+    "migrate": "drizzle-kit generate:pg --config=drizzle.config.ts",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -21,7 +22,10 @@
     "@remix-run/serve": "^2.5.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "drizzle-orm": "^0.29.3",
+    "drizzle-zod": "^0.5.1",
     "isbot": "^4.1.0",
+    "postgres": "^3.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remix-auth": "^3.6.0",

@@ -1,3 +1,6 @@
+import { db } from '../db/index.server'
+import { NewWallet, wallet as walletTable } from '../db/schema.server'
+
 export type Wallet = {
   id: string
   title: string
@@ -6,41 +9,32 @@ export type Wallet = {
   color: string
 }
 
-const baseUrl = 'http://localhost:5123'
-const userToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJmMmRiMTFiMy01YjM0LTQzMDktOTc4Ni0xN2YxZjcwZjI1ZmUiLCJ1c2VyTmFtZSI6IkJydW5vIiwiZW1haWwiOiJicnVub3Bhbml6emlxQGdtYWlsLmNvbSIsImlhdCI6MTcwNjE0NzYyMywiZXhwIjoxNzA2NzUyNDIzfQ.PFqUzkxkM9JucjEmxogiM1Wto5OQiEyYEAX3Bv9lA2Y'
-
+// TODO: return Result type for better error handling
 class WalletService {
-  async getWallets(token: string, withStocks?: boolean): Promise<Wallet[]> {
-    const response = await fetch(`${baseUrl}/wallet?withStocks=${withStocks}`, {
-      headers: {
-        authorization: `Bearer ${token}`,
+  async getWallets(uid: string, withStocks?: boolean): Promise<Wallet[]> {
+    const wallets = await db.query.wallet.findMany({
+      where: (wallet, { eq }) => eq(wallet.owner, uid),
+      with: {
+        stocks: withStocks ? true : undefined,
       },
     })
-
-    if (response.status !== 200) {
-      throw new Error('Error fetching wallets')
-    }
-
-    const wallets = await response.json()
 
     return wallets
   }
 
-  async getWallet(id: string): Promise<Wallet> {
-    const response = await fetch(`${baseUrl}/wallet/${id}`, {
-      headers: {
-        authorization: `Bearer ${userToken}`,
-      },
+  async getWallet(uid: string, id: string): Promise<Wallet | undefined> {
+    const wallet = await db.query.wallet.findFirst({
+      where: (wallet, { and, eq }) =>
+        and(eq(wallet.owner, uid), eq(wallet.id, id)),
     })
 
-    if (response.status !== 200) {
-      throw new Error('Error fetching wallet')
-    }
-
-    const wallet = await response.json()
-
     return wallet
+  }
+
+  async createWallet(uid: string, wallet: NewWallet): Promise<Wallet> {
+    const [newWallet] = await db.insert(walletTable).values(wallet).returning()
+
+    return newWallet
   }
 }
 

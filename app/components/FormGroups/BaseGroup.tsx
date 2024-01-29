@@ -1,16 +1,14 @@
+import { Label } from '~/components/ui/label'
+
 import { useError } from '~/context/ErrorContext'
 
-import { Label } from '../ui/label'
-import { Input } from '../ui/input'
-import type { InputProps } from '../ui/input'
-
-export type InputGroupProps = {
+export type GroupProps = {
   name: string
   label?: string
-  input?: InputProps
+  children: React.ReactNode
 }
 
-export default function InputGroup({ name, label, input }: InputGroupProps) {
+export default function BaseGroup({ name, label, children }: GroupProps) {
   const errorContext = useError({ validateProvider: false })
 
   const error = errorContext?.errors.find((error) => error.type === name)
@@ -19,7 +17,7 @@ export default function InputGroup({ name, label, input }: InputGroupProps) {
   return (
     <>
       {label && <Label htmlFor={name}>{label}</Label>}
-      <Input name={name} data-error={hasError} {...input} />
+      {children}
       {hasError && (
         <Label htmlFor={name} className="-mt-1 mb-1 text-red-400">
           {error.message}

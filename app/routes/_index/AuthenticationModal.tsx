@@ -7,7 +7,7 @@ import {
 
 import { Dialog } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
-import InputGroup from '~/components/InputGroup'
+import { InputGroup } from '~/components/FormGroups'
 
 import { action } from './action'
 

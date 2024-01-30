@@ -39,63 +39,48 @@ export const action = async ({
   const formData = await request.formData()
   const rawForm = Object.fromEntries(formData)
 
-  try {
-    let response
+  const formValidator =
+    mode === 'login' ? loginFormValidator : signupFormValidator
+  const method = mode === 'login' ? authSerivce.login : authSerivce.createUser
 
-    if (mode === 'login') {
-      const userInfo = loginFormValidator.safeParse(rawForm)
+  const userInfo = formValidator.safeParse(rawForm)
 
-      if (!userInfo.success) {
-        return json({
-          ok: false,
-          error: userInfo.error.errors.map((e) => ({
-            type: e.path.join('.'),
-            message: e.message,
-          })),
-        })
-      }
-
-      response = await authSerivce.login(userInfo.data)
-    } else if (mode === 'signup') {
-      const userInfo = signupFormValidator.safeParse(rawForm)
-
-      if (!userInfo.success) {
-        return json({
-          ok: false,
-          error: userInfo.error.errors.map((e) => ({
-            type: e.path.join('.'),
-            message: e.message,
-          })),
-        })
-      }
-
-      response = await authSerivce.createUser(userInfo.data)
-    } else throw new Error('Unreachable')
-
-    session.set('jwt', response.token)
-    session.set('user', response.user)
-
-    return json(
-      {
-        ok: true,
-        value: response.user,
-      },
-      {
-        headers: {
-          'Set-Cookie': await sessionStorage.commitSession(session),
-        },
-      },
-    )
-  } catch (e) {
-    console.log('Backend error')
+  if (!userInfo.success) {
     return json({
       ok: false,
-      error: [
-        {
-          type: 'backend',
-          message: 'Something went wrong when authenticating',
-        },
-      ],
+      error: userInfo.error.errors.map((e) => ({
+        type: e.path.join('.'),
+        message: e.message,
+      })),
     })
   }
+
+  const response = await method(userInfo.data)
+
+  if (!response.ok) {
+    let error
+    if (response.error === 'User already exists')
+      error = {
+        type: 'email',
+        message: 'Email já cadastrado',
+      }
+    else
+      error = {
+        type: 'backend',
+        message: response.error,
+      }
+
+    return json({
+      ok: false,
+      error: [error],
+    })
+  }
+
+  session.set('user', response.value)
+
+  return json(response, {
+    headers: {
+      'Set-Cookie': await sessionStorage.commitSession(session),
+    },
+  })
 }

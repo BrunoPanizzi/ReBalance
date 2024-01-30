@@ -1,58 +1,75 @@
-import { z } from 'zod'
+import { Result } from '~/types/Result'
 
-import { userSchema } from './userSchemas'
-import type { LoginUser, CreateUser } from './userSchemas'
+import { db } from '../db/index.server'
+import { user as userTable } from '../db/schema.server'
 
-const authResponseSchema = z.object({
-  token: z.string(),
-  user: userSchema,
-})
+import { encryptPassword, verifyPassword } from '~/lib/hashing.server'
 
-type AuthResponse = z.infer<typeof authResponseSchema>
+import {
+  type LoginUser,
+  type CreateUser,
+  type User,
+  userSchema,
+} from './userSchemas'
 
-// TODO: migrate database connection to here, removing need for jwt and making requests faster
+type AuthResponse = Result<User>
+
 class AuthService {
   async login(userInfo: LoginUser): Promise<AuthResponse> {
-    const response = await fetch('http://localhost:5123/auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: userInfo.email,
-        password: userInfo.password,
-      }),
+    const dbUser = await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.email, userInfo.email),
     })
 
-    if (!response.ok) {
-      throw new Error('Response is not ok')
+    if (!dbUser)
+      return {
+        ok: false,
+        error: 'User not found',
+      }
+
+    const passwordMatches = await verifyPassword(
+      userInfo.password,
+      dbUser.password,
+    )
+
+    if (!passwordMatches)
+      return {
+        ok: false,
+        error: 'Password is incorrect',
+      }
+
+    return {
+      ok: true,
+      value: userSchema.parse(dbUser), // removes the password
     }
-
-    const res = await response.json()
-
-    return authResponseSchema.parse(res)
   }
 
   async createUser(userInfo: CreateUser): Promise<AuthResponse> {
-    const response = await fetch('http://localhost:5123/user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userName: userInfo.userName,
-        email: userInfo.email,
-        password: userInfo.password,
-      }),
+    const existingUser = await db.query.user.findFirst({
+      where: (user, { eq }) => eq(user.email, userInfo.email),
     })
 
-    if (!response.ok) {
-      throw new Error('Response is not ok')
+    if (existingUser) {
+      return {
+        ok: false,
+        error: 'User already exists',
+      }
     }
 
-    const res = await response.json()
+    const encryptedPassword = await encryptPassword(userInfo.password)
 
-    return authResponseSchema.parse(res)
+    const [user] = await db
+      .insert(userTable)
+      .values({
+        userName: userInfo.userName,
+        email: userInfo.email,
+        password: encryptedPassword,
+      })
+      .returning()
+
+    return {
+      ok: true,
+      value: userSchema.parse(user), // removes the password
+    }
   }
 }
 

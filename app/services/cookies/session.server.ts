@@ -1,8 +1,14 @@
 import { createCookieSessionStorage } from '@remix-run/node'
+
 import { User } from '../auth/userSchemas'
 
+const cookieSecret = process.env.COOKIE_SECRET
+
+if (!cookieSecret) {
+  throw new Error('COOKIE_SECRET should be present in .env file')
+}
+
 export type SessionData = {
-  jwt: string
   user: User
 }
 
@@ -12,7 +18,7 @@ export const sessionStorage = createCookieSessionStorage<SessionData>({
     sameSite: 'lax',
     path: '/',
     httpOnly: false,
-    secrets: ['supersecret'],
+    secrets: [cookieSecret],
     secure: process.env.NODE_ENV === 'production',
   },
 })

@@ -20,7 +20,7 @@ export { action }
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   return {
-    isAuthenticated: !!session.data.jwt,
+    isAuthenticated: !!session.data.user,
   }
 }
 

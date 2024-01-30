@@ -1,4 +1,45 @@
 import type { Config } from 'tailwindcss'
+import colors from 'tailwindcss/colors'
+import { DefaultColors } from 'tailwindcss/types/generated/colors'
+
+const grays = [
+  'gray',
+  'zinc',
+  'stone',
+  'neutral',
+  'slate',
+  'coolGray',
+  'warmGray',
+  'trueGray',
+  'blueGray',
+  'lightBlue',
+] as const
+
+const colorsNoGrays = Object.keys(colors).reduce(
+  (acc, key) => {
+    // @ts-ignore
+    if (!grays.includes(key)) {
+      // @ts-ignore
+      acc[key] = colors[key]
+    }
+    return acc
+  },
+  {} as Omit<DefaultColors, (typeof grays)[number]>,
+)
+
+/* Green gray: {
+  50: '#fafafa',
+  100: '#f4f5f4',
+  200: '#e4e7e4',
+  300: '#d4d8d4',
+  400: '#a1aaa1',
+  500: '#717a71',
+  600: '#525b52',
+  700: '#3f463f',
+  800: '#272a27',
+  900: '#181b18',
+  950: '#090b09',
+} */
 
 const config = {
   darkMode: ['class'],
@@ -10,6 +51,11 @@ const config = {
   ],
   prefix: '',
   theme: {
+    colors: {
+      gray: colors.zinc, // this is the right gray
+      ...colorsNoGrays,
+    },
+
     container: {
       center: true,
       padding: '2rem',

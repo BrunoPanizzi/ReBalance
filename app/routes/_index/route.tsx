@@ -37,7 +37,7 @@ export default function Index() {
       </ErrorProvider>
 
       <div>
-        <nav className="m-2 flex justify-between rounded bg-gray-700 p-2">
+        <nav className="m-2 flex items-center justify-between rounded-lg bg-gray-700 p-2">
           <h1 className="text-2xl font-semibold">Hello, world!</h1>
 
           <div className="flex gap-4">
@@ -46,7 +46,7 @@ export default function Index() {
                 <Link to="/app">app</Link>
               </Button>
             ) : (
-              <Form>
+              <Form className="flex gap-4">
                 <Button variant="ghost" name="mode" value="login">
                   Entrar
                 </Button>

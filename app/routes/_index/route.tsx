@@ -38,7 +38,9 @@ export default function Index() {
 
       <div>
         <nav className="m-2 flex items-center justify-between rounded-lg bg-gray-700 p-2">
-          <h1 className="text-2xl font-semibold">Hello, world!</h1>
+          <h1 className="font-display ml-2 text-3xl font-semibold text-emerald-100">
+            Hello, world!
+          </h1>
 
           <div className="flex gap-4">
             {isAuthenticated ? (

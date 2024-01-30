@@ -18,6 +18,11 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        display: ['"Atkinson Hyperlegible"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
+
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

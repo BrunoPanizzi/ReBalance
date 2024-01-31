@@ -42,6 +42,7 @@ export default function Index() {
             maskImage: 'linear-gradient(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.3))',
           }}
         />
+        <div className="absolute inset-0 -z-20 bg-gradient-to-b from-sky-500/5 to-emerald-500/10" />
 
         <Navbar />
 

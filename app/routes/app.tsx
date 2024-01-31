@@ -30,6 +30,7 @@ import { Slider } from '~/components/ui/slider'
 
 import Wallet from '~/components/Wallet'
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
+import Header from '~/components/Header'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -108,18 +109,11 @@ export default function App() {
         <NewWalletModal />
       </ErrorProvider>
       <div>
-        <header>
-          <h1 className="text-2xl font-semibold text-gray-50">
-            This is the app
-          </h1>
-          <Form replace>
-            <Button name="new" value={''}>
-              Nova carteira
-            </Button>
-          </Form>
-        </header>
-
-        <hr className="my-3 border-t-2 border-dashed border-gray-600" />
+        <Header
+          backArrow
+          title="This is the app"
+          rightSide={<Button>hello </Button>}
+        />
 
         <div>
           {wallets.map((w) => (

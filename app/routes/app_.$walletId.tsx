@@ -1,7 +1,11 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
+
 import { useColors } from '~/context/ColorsContext'
+
+import Header from '~/components/Header'
+import Wrapper from '~/components/Wrapper'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
@@ -40,11 +44,14 @@ export default function WalletPage() {
   }, [setColor])
 
   return (
-    <div className="bg-primary-950">
-      <h1 className="text-2xl font-semibold text-gray-50">
-        {wallet.title} - {wallet.totalValue}
-      </h1>
-    </div>
+    <>
+      <Header backArrow title={wallet.title} />
+      <Wrapper>
+        <h1 className="text-2xl font-semibold text-gray-50">
+          {wallet.title} - {wallet.totalValue}
+        </h1>
+      </Wrapper>
+    </>
   )
 }
 

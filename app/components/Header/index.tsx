@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from '@radix-ui/react-icons'
+import { useNavigate } from '@remix-run/react'
 import { ReactNode } from 'react'
-import { Link } from '@remix-run/react'
 
 export type HeaderProps = {
   backArrow?: boolean
@@ -15,13 +15,15 @@ export default function Header({
   title,
   rightSide,
 }: HeaderProps) {
+  const navigate = useNavigate()
+
   return (
     <header className="mx-auto mb-8 flex items-center justify-between gap-10 bg-gray-300/20 p-3 shadow-xl backdrop-blur sm:mt-4 sm:w-[min(80rem,calc(100%-2rem))] sm:rounded-xl sm:p-4">
       <div className="flex items-center justify-center gap-3">
         {backArrow && (
-          <Link to=".." title="Voltar">
+          <button onClick={() => navigate(-1)} title="Voltar">
             <ArrowLeftIcon className="h-8 w-8 text-primary-100" />
-          </Link>
+          </button>
         )}
 
         {logo && (

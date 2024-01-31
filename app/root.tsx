@@ -10,6 +10,8 @@ import {
 
 import stylesheet from '~/tailwind.css'
 
+import { ColorsProvider } from './context/ColorsContext'
+
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
   {
@@ -39,11 +41,13 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-gray-900 text-gray-100">
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-        <div id="modal-root"></div>
+        <ColorsProvider>
+          <Outlet />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+          <div id="modal-root"></div>
+        </ColorsProvider>
       </body>
     </html>
   )

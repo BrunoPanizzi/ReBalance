@@ -1,3 +1,4 @@
+import { Colors } from '~/constants/availableColors'
 import { db } from '../db/index.server'
 import { NewWallet, wallet as walletTable } from '../db/schema.server'
 
@@ -6,7 +7,7 @@ export type Wallet = {
   title: string
   totalValue: number
   idealPercentage: number
-  color: string
+  color: Colors
 }
 
 // TODO: return Result type for better error handling

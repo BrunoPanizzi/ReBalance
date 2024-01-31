@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import colors from 'tailwindcss/colors'
+import defaultTheme from 'tailwindcss/defaultTheme'
 import { DefaultColors } from 'tailwindcss/types/generated/colors'
 
 const grays = [
@@ -51,6 +52,11 @@ const config = {
   ],
   prefix: '',
   theme: {
+    screens: {
+      xs: '435px',
+      ...defaultTheme.screens,
+    },
+
     colors: {
       gray: colors.zinc, // this is the right gray
       ...colorsNoGrays,
@@ -78,6 +84,10 @@ const config = {
           900: 'rgb(var(--primary-900))',
           950: 'rgb(var(--primary-950))',
         },
+      },
+
+      backgroundImage: {
+        squares: "url('/square.svg')",
       },
 
       fontFamily: {

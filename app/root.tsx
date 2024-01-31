@@ -35,14 +35,14 @@ export const links: LinksFunction = () => [
 
 export default function App() {
   return (
-    <html lang="en">
+    <html lang="en" className="min-h-screen">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body className="bg-gray-900 text-gray-100">
+      <body className="min-h-screen bg-gray-900 text-gray-100">
         <ColorsProvider>
           <NavigationIndicator />
           <Outlet />

@@ -25,7 +25,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 export default function Index() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
 
   const errors = !actionData?.ok ? actionData?.error : []
@@ -36,31 +35,92 @@ export default function Index() {
         <AuthenticationModal />
       </ErrorProvider>
 
-      <div>
-        <nav className="m-2 flex items-center justify-between rounded-lg bg-gray-700 p-2">
-          <h1 className="font-display ml-2 text-3xl font-semibold text-emerald-100">
-            Hello, world!
-          </h1>
+      <div className="relative h-screen bg-opacity-10">
+        <div
+          className="bg-squares absolute inset-0 -z-10"
+          style={{
+            maskImage: 'linear-gradient(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.3))',
+          }}
+        />
 
-          <div className="flex gap-4">
-            {isAuthenticated ? (
-              <Button variant="link" asChild>
-                <Link to="/app">app</Link>
+        <Navbar />
+
+        <main className="mx-auto mt-[20vh] max-w-screen-xl text-center font-display">
+          <div className="mx-auto max-w-[75%]">
+            <h2 className="mx-auto mb-4 max-w-screen-md text-balance text-[clamp(3rem,6vw,5rem)] font-bold text-emerald-50">
+              Investir não precisa ser{' '}
+              <strong className="text-emerald-300 underline">difícil.</strong>
+            </h2>
+            <p className="mb-2 text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl">
+              Defina suas carteiras e os ativos em que deseja investir que nós
+              cuidamos do resto.
+            </p>
+            <p className="text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl">
+              Sem contas e planilhas chatas, sempre respeitando os seus
+              objetivos.
+            </p>
+
+            <Form>
+              <Button
+                className="mt-8 rounded-lg border-2 border-emerald-400 px-8 py-2 text-2xl hover:scale-105"
+                variant="outline"
+                size="lg"
+                name="mode"
+                value="signup"
+              >
+                Crie sua conta agora!
               </Button>
-            ) : (
-              <Form className="flex gap-4">
-                <Button variant="ghost" name="mode" value="login">
-                  Entrar
-                </Button>
-                <Button name="mode" value="signup">
-                  Criar conta
-                </Button>
-              </Form>
-            )}
+            </Form>
           </div>
-        </nav>
-        <h2 className="text-lg text-gray-100">This is the home</h2>
+        </main>
       </div>
     </>
+  )
+}
+
+function Navbar() {
+  const { isAuthenticated } = useLoaderData<typeof loader>()
+
+  return (
+    <div className="bg-gray-700/50 p-2 backdrop-blur-sm">
+      <nav className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 ">
+        <img
+          src="/logo.svg"
+          alt="Stock shop logo"
+          className="h-8 w-8 sm:h-10 sm:w-10"
+        />
+        <h1 className="flex-1 font-display text-3xl font-semibold text-emerald-100">
+          <p className="xs:inline hidden">ReBalance</p>
+        </h1>
+
+        {isAuthenticated ? (
+          <Button variant="link" asChild>
+            <Link to="/app">app</Link>
+          </Button>
+        ) : (
+          <>
+            <Form>
+              <Button
+                className="text-sm sm:text-base"
+                variant="ghost"
+                name="mode"
+                value="login"
+              >
+                Entrar
+              </Button>
+            </Form>
+            <Form>
+              <Button
+                className="text-sm sm:text-base"
+                name="mode"
+                value="signup"
+              >
+                Criar conta
+              </Button>
+            </Form>
+          </>
+        )}
+      </nav>
+    </div>
   )
 }

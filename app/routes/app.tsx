@@ -8,7 +8,6 @@ import {
 } from '@remix-run/node'
 import {
   Form,
-  Outlet,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -31,6 +30,7 @@ import { Slider } from '~/components/ui/slider'
 import Wallet from '~/components/Wallet'
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 import Header from '~/components/Header'
+import Wrapper from '~/components/Wrapper'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -38,12 +38,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = session.get('user')
 
   if (!user) {
-    console.log('Anonymous user tried to access /app')
-
     throw redirect('/')
   }
 
-  return json(await WalletService.getWallets(user.uid))
+  const wallets = await WalletService.getWallets(user.uid)
+
+  return json({ user, wallets })
 }
 
 const formSchema = z.object({
@@ -97,9 +97,8 @@ export const action = async ({
 }
 
 export default function App() {
-  const wallets = useLoaderData<typeof loader>()
+  const { user, wallets } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
-  console.log(actionData)
 
   const errors = !actionData?.ok ? actionData?.error : []
 
@@ -108,21 +107,14 @@ export default function App() {
       <ErrorProvider initialErrors={errors}>
         <NewWalletModal />
       </ErrorProvider>
-      <div>
-        <Header
-          backArrow
-          title="This is the app"
-          rightSide={<Button>hello </Button>}
-        />
 
-        <div>
-          {wallets.map((w) => (
-            <Wallet wallet={w} key={w.id} />
-          ))}
-        </div>
+      <Header title={`Bem vindo de volta, ${user.userName}`} />
 
-        <Outlet />
-      </div>
+      <Wrapper>
+        {wallets.map((w) => (
+          <Wallet wallet={w} key={w.id} />
+        ))}
+      </Wrapper>
     </>
   )
 }

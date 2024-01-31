@@ -26,6 +26,7 @@
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.29.3",
     "drizzle-zod": "^0.5.1",
+    "framer-motion": "^11.0.3",
     "isbot": "^4.1.0",
     "postgres": "^3.4.3",
     "react": "^18.2.0",

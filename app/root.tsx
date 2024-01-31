@@ -12,6 +12,8 @@ import stylesheet from '~/tailwind.css'
 
 import { ColorsProvider } from './context/ColorsContext'
 
+import NavigationIndicator from './components/NavigationIndicator'
+
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
   {
@@ -42,6 +44,7 @@ export default function App() {
       </head>
       <body className="bg-gray-900 text-gray-100">
         <ColorsProvider>
+          <NavigationIndicator />
           <Outlet />
           <ScrollRestoration />
           <Scripts />

@@ -37,7 +37,7 @@ export default function Index() {
 
       <div className="relative h-screen bg-opacity-10">
         <div
-          className="bg-squares absolute inset-0 -z-10"
+          className="absolute inset-0 -z-10 bg-squares"
           style={{
             maskImage: 'linear-gradient(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.3))',
           }}
@@ -90,7 +90,7 @@ function Navbar() {
           className="h-8 w-8 sm:h-10 sm:w-10"
         />
         <h1 className="flex-1 font-display text-3xl font-semibold text-emerald-100">
-          <p className="xs:inline hidden">ReBalance</p>
+          <p className="hidden xs:inline">ReBalance</p>
         </h1>
 
         {isAuthenticated ? (
@@ -99,7 +99,7 @@ function Navbar() {
           </Button>
         ) : (
           <>
-            <Form>
+            <Form replace>
               <Button
                 className="text-sm sm:text-base"
                 variant="ghost"
@@ -109,7 +109,7 @@ function Navbar() {
                 Entrar
               </Button>
             </Form>
-            <Form>
+            <Form replace>
               <Button
                 className="text-sm sm:text-base"
                 name="mode"

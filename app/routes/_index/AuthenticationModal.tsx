@@ -54,7 +54,7 @@ export default function AuthenticationModal() {
   return (
     <Dialog.Root
       onOpenChange={(to) => {
-        if (!to) setSearchParams({})
+        if (!to) setSearchParams({}, { replace: true })
       }}
       defaultOpen
     >
@@ -66,9 +66,12 @@ export default function AuthenticationModal() {
             size="sm"
             className="justify-start p-0 text-gray-300 transition-colors hover:text-emerald-200"
             onClick={() => {
-              setSearchParams({
-                mode: texts[mode].next,
-              })
+              setSearchParams(
+                {
+                  mode: texts[mode].next,
+                },
+                { replace: true },
+              )
             }}
           >
             {texts[mode].changeMode}

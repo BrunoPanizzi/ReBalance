@@ -112,7 +112,7 @@ export default function App() {
           <h1 className="text-2xl font-semibold text-gray-50">
             This is the app
           </h1>
-          <Form>
+          <Form replace>
             <Button name="new" value={''}>
               Nova carteira
             </Button>
@@ -147,7 +147,7 @@ function NewWalletModal() {
     <Dialog.Root
       defaultOpen
       onOpenChange={(to) => {
-        if (!to) setSearchParams({})
+        if (!to) setSearchParams({}, { replace: true })
       }}
     >
       <Dialog.Content className="max-w-sm">

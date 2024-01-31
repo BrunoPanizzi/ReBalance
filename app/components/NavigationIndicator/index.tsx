@@ -8,7 +8,7 @@ export default function NavigationIndicator() {
     <AnimatePresence>
       {state === 'loading' && (
         <motion.div
-          className="bg-primary-500 fixed left-0 top-0 z-10 h-1"
+          className="fixed left-0 top-0 z-50 h-1 bg-primary-500"
           animate={{
             width: '100%',
             transition: {

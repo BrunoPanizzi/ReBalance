@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { ReactNode, useState } from 'react'
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -31,7 +31,13 @@ import { Slider } from '~/components/ui/slider'
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
-import { DotsVerticalIcon } from '@radix-ui/react-icons'
+import {
+  DotsVerticalIcon,
+  InfoCircledIcon,
+  MixerVerticalIcon,
+  PlusIcon,
+  UpdateIcon,
+} from '@radix-ui/react-icons'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -154,7 +160,7 @@ function Wallet({ wallet }: { wallet: W }) {
       to={wallet.id}
       relative="path"
       data-color={wallet.color}
-      className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-2 rounded-md border border-primary-500/50 bg-primary-300/10 px-4 py-2 transition first-of-type:rounded-t-xl last-of-type:rounded-b-xl hover:bg-primary-400/20"
+      className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-2 rounded-md border border-primary-500/50 bg-primary-300/10 px-4 py-2 transition first-of-type:rounded-t-xl last-of-type:rounded-b-xl hover:border-primary-500/75 hover:bg-primary-400/20"
     >
       <span className="flex items-center gap-2">
         <h3 className="text-2xl font-semibold text-primary-200">
@@ -177,49 +183,55 @@ function Wallet({ wallet }: { wallet: W }) {
 }
 
 function ToolBar() {
+  const percentagesAddUp = true
+
   return (
-    <menu className="flex gap-1 rounded-xl bg-gray-700 p-1">
-      <Button
-        variant="ghost"
-        className="rounded-lg px-2 py-1 transition hover:bg-emerald-500/50"
-      >
-        Nova carteira
-      </Button>
-      {/*<MenuItem
+    <menu className="mb-3 flex gap-1 rounded-xl bg-gray-700 p-1">
+      <MenuItem
         title="Nova carteira"
-        icon={<FaSolidPlus class="fill-emerald-100" size={18} />}
-        onClick={handleOpenNewWalletModal}
+        icon={<PlusIcon className="size-6 text-emerald-100" />}
+        onClick={() => {}}
       />
 
       <MenuItem
         title="Reequlibrar"
         icon={
-          <Show
-            when={!percentagesAddUp()}
-            fallback={
-              <FaSolidArrowRightArrowLeft class="fill-emerald-100" size={18} />
-            }
-          >
-            <div
-              class="flex items-center"
-              onClick={(e) => e.stopImmediatePropagation()}
-            >
-              <ExclamationTooltip
-                size={24}
-                text="A soma das porcentagens ideais de suas carteiras não é igual a 100%."
-              />
-            </div>
-          </Show>
+          percentagesAddUp ? (
+            <MixerVerticalIcon className="size-5 text-emerald-100" />
+          ) : (
+            <InfoCircledIcon className="size-5 text-orange-300" />
+          )
         }
-        onClick={handleOpenPercentageResolverModal}
+        onClick={() => {}}
       />
 
       <MenuItem
         title="Atualizar valores"
-        onClick={handleRefreshPrices}
-        icon={<FaSolidClockRotateLeft class="fill-emerald-100" size={18} />}
-      />*/}
+        onClick={() => {}}
+        icon={<UpdateIcon className=" size-5 text-emerald-100" />}
+      />
     </menu>
+  )
+}
+
+function MenuItem({
+  icon,
+  onClick,
+  title,
+}: {
+  title: string
+  icon: ReactNode
+  onClick: () => void
+}) {
+  return (
+    <Button
+      variant="ghost"
+      className="flex items-center gap-1 rounded-lg px-2 py-1 text-emerald-50 transition hover:bg-emerald-500/50"
+      onClick={onClick}
+    >
+      {icon}
+      <span>{title}</span>
+    </Button>
   )
 }
 

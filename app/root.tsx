@@ -42,7 +42,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="min-h-screen bg-gray-900 text-gray-100">
+      <body className="min-h-screen bg-gray-800 text-gray-100">
         <ColorsProvider>
           <NavigationIndicator />
           <Outlet />

@@ -8,6 +8,7 @@ import {
 } from '@remix-run/node'
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -27,10 +28,10 @@ import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 import { Slider } from '~/components/ui/slider'
 
-import Wallet from '~/components/Wallet'
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
+import { DotsVerticalIcon } from '@radix-ui/react-icons'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -111,11 +112,114 @@ export default function App() {
       <Header title={`Bem vindo de volta, ${user.userName}`} />
 
       <Wrapper>
-        {wallets.map((w) => (
-          <Wallet wallet={w} key={w.id} />
-        ))}
+        <div className="px-2 sm:p-0">
+          <header className="mb-2">
+            <h2 className="text-2xl font-bold text-emerald-50">
+              Suas carteiras:
+            </h2>
+          </header>
+
+          <div className="grid gap-4 md:grid-cols-2 ">
+            <div className="flex flex-col gap-2">
+              <ToolBar />
+
+              {wallets.map((w) => (
+                <Wallet wallet={w} key={w.id} />
+              ))}
+            </div>
+
+            {/* <Collapsible orientation="vertical">
+                    <div
+                      ref={setContainerRef}
+                      class=" h-96 rounded-r-xl bg-white/5 text-emerald-500"
+                    >
+                      <Graph
+                        data={wallets}
+                        w={size.width || 0}
+                        h={size.height || 0}
+                        m={16}
+                      />
+                    </div>
+                  </Collapsible> */}
+          </div>
+        </div>
       </Wrapper>
     </>
+  )
+}
+
+function Wallet({ wallet }: { wallet: W }) {
+  return (
+    <Link
+      to={wallet.id}
+      relative="path"
+      data-color={wallet.color}
+      className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-2 rounded-md border border-primary-500/50 bg-primary-300/10 px-4 py-2 transition first-of-type:rounded-t-xl last-of-type:rounded-b-xl hover:bg-primary-400/20"
+    >
+      <span className="flex items-center gap-2">
+        <h3 className="text-2xl font-semibold text-primary-200">
+          {wallet.title}
+        </h3>
+        <button className="p-1">
+          <DotsVerticalIcon className="h-5 w-5 text-primary-200" />
+        </button>
+      </span>
+      <span className="row-start-2 flex flex-wrap gap-x-2">
+        <span>ideal: {wallet.idealPercentage * 100}%</span>
+        <span>atual: {10}%</span>
+      </span>
+
+      <span className="row-span-2 text-xl font-bold text-primary-200">
+        <span>R$ {wallet.totalValue}</span>
+      </span>
+    </Link>
+  )
+}
+
+function ToolBar() {
+  return (
+    <menu className="flex gap-1 rounded-xl bg-gray-700 p-1">
+      <Button
+        variant="ghost"
+        className="rounded-lg px-2 py-1 transition hover:bg-emerald-500/50"
+      >
+        Nova carteira
+      </Button>
+      {/*<MenuItem
+        title="Nova carteira"
+        icon={<FaSolidPlus class="fill-emerald-100" size={18} />}
+        onClick={handleOpenNewWalletModal}
+      />
+
+      <MenuItem
+        title="Reequlibrar"
+        icon={
+          <Show
+            when={!percentagesAddUp()}
+            fallback={
+              <FaSolidArrowRightArrowLeft class="fill-emerald-100" size={18} />
+            }
+          >
+            <div
+              class="flex items-center"
+              onClick={(e) => e.stopImmediatePropagation()}
+            >
+              <ExclamationTooltip
+                size={24}
+                text="A soma das porcentagens ideais de suas carteiras não é igual a 100%."
+              />
+            </div>
+          </Show>
+        }
+        onClick={handleOpenPercentageResolverModal}
+      />
+
+      <MenuItem
+        title="Atualizar valores"
+        onClick={handleRefreshPrices}
+        icon={<FaSolidClockRotateLeft class="fill-emerald-100" size={18} />}
+      />*/}
+    </menu>
   )
 }
 
@@ -190,16 +294,14 @@ function SliderWithPreview() {
   )
 }
 
-;('bg-orange-400 bg-amber-400 bg-yellow-400 bg-lime-400 bg-cyan-400 bg-green-400 bg-emerald-400 bg-sky-400 bg-teal-400 bg-blue-400 bg-indigo-400 bg-violet-400 bg-purple-400 bg-fuchsia-400 bg-pink-400 bg-rose-400')
-;('border-orange-600 border-amber-600 border-yellow-600 border-lime-600 border-cyan-600 border-green-600 border-emerald-600 border-sky-600 border-teal-600 border-blue-600 border-indigo-600 border-violet-600 border-purple-600 border-fuchsia-600 border-pink-600 border-rose-600')
-
 function ColorSelection() {
   const colors = colorsSchema.options
   return (
     <div className="grid grid-cols-8 gap-1.5">
       {colors.map((c) => (
         <label
-          className={`bg-${c}-400 border-2 bg-opacity-75 border-${c}-600 aspect-square rounded  has-[:checked]:scale-110 has-[:checked]:bg-opacity-100`}
+          data-color={c}
+          className={`aspect-square rounded border-2 border-primary-600 bg-primary-400 bg-opacity-75  has-[:checked]:scale-110 has-[:checked]:bg-opacity-100`}
           key={c}
         >
           <input className="hidden" type="radio" name="color" value={c} />

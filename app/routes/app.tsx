@@ -9,6 +9,7 @@ import {
 import {
   Form,
   Link,
+  Outlet,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -111,11 +112,21 @@ export default function App() {
 
   return (
     <>
+      <Outlet />
       <ErrorProvider initialErrors={errors}>
         <NewWalletModal />
       </ErrorProvider>
 
-      <Header title={`Bem vindo de volta, ${user.userName}`} />
+      <Header
+        title={`Bem vindo de volta, ${user.userName}`}
+        rightSide={
+          <Button asChild className="mr-4 p-0 text-red-300" variant="link">
+            <Link to="logout" relative="path">
+              Sair
+            </Link>
+          </Button>
+        }
+      />
 
       <Wrapper>
         <div className="px-2 sm:p-0">
@@ -155,6 +166,7 @@ export default function App() {
 }
 
 function Wallet({ wallet }: { wallet: W }) {
+  // TODO: formatters for percentages and brl
   return (
     <Link
       to={wallet.id}

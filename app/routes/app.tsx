@@ -15,12 +15,24 @@ import {
   useNavigation,
   useSearchParams,
 } from '@remix-run/react'
+import {
+  DotsVerticalIcon,
+  HamburgerMenuIcon,
+  InfoCircledIcon,
+  MagicWandIcon,
+  MixerVerticalIcon,
+  Pencil2Icon,
+  PlusIcon,
+  TrashIcon,
+  UpdateIcon,
+} from '@radix-ui/react-icons'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import WalletService, { Wallet as W } from '~/services/walletService'
 
 import { colorsSchema } from '~/constants/availableColors'
+
 import { Result } from '~/types/Result'
 
 import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
@@ -28,23 +40,15 @@ import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 import { Slider } from '~/components/ui/slider'
-
-import { BaseGroup, InputGroup } from '~/components/FormGroups'
-import Header from '~/components/Header'
-import Wrapper from '~/components/Wrapper'
-import {
-  DotsVerticalIcon,
-  HamburgerMenuIcon,
-  InfoCircledIcon,
-  MixerVerticalIcon,
-  PlusIcon,
-  UpdateIcon,
-} from '@radix-ui/react-icons'
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from '~/components/ui/popover'
+
+import { BaseGroup, InputGroup } from '~/components/FormGroups'
+import Header from '~/components/Header'
+import Wrapper from '~/components/Wrapper'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -178,11 +182,46 @@ function Wallet({ wallet }: { wallet: W }) {
         <h3 className="text-xl font-semibold text-primary-200">
           {wallet.title}
         </h3>
-        <button className="p-1">
-          <DotsVerticalIcon className="h-5 w-5 text-primary-200" />
-        </button>
+
+        <div onClick={(e) => e.preventDefault()}>
+          <Popover>
+            <Button
+              className="size-auto p-1"
+              asChild
+              size="icon"
+              variant="ghost"
+            >
+              <PopoverTrigger>
+                <DotsVerticalIcon className="h-5 w-5 text-primary-200" />
+              </PopoverTrigger>
+            </Button>
+            <PopoverContent
+              data-color={wallet.color}
+              className="flex w-fit flex-col gap-2 "
+            >
+              <MenuItem
+                title="Alterar nome"
+                icon={<Pencil2Icon className="size-5 text-primary-200" />}
+                onClick={() => {}}
+              />
+
+              <MenuItem
+                title="Alterar cor"
+                icon={<MagicWandIcon className="size-5 text-primary-200" />}
+                onClick={() => {}}
+              />
+
+              <MenuItem
+                title="Remover carteira"
+                icon={<TrashIcon className="size-5 text-red-500" />}
+                onClick={() => {}}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </span>
-      <span className="row-start-2 flex flex-wrap gap-x-2">
+
+      <span className="row-start-2">
         <span>ideal: {wallet.idealPercentage * 100}%</span>
         <span>atual: {10}%</span>
       </span>
@@ -261,8 +300,8 @@ function MenuItem({
 }) {
   return (
     <Button
-      variant="ghost"
-      className="flex items-center justify-start gap-1 rounded-md px-2 py-1 text-emerald-50 transition hover:bg-emerald-500/50"
+      variant="colorful-ghost"
+      className="justify-start gap-2 rounded-md px-2 py-1 transition "
       onClick={onClick}
     >
       {icon}

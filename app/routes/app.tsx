@@ -401,7 +401,7 @@ function ColorSelection() {
 export function ErrorBoundary() {
   return (
     <div>
-      <span>something went wrong</span>
+      <span>something went wrong lol</span>
     </div>
   )
 }

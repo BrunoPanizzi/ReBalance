@@ -135,19 +135,18 @@ export default function App() {
       />
 
       <Wrapper>
-        <div className="px-2 sm:p-0">
-          <div className="grid gap-4 md:grid-cols-2 ">
-            <div className="@container/list flex flex-col gap-2">
-              <ListHeader />
+        <div className="grid gap-4 md:grid-cols-2 ">
+          <div className="@container/list flex flex-col gap-2">
+            <ListHeader />
 
-              {wallets.map((w) => (
-                <Wallet wallet={w} key={w.id} />
-              ))}
-            </div>
+            {wallets.map((w) => (
+              <Wallet wallet={w} key={w.id} />
+            ))}
+          </div>
 
-            <div className="min-h-60 bg-emerald-400/75" />
+          <div className="min-h-60 bg-emerald-400/75" />
 
-            {/* <Collapsible orientation="vertical">
+          {/* <Collapsible orientation="vertical">
                     <div
                       ref={setContainerRef}
                       class=" h-96 rounded-r-xl bg-white/5 text-emerald-500"
@@ -160,7 +159,6 @@ export default function App() {
                       />
                     </div>
                   </Collapsible> */}
-          </div>
         </div>
       </Wrapper>
     </>

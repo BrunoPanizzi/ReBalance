@@ -222,8 +222,8 @@ function Wallet({ wallet }: { wallet: W }) {
       </span>
 
       <span className="row-start-2">
-        <span>ideal: {wallet.idealPercentage * 100}%</span>
-        <span>atual: {10}%</span>
+        <span className="mr-2">ideal: {wallet.idealPercentage * 100}%</span>
+        <span className="inline-block">atual: {10}%</span>
       </span>
 
       <span className="row-span-2 text-xl font-bold text-primary-200">

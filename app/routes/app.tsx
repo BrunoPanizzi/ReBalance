@@ -34,11 +34,17 @@ import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 import {
   DotsVerticalIcon,
+  HamburgerMenuIcon,
   InfoCircledIcon,
   MixerVerticalIcon,
   PlusIcon,
   UpdateIcon,
 } from '@radix-ui/react-icons'
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '~/components/ui/popover'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -130,20 +136,16 @@ export default function App() {
 
       <Wrapper>
         <div className="px-2 sm:p-0">
-          <header className="mb-2">
-            <h2 className="text-2xl font-bold text-emerald-50">
-              Suas carteiras:
-            </h2>
-          </header>
-
           <div className="grid gap-4 md:grid-cols-2 ">
-            <div className="flex flex-col gap-2">
-              <ToolBar />
+            <div className="@container/list flex flex-col gap-2">
+              <ListHeader />
 
               {wallets.map((w) => (
                 <Wallet wallet={w} key={w.id} />
               ))}
             </div>
+
+            <div className="min-h-60 bg-emerald-400/75" />
 
             {/* <Collapsible orientation="vertical">
                     <div
@@ -175,7 +177,7 @@ function Wallet({ wallet }: { wallet: W }) {
       className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-2 rounded-md border border-primary-500/50 bg-primary-300/10 px-4 py-2 transition first-of-type:rounded-t-xl last-of-type:rounded-b-xl hover:border-primary-500/75 hover:bg-primary-400/20"
     >
       <span className="flex items-center gap-2">
-        <h3 className="text-2xl font-semibold text-primary-200">
+        <h3 className="text-xl font-semibold text-primary-200">
           {wallet.title}
         </h3>
         <button className="p-1">
@@ -194,11 +196,35 @@ function Wallet({ wallet }: { wallet: W }) {
   )
 }
 
-function ToolBar() {
-  const percentagesAddUp = true
-
+function ListHeader() {
   return (
-    <menu className="mb-3 flex gap-1 rounded-xl bg-gray-700 p-1">
+    <>
+      <span className="@md/list:mb-0 mb-2 flex items-center gap-4">
+        <h2 className="flex-1 text-2xl font-semibold text-emerald-50">
+          Suas carteiras:
+        </h2>
+        <Popover>
+          <Button asChild size="icon" variant="ghost">
+            <PopoverTrigger className="@md/list:hidden">
+              <HamburgerMenuIcon className="size-5" />
+            </PopoverTrigger>
+          </Button>
+          <PopoverContent className="flex w-fit flex-col gap-2 ">
+            <ToolBarContent />
+          </PopoverContent>
+        </Popover>
+      </span>
+      <menu className="@md/list:flex mb-3 hidden gap-1 rounded-xl bg-gray-700 p-1">
+        <ToolBarContent />
+      </menu>
+    </>
+  )
+}
+
+function ToolBarContent() {
+  const percentagesAddUp = true
+  return (
+    <>
       <MenuItem
         title="Nova carteira"
         icon={<PlusIcon className="size-6 text-emerald-100" />}
@@ -222,7 +248,7 @@ function ToolBar() {
         onClick={() => {}}
         icon={<UpdateIcon className=" size-5 text-emerald-100" />}
       />
-    </menu>
+    </>
   )
 }
 
@@ -238,7 +264,7 @@ function MenuItem({
   return (
     <Button
       variant="ghost"
-      className="flex items-center gap-1 rounded-lg px-2 py-1 text-emerald-50 transition hover:bg-emerald-500/50"
+      className="flex items-center justify-start gap-1 rounded-md px-2 py-1 text-emerald-50 transition hover:bg-emerald-500/50"
       onClick={onClick}
     >
       {icon}

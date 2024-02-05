@@ -8,7 +8,7 @@ import { Link } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
-import { Wallet } from '~/services/walletService'
+import { Wallet } from '~/services/db/schema/wallet.server'
 
 import { Button } from '~/components/ui/button'
 import {

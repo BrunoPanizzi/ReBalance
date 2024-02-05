@@ -1,7 +1,9 @@
 import * as d3 from 'd3'
 import { useMemo, useState } from 'react'
+
 import { brl } from '~/lib/formatting'
-import { Wallet } from '~/services/walletService'
+
+import { Wallet } from '~/services/db/schema/wallet.server'
 
 type GraphProps = {
   data: Wallet[]

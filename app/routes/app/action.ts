@@ -11,7 +11,8 @@ import { ErrorT } from '~/context/ErrorContext'
 
 import { type Result } from '~/types/Result'
 
-import walletService, { type Wallet } from '~/services/walletService'
+import walletService from '~/services/walletService'
+import type { Wallet } from '~/services/db/schema/wallet.server'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Insira um nome para sua carteira'),

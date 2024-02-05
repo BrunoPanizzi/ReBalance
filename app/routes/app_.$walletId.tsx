@@ -46,10 +46,13 @@ export default function WalletPage() {
   return (
     <>
       <Header backArrow title={wallet.title} />
-      <Wrapper>
-        <h1 className="text-2xl font-semibold text-gray-50">
-          {wallet.title} - {wallet.totalValue}
-        </h1>
+      <Wrapper cols={2}>
+        <div className="">
+          <h1 className="text-2xl font-semibold text-gray-50">
+            {wallet.title} - {wallet.totalValue}
+          </h1>
+        </div>
+        <div className="bg-red-300 p-2"></div>
       </Wrapper>
     </>
   )

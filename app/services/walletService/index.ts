@@ -1,32 +1,39 @@
-import { Colors } from '~/constants/availableColors'
-import { db } from '../db/index.server'
-import { NewWallet, wallet as walletTable } from '../db/schema.server'
+import { db } from '~/services/db/index.server'
 
-export type Wallet = {
-  id: string
-  title: string
-  totalValue: number
-  idealPercentage: number
-  color: Colors
-}
+import { wallet as walletTable } from '~/services/db/schema/wallet.server'
+import type {
+  NewWallet,
+  Wallet,
+  WalletWithStocks,
+} from '~/services/db/schema/wallet.server'
 
 // TODO: return Result type for better error handling
 class WalletService {
-  async getWallets(uid: string, withStocks?: boolean): Promise<Wallet[]> {
+  async getWallets(uid: string): Promise<Wallet[]> {
     const wallets = await db.query.wallet.findMany({
       where: (wallet, { eq }) => eq(wallet.owner, uid),
-      with: {
-        stocks: withStocks ? true : undefined,
-      },
     })
 
     return wallets
   }
 
-  async getWallet(uid: string, id: string): Promise<Wallet | undefined> {
+  getWallet(
+    uid: string,
+    id: string,
+    withStocks: true,
+  ): Promise<WalletWithStocks | undefined>
+  getWallet(
+    uid: string,
+    id: string,
+    withStocks?: false,
+  ): Promise<Wallet | undefined>
+  async getWallet(uid: string, id: string, withStocks: boolean = false) {
     const wallet = await db.query.wallet.findFirst({
       where: (wallet, { and, eq }) =>
         and(eq(wallet.owner, uid), eq(wallet.id, id)),
+      with: {
+        stocks: withStocks ? true : undefined,
+      },
     })
 
     return wallet

@@ -210,8 +210,8 @@ function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
         <text
           x="50%"
           y="50%"
-          text-anchor="middle"
-          dominant-baseline="middle"
+          textAnchor="middle"
+          dominantBaseline="middle"
           data-color={hoveredWallet?.color || 'emerald'}
           className="fill-primary-300 font-display font-semibold transition"
           style={{

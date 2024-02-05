@@ -9,13 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary-700 text-gray-50 hover:bg-primary-700/80',
-        destructive: 'bg-red-800 text-gray-50 hover:bg-red-800/80',
+        default:
+          'bg-primary-600 shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF1D,0_4px_6px_0_#0000001A] text-gray-50 hover:bg-primary-600/80',
+        destructive:
+          'bg-red-700 shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A] text-gray-50 hover:bg-red-700/80',
         outline:
-          'border bg-transparent text-gray-100 border-gray-800 hover:bg-gray-800/50 hover:text-gray-50',
+          'border shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF0D,0_4px_6px_0_#0000001A] bg-transparent text-gray-100 border-gray-800 hover:bg-gray-800/50 hover:text-gray-50',
         secondary: 'bg-gray-800 text-gray-50 hover:bg-gray-800/80',
-        ghost: 'hover:bg-gray-900/50 hover:text-gray-50',
-        'colorful-ghost': 'hover:bg-primary-500/50 hover:text-primary-50',
+        ghost:
+          'hover:bg-gray-900/50 hover:text-gray-50 hover:shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A]',
+        'colorful-ghost':
+          'hover:bg-primary-500/50 hover:text-primary-50 hover:shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A]',
         link: 'underline-offset-4 hover:underline',
       },
       size: {

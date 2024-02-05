@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -173,6 +173,14 @@ type GraphProps = {
 }
 
 function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
+  const [hoveredWalletId, setHoveredWalletId] = useState<string | null>(null)
+  const hoveredWallet = data.find((d) => d.id === hoveredWalletId)
+
+  const totalValue = useMemo(
+    () => data.reduce((acc, d) => acc + d.totalValue, 0),
+    [data],
+  )
+
   const treatedData = data.filter((d) => d.totalValue > 0)
   const r = Math.min(w, h) / 2 - m
 
@@ -190,6 +198,7 @@ function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
 
   const arcs = angles.map((d) => ({
     d: arcGenerator(d)!,
+    id: d.data.id,
     title: d.data.title,
     color: d.data.color,
   }))
@@ -197,14 +206,25 @@ function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
   return (
     <>
       <svg viewBox={`0 0 ${w} ${h}`}>
-        {/* <TotalValue
-          totalValue={hoveredWallet()?.totalValue || totalValue()}
-          color={hoveredWallet()?.color || 'emerald'}
-          radius={r()}
-        /> */}
+        <text
+          x="50%"
+          y="50%"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          data-color={hoveredWallet?.color || 'emerald'}
+          className="fill-primary-300 font-display font-semibold transition"
+          style={{
+            fontSize: r * 0.7 + '%',
+          }}
+        >
+          R$ {hoveredWallet?.totalValue || totalValue}
+        </text>
+
         <g transform={`translate(${w / 2}, ${h / 2})`}>
           {arcs.map((d) => (
             <path
+              onMouseEnter={() => setHoveredWalletId(d.id)}
+              onMouseLeave={() => setHoveredWalletId(null)}
               key={d.d}
               d={d.d}
               data-color={d.color}

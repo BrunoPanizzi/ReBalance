@@ -16,8 +16,7 @@ const buttonVariants = cva(
         outline:
           'border shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF0D,0_4px_6px_0_#0000001A] bg-transparent text-gray-100 border-gray-800 hover:bg-gray-800/50 hover:text-gray-50',
         secondary: 'bg-gray-800 text-gray-50 hover:bg-gray-800/80',
-        ghost:
-          'hover:bg-gray-900/50 hover:text-gray-50 hover:shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A]',
+        ghost: 'hover:bg-gray-900/50 hover:text-gray-50 hover:shadow-md',
         'colorful-ghost':
           'hover:bg-primary-500/50 hover:text-primary-50 hover:shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A]',
         link: 'underline-offset-4 hover:underline',

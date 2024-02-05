@@ -10,12 +10,12 @@ export const currencyToNumber = (currency: string): number => {
 }
 
 export const percentage = (value: number, decimalPlaces: number = 1) =>
-  new Intl.NumberFormat(undefined, {
+  new Intl.NumberFormat('pt-BR', {
     style: 'percent',
     minimumFractionDigits: decimalPlaces,
   }).format(value)
 
-const decimalFormatter = new Intl.NumberFormat(undefined, {
+const decimalFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'decimal',
   minimumFractionDigits: 2,
 })

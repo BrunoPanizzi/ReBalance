@@ -41,24 +41,22 @@ export default function App() {
         }
       />
 
-      <Wrapper>
-        <div className="grid gap-4 md:grid-cols-2 ">
-          <div className="flex flex-col gap-2 @container/list">
-            <ListHeader />
+      <Wrapper cols={2}>
+        <div className="flex flex-col gap-2 @container/list">
+          <ListHeader />
 
-            {wallets.map((w) => (
-              <WalletCard wallet={w} key={w.id} />
-            ))}
-          </div>
+          {wallets.map((w) => (
+            <WalletCard wallet={w} key={w.id} />
+          ))}
+        </div>
 
-          <div>
-            <h2 className="mb-2 flex-1 text-2xl font-semibold text-emerald-50">
-              Distribuição dos ativos:
-            </h2>
-            <div className="h-min rounded-xl bg-gray-700/50">
-              <div className="mx-auto max-w-md">
-                <Graph data={wallets} m={5} />
-              </div>
+        <div>
+          <h2 className="mb-2 flex-1 text-2xl font-semibold text-emerald-50">
+            Distribuição dos ativos:
+          </h2>
+          <div className="h-min rounded-xl bg-gray-700/50">
+            <div className="mx-auto max-w-md">
+              <Graph data={wallets} m={5} />
             </div>
           </div>
         </div>

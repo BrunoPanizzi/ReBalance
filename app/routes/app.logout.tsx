@@ -1,5 +1,6 @@
 import { ActionFunctionArgs, redirect } from '@remix-run/node'
-import { Form, useNavigate } from '@remix-run/react'
+import { Form, useNavigate, useNavigation } from '@remix-run/react'
+
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 
@@ -10,12 +11,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const shouldLogOut = formData.get('shouldLogOut')
 
-  console.log('shouldLogOut', shouldLogOut)
-
   if (shouldLogOut === 'true') {
     const session = await sessionStorage.getSession(
       request.headers.get('Cookie'),
     )
+
+    await new Promise((r) => setTimeout(r, 200))
 
     return redirect('/', {
       headers: {
@@ -29,6 +30,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const navigate = useNavigate()
+  const navigation = useNavigation()
 
   const handleClose = () => navigate(-1)
 
@@ -42,7 +44,7 @@ export default function Index() {
             Cancelar
           </Button>
           <Button name="shouldLogOut" value="true" variant="destructive">
-            Sair
+            {navigation.state === 'submitting' ? 'Saindo...' : 'Sair'}
           </Button>
         </Form>
       </Dialog.Content>

@@ -50,6 +50,7 @@ import {
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
+import { brl, percentage } from '~/lib/formatting'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -217,7 +218,7 @@ function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
             fontSize: r * 0.7 + '%',
           }}
         >
-          R$ {hoveredWallet?.totalValue || totalValue}
+          {brl(hoveredWallet?.totalValue || totalValue)}
         </text>
 
         <g transform={`translate(${w / 2}, ${h / 2})`}>
@@ -238,7 +239,6 @@ function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
 }
 
 function Wallet({ wallet }: { wallet: W }) {
-  // TODO: formatters for percentages and brl
   return (
     <Link
       to={wallet.id}
@@ -290,12 +290,14 @@ function Wallet({ wallet }: { wallet: W }) {
       </span>
 
       <span className="row-start-2">
-        <span className="mr-2">ideal: {wallet.idealPercentage * 100}%</span>
-        <span className="inline-block">atual: {10}%</span>
+        <span className="mr-2">
+          ideal: {percentage(wallet.idealPercentage)}
+        </span>
+        <span className="inline-block">atual: {percentage(0.1)}</span>
       </span>
 
       <span className="row-span-2 text-xl font-bold text-primary-200">
-        <span>R$ {wallet.totalValue}</span>
+        <span>{brl(wallet.totalValue)}</span>
       </span>
     </Link>
   )
@@ -437,11 +439,11 @@ function SliderWithPreview() {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="rounded font-semibold">{value}%</span>
+      <span className="rounded font-semibold">{percentage(value)}</span>
       <Slider
         min={0}
-        max={100}
-        step={1}
+        max={1}
+        step={0.01}
         name="idealAmount"
         onValueChange={([e]) => setValue(e)}
       />

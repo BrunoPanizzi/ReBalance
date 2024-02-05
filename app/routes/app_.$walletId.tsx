@@ -23,7 +23,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Error('no walletId provided')
   }
 
-  const wallet = await WalletService.getWallet(user.uid, params.walletId)
+  const wallet = await WalletService.getWallet(user.uid, params.walletId, true)
 
   if (!wallet) {
     throw new Error('wallet not found')
@@ -51,6 +51,12 @@ export default function WalletPage() {
           <h1 className="text-2xl font-semibold text-gray-50">
             {wallet.title} - {wallet.totalValue}
           </h1>
+          {wallet.stocks.map((stock) => (
+            <div key={stock.id} className="flex justify-between">
+              <span>{stock.ticker}</span>
+              <span>{stock.amount}</span>
+            </div>
+          ))}
         </div>
         <div className="bg-red-300 p-2"></div>
       </Wrapper>

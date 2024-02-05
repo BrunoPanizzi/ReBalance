@@ -1,21 +1,19 @@
 import { Result } from '~/types/Result'
 
 import { db } from '../db/index.server'
-import { user as userTable } from '../db/schema.server'
+import {
+  user as userTable,
+  NewUser,
+  User,
+  userSchema,
+} from '../db/schema/user.server'
 
 import { encryptPassword, verifyPassword } from '~/lib/hashing.server'
 
-import {
-  type LoginUser,
-  type CreateUser,
-  type User,
-  userSchema,
-} from './userSchemas'
-
-type AuthResponse = Result<User>
+type AuthResponse = Result<Omit<User, 'password'>>
 
 class AuthService {
-  async login(userInfo: LoginUser): Promise<AuthResponse> {
+  async login(userInfo: Omit<NewUser, 'userName'>): Promise<AuthResponse> {
     const dbUser = await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.email, userInfo.email),
     })
@@ -39,11 +37,15 @@ class AuthService {
 
     return {
       ok: true,
-      value: userSchema.parse(dbUser), // removes the password
+      value: {
+        email: dbUser.email,
+        userName: dbUser.userName,
+        uid: dbUser.uid,
+      }, // removes the password
     }
   }
 
-  async createUser(userInfo: CreateUser): Promise<AuthResponse> {
+  async createUser(userInfo: NewUser): Promise<AuthResponse> {
     const existingUser = await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.email, userInfo.email),
     })
@@ -68,7 +70,11 @@ class AuthService {
 
     return {
       ok: true,
-      value: userSchema.parse(user), // removes the password
+      value: {
+        email: user.email,
+        userName: user.userName,
+        uid: user.uid,
+      }, // removes the password
     }
   }
 }

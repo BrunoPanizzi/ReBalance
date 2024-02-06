@@ -1,7 +1,12 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
-import { DotsVerticalIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
+import {
+  ArrowDownIcon,
+  DotsVerticalIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons'
 
 import { brl, percentage } from '~/lib/formatting'
 import { cn } from '~/lib/utils'
@@ -20,6 +25,7 @@ import {
   PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
+import { Select } from '~/components/ui/select'
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -87,7 +93,7 @@ function Table() {
           </button>
         </div>
 
-        {/* <Sort /> */}
+        <Sort />
       </header>
 
       {stocks.length === 0 ? (
@@ -161,6 +167,37 @@ function StockRow({ stock }: StockRowProps) {
       <span className="col-start-3 row-span-2 row-start-1 flex h-full items-center justify-center rounded-md bg-white bg-opacity-20 px-2 @md:col-start-6 @md:w-[4.5rem]">
         {percentage(stock.percentage)}
       </span>
+    </div>
+  )
+}
+
+function Sort() {
+  return (
+    <div className="flex items-center justify-between gap-1">
+      <Select.Root defaultValue="value2">
+        <Select.Trigger>
+          Ordem: <Select.Value />
+        </Select.Trigger>
+        <Select.Content>
+          <Select.Group>
+            <Select.Item value="value1">value 1</Select.Item>
+            <Select.Item value="value2">value 2</Select.Item>
+            <Select.Item value="value3">value 3</Select.Item>
+            <Select.Item value="value4">value 4</Select.Item>
+          </Select.Group>
+        </Select.Content>
+      </Select.Root>
+      <button
+        className="rounded-md border-2 border-primary-400/50 p-2 transition-colors hover:border-primary-400"
+        onClick={() => console.log('not implemented')}
+        // title={sort.ascending ? 'Menor para maior' : 'Maior para menor'}
+      >
+        <ArrowDownIcon
+          className={cn('size-4 text-primary-400 transition-transform', {
+            'rotate-180': !true,
+          })}
+        />
+      </button>
     </div>
   )
 }

@@ -170,59 +170,63 @@ type StockRowProps = {
   stock: StockWithPrice
 }
 
-const StockRow = memo(({ stock }: StockRowProps) => (
-  <div
-    className={cn(
-      'mb-2 grid grid-cols-[1fr_1fr_auto] grid-rows-[auto_auto] gap-x-2 rounded-lg bg-gray-700 p-1 pl-2 last:mb-0',
-      '@md:grid-cols-[auto_repeat(4,1fr)_auto] @md:grid-rows-1 @md:place-items-center',
-    )}
-  >
-    <button
-      className="hidden transition hover:scale-110 hover:text-red-500 @md:block"
-      onClick={() => alert('Não implementado...')}
+const StockRow = memo(({ stock }: StockRowProps) => {
+  console.log(stock.ticker, 'rerendering')
+
+  return (
+    <div
+      className={cn(
+        'mb-2 grid grid-cols-[1fr_1fr_auto] grid-rows-[auto_auto] gap-x-2 rounded-lg bg-gray-700 p-1 pl-2 last:mb-0',
+        '@md:grid-cols-[auto_repeat(4,1fr)_auto] @md:grid-rows-1 @md:place-items-center',
+      )}
     >
-      <TrashIcon className="size-5" />
-    </button>
-    <span className="flex items-center  gap-2 font-display text-lg text-primary-100 @md:text-base @md:font-normal @md:text-gray-50">
-      {stock.ticker}
-      <Popover>
-        <PopoverTrigger className="@md:hidden">
-          <DotsVerticalIcon className="size-4" />
-        </PopoverTrigger>
-        <PopoverContent className="w-fit">
-          <PopoverItem
-            title="Excluir"
-            icon={<TrashIcon className="size-5 text-red-500" />}
-            onClick={() => alert('Não implementado...')}
-          />
-        </PopoverContent>
-      </Popover>
-    </span>
-    <span className="min-w-20 ">
-      <input
-        className="w-full rounded-md bg-white bg-opacity-10 px-2 text-center transition-all hover:bg-opacity-25 focus:rounded-xl focus:bg-opacity-25 focus:outline-0"
-        defaultValue={stock.amount}
-      />
-    </span>
-
-    {/* small screens, span 2 cols */}
-    <span className="col-span-2 flex items-end gap-4 @md:hidden">
-      <span>{brl(stock.price)}</span>
-      <span className="text-sm">
-        <span className="mr-1 @md:hidden">Total:</span>
-        {brl(stock.totalValue)}
+      <button
+        className="hidden transition hover:scale-110 hover:text-red-500 @md:block"
+        onClick={() => alert('Não implementado...')}
+      >
+        <TrashIcon className="size-5" />
+      </button>
+      <span className="flex items-center  gap-2 font-display text-lg text-primary-100 @md:text-base @md:font-normal @md:text-gray-50">
+        {stock.ticker}
+        <Popover>
+          <PopoverTrigger className="@md:hidden">
+            <DotsVerticalIcon className="size-4" />
+          </PopoverTrigger>
+          <PopoverContent className="w-fit">
+            <PopoverItem
+              title="Excluir"
+              icon={<TrashIcon className="size-5 text-red-500" />}
+              onClick={() => alert('Não implementado...')}
+            />
+          </PopoverContent>
+        </Popover>
       </span>
-    </span>
+      <span className="min-w-20 ">
+        <input
+          className="w-full rounded-md bg-white bg-opacity-10 px-2 text-center transition-all hover:bg-opacity-25 focus:rounded-xl focus:bg-opacity-25 focus:outline-0"
+          defaultValue={stock.amount}
+        />
+      </span>
 
-    {/* bigger screens, span 1 col each */}
-    <span className="hidden @md:inline">{brl(stock.price)}</span>
-    <span className="hidden text-sm @md:inline">{brl(stock.totalValue)}</span>
+      {/* small screens, span 2 cols */}
+      <span className="col-span-2 flex items-end gap-4 @md:hidden">
+        <span>{brl(stock.price)}</span>
+        <span className="text-sm">
+          <span className="mr-1 @md:hidden">Total:</span>
+          {brl(stock.totalValue)}
+        </span>
+      </span>
 
-    <span className="col-start-3 row-span-2 row-start-1 flex h-full items-center justify-center rounded-md bg-white bg-opacity-20 px-2 @md:col-start-6 @md:w-[4.5rem]">
-      {percentage(stock.percentage)}
-    </span>
-  </div>
-))
+      {/* bigger screens, span 1 col each */}
+      <span className="hidden @md:inline">{brl(stock.price)}</span>
+      <span className="hidden text-sm @md:inline">{brl(stock.totalValue)}</span>
+
+      <span className="col-start-3 row-span-2 row-start-1 flex h-full items-center justify-center rounded-md bg-white bg-opacity-20 px-2 @md:col-start-6 @md:w-[4.5rem]">
+        {percentage(stock.percentage)}
+      </span>
+    </div>
+  )
+})
 
 // TODO: make this responsive
 function Sort() {

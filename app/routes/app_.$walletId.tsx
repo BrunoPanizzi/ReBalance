@@ -1,19 +1,25 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { useEffect } from 'react'
+import { DotsVerticalIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
+
+import { brl, percentage } from '~/lib/formatting'
+import { cn } from '~/lib/utils'
+
+import { sessionStorage } from '~/services/cookies/session.server'
+import WalletService, { StockWithPrice } from '~/services/walletService'
 
 import { useColors } from '~/context/ColorsContext'
 
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
-import { sessionStorage } from '~/services/cookies/session.server'
-
-import WalletService, { StockWithPrice } from '~/services/walletService'
-import { DotsVerticalIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons'
-import { Stock } from '~/services/db/schema/stock.server'
-import { brl, percentage } from '~/lib/formatting'
-import { cn } from '~/lib/utils'
+import {
+  Popover,
+  PopoverContent,
+  PopoverItem,
+  PopoverTrigger,
+} from '~/components/ui/popover'
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -113,15 +119,24 @@ function StockRow({ stock }: StockRowProps) {
     >
       <button
         className="hidden transition hover:scale-110 hover:text-red-500 @md:block"
-        // onClick={() => setDangerModalVisible(true)}
+        onClick={() => alert('Não implementado...')}
       >
         <TrashIcon className="size-5" />
       </button>
       <span className="flex items-center  gap-2 font-display text-lg text-primary-100 @md:text-base @md:font-normal @md:text-gray-50">
         {stock.ticker}
-        <button>
-          <DotsVerticalIcon className="size-4 @md:hidden" />
-        </button>
+        <Popover>
+          <PopoverTrigger className="@md:hidden">
+            <DotsVerticalIcon className="size-4" />
+          </PopoverTrigger>
+          <PopoverContent className="w-fit">
+            <PopoverItem
+              title="Excluir"
+              icon={<TrashIcon className="size-5 text-red-500" />}
+              onClick={() => alert('Não implementado...')}
+            />
+          </PopoverContent>
+        </Popover>
       </span>
       <span className="min-w-20 ">
         <input

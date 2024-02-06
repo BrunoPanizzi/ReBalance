@@ -15,9 +15,8 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  PopoverItem,
 } from '~/components/ui/popover'
-
-import MenuItem from './MenuItem'
 
 type WalletProps = { wallet: Wallet }
 
@@ -50,19 +49,19 @@ export default function WalletCard({ wallet }: WalletProps) {
               data-color={wallet.color}
               className="flex w-fit flex-col gap-2 "
             >
-              <MenuItem
+              <PopoverItem
                 title="Alterar nome"
                 icon={<Pencil2Icon className="size-5 text-primary-200" />}
                 onClick={() => {}}
               />
 
-              <MenuItem
+              <PopoverItem
                 title="Alterar cor"
                 icon={<MagicWandIcon className="size-5 text-primary-200" />}
                 onClick={() => {}}
               />
 
-              <MenuItem
+              <PopoverItem
                 title="Remover carteira"
                 icon={<TrashIcon className="size-5 text-red-500" />}
                 onClick={() => {}}

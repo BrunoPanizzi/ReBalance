@@ -10,10 +10,9 @@ import { Button } from '~/components/ui/button'
 import {
   Popover,
   PopoverContent,
+  PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
-
-import MenuItem from './MenuItem'
 
 export default function ListHeader() {
   return (
@@ -44,13 +43,13 @@ function ToolBarContent() {
   const percentagesAddUp = true
   return (
     <>
-      <MenuItem
+      <PopoverItem
         title="Nova carteira"
         icon={<PlusIcon className="size-6 text-emerald-100" />}
         onClick={() => {}}
       />
 
-      <MenuItem
+      <PopoverItem
         title="Reequlibrar"
         icon={
           percentagesAddUp ? (
@@ -62,7 +61,7 @@ function ToolBarContent() {
         onClick={() => {}}
       />
 
-      <MenuItem
+      <PopoverItem
         title="Atualizar valores"
         onClick={() => {}}
         icon={<UpdateIcon className=" size-5 text-emerald-100" />}

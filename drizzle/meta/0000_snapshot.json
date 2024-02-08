@@ -1,5 +1,5 @@
 {
-  "id": "daae729b-273a-4d18-b1e9-972300e90898",
+  "id": "cdc696b4-f8c1-424a-9fab-aea60409fd9d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -221,38 +221,7 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {
-    "feedback_type": {
-      "name": "feedback_type",
-      "values": {
-        "Elogios": "Elogios",
-        "Sugestão": "Sugestão",
-        "Problemas": "Problemas",
-        "Outros": "Outros"
-      }
-    },
-    "color": {
-      "name": "color",
-      "values": {
-        "orange": "orange",
-        "amber": "amber",
-        "yellow": "yellow",
-        "lime": "lime",
-        "green": "green",
-        "emerald": "emerald",
-        "teal": "teal",
-        "cyan": "cyan",
-        "sky": "sky",
-        "blue": "blue",
-        "indigo": "indigo",
-        "violet": "violet",
-        "purple": "purple",
-        "fuchsia": "fuchsia",
-        "pink": "pink",
-        "rose": "rose"
-      }
-    }
-  },
+  "enums": {},
   "schemas": {},
   "_meta": {
     "columns": {},

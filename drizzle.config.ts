@@ -10,7 +10,7 @@ if (!host || !database) {
 }
 
 export default {
-  schema: './app/services/db/schema.server.ts',
+  schema: './app/services/db/schema/index.server.ts',
   out: './drizzle',
   driver: 'pg',
   dbCredentials: {

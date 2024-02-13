@@ -13,6 +13,7 @@ import { type Result } from '~/types/Result'
 
 import walletService from '~/services/walletService'
 import type { Wallet } from '~/services/db/schema/wallet.server'
+import { sessionStorage } from '~/services/cookies/session.server'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Insira um nome para sua carteira'),

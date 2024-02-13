@@ -5,6 +5,7 @@ import {
   PlusIcon,
   UpdateIcon,
 } from '@radix-ui/react-icons'
+import { useNavigate } from '@remix-run/react'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -40,13 +41,15 @@ export default function ListHeader() {
 }
 
 function ToolBarContent() {
+  const navigate = useNavigate()
+
   const percentagesAddUp = true
   return (
     <>
       <PopoverItem
         title="Nova carteira"
         icon={<PlusIcon className="size-6 text-emerald-100" />}
-        onClick={() => {}}
+        onClick={() => {navigate('?new')}}
       />
 
       <PopoverItem

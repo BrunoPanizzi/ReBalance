@@ -59,6 +59,27 @@ class MarketService {
 
     return responses
   }
+
+  async getSuggestions(searchTerm: string, max: number = 6): Promise<string[]> {
+    const response = await fetch(
+      `${BASE_URL}/available?search=${searchTerm}&token=${TOKEN}`,
+    )
+
+    if (!response.ok) {
+      throw new Error(
+        'Failed to get stock suggestions. Error: ' + response.status,
+      )
+    }
+
+    const parsedSuggestions = suggestionsSchema.parse(await response.json())
+
+    return parsedSuggestions.stocks.slice(0, max)
+  }
 }
+
+const suggestionsSchema = z.object({
+  indexes: z.array(z.string()),
+  stocks: z.array(z.string()),
+})
 
 export default new MarketService()

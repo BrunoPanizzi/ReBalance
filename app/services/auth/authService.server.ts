@@ -10,6 +10,8 @@ import {
 
 import { encryptPassword, verifyPassword } from '~/lib/hashing.server'
 
+export type { User }
+
 type AuthResponse = Result<Omit<User, 'password'>>
 
 class AuthService {

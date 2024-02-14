@@ -1,6 +1,6 @@
 import { createCookieSessionStorage } from '@remix-run/node'
 
-import { User } from '../auth/userSchemas'
+import { User } from '../auth/authService.server'
 
 const cookieSecret = process.env.COOKIE_SECRET
 

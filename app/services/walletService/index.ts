@@ -6,7 +6,7 @@ import type {
   Wallet,
   WalletWithStocks,
 } from '~/services/db/schema/wallet.server'
-import { Stock } from '../db/schema/stock.server'
+import { NewStock, Stock, stock as stockTable } from '../db/schema/stock.server'
 
 import MarketService from '~/services/maketService/index.server'
 
@@ -105,6 +105,24 @@ class WalletService {
     const [newWallet] = await db.insert(walletTable).values(wallet).returning()
 
     return newWallet
+  }
+
+  async addStock(
+    uid: string,
+    walletId: string,
+    stock: { ticker: string; amount: number },
+  ): Promise<Stock> {
+    const [newStock] = await db
+      .insert(stockTable)
+      .values({
+        owner: uid,
+        ticker: stock.ticker,
+        amount: stock.amount,
+        walletId,
+      })
+      .returning()
+
+    return newStock
   }
 }
 

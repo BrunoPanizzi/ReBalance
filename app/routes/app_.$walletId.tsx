@@ -1,6 +1,25 @@
-import { LoaderFunctionArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
-import { createContext, memo, useContext, useEffect, useState } from 'react'
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  TypedResponse,
+  json,
+  redirect,
+} from '@remix-run/node'
+import {
+  Form,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from '@remix-run/react'
+import {
+  createContext,
+  memo,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {
   ArrowDownIcon,
   DotsVerticalIcon,
@@ -26,6 +45,17 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover'
 import { Select } from '~/components/ui/select'
+import { Dialog } from '~/components/ui/dialog'
+import { Input } from '~/components/ui/input'
+import { Button } from '~/components/ui/button'
+
+import { loader as recommendationsLoader } from './recommendations'
+import debounce from '~/lib/debounce'
+import { useDebouncedState } from '~/hooks/useDebouncedState'
+import { z } from 'zod'
+import { Result } from '~/types/Result'
+import { ErrorT } from '~/context/ErrorContext'
+import { Stock } from '~/services/db/schema/stock.server'
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -64,6 +94,7 @@ export default function WalletPage() {
 
   return (
     <>
+      <NewStockModal />
       <Header backArrow title={wallet.title} />
       <Wrapper cols={2}>
         <Table />
@@ -117,6 +148,8 @@ function SortProvider({ children }: { children: React.ReactNode }) {
 function Table() {
   const { stocks } = useLoaderData<typeof loader>()
 
+  const navigate = useNavigate()
+
   return (
     <SortProvider>
       <div>
@@ -128,7 +161,7 @@ function Table() {
 
             <button
               className="transition-transform hover:scale-125"
-              // onClick={handleOpenNewStockModal}
+              onClick={() => navigate('?new')}
             >
               <PlusIcon className="size-6 text-primary-300 " />
             </button>
@@ -263,6 +296,162 @@ function Sort() {
       </button>
     </div>
   )
+}
+
+function NewStockModal() {
+  const fetcher = useFetcher<typeof recommendationsLoader>({
+    key: 'recommendations',
+  })
+
+  const [search, setSearch] = useDebouncedState('', 200)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const shouldOpen = searchParams.get('new')
+
+  useEffect(() => {
+    fetcher.submit({ search }, { method: 'GET', action: '/recommendations' })
+  }, [search])
+
+  if (shouldOpen === null) return null
+
+  return (
+    <Dialog.Root
+      defaultOpen
+      onOpenChange={(to) => {
+        if (!to) setSearchParams({}, { replace: true })
+      }}
+    >
+      <Dialog.Content className="max-w-sm">
+        <Dialog.Header>
+          <Dialog.Title>Buscar um ativo:</Dialog.Title>
+        </Dialog.Header>
+        <fetcher.Form
+          method="GET"
+          // TODO: see if this is the best way of doing this, seems jank
+          action="/recommendations"
+          className="flex w-full gap-2"
+        >
+          <Input
+            name="search"
+            autoComplete="off"
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar..."
+          />
+        </fetcher.Form>
+
+        <SuggestionsList />
+      </Dialog.Content>
+    </Dialog.Root>
+  )
+}
+
+function SuggestionsList() {
+  const fetcher = useFetcher<typeof recommendationsLoader>({
+    key: 'recommendations',
+  })
+
+  if (!fetcher.data) return null
+
+  const { recommendations, search } = fetcher.data
+
+  if (!recommendations) return 'shit'
+
+  if (recommendations.length > 0) {
+    return (
+      <Form
+        method="POST"
+        className={cn('grid w-full grid-flow-row gap-2 text-white', {
+          'grid-cols-1': recommendations.length === 1,
+          'grid-cols-2': recommendations.length >= 2,
+          'grid-cols-3': recommendations.length > 4,
+        })}
+      >
+        {
+          // TODO: interactive semantics for acessibility
+          recommendations.map((s) => (
+            <label
+              key={s}
+              className="peer rounded-lg border border-gray-500 px-4 py-2 text-xl font-bold text-primary-200 transition hover:-translate-y-0.5 has-[:checked]:border-primary-500"
+            >
+              <input value={s} name="stock" type="radio" hidden />
+              {s}
+            </label>
+          ))
+        }
+        <Button className="col-span-full mt-2 hidden w-full peer-has-[:checked]:block">
+          Adicionar
+        </Button>
+      </Form>
+    )
+  }
+
+  if (recommendations.length === 0) {
+    return (
+      <div>
+        <h2 className="text-xl font-bold text-primary-200">
+          Ativo não encontrado
+        </h2>
+        <span className="text-white">
+          Não foi encontrado nenhum ativo para{' '}
+          <strong className="font-bold text-primary-300">{search}</strong>, você
+          tem certeza de que ele existe?
+        </span>
+      </div>
+    )
+  }
+}
+
+const formSchema = z.object({
+  stock: z.string().min(1),
+})
+
+export const action = async ({
+  request,
+  params,
+}: ActionFunctionArgs): Promise<TypedResponse<Result<Stock, ErrorT[]>>> => {
+  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
+
+  const user = session.get('user')
+
+  if (!user) {
+    throw redirect('/')
+  }
+
+  const walletId = params.walletId
+
+  if (!walletId) {
+    return json({
+      ok: false,
+      error: [{ message: 'no wallet id found', type: 'request' }],
+    })
+  }
+
+  const formData = await request.formData()
+
+  const result = formSchema.safeParse(Object.fromEntries(formData))
+
+  if (!result.success) {
+    return json({
+      ok: false,
+      error: result.error.errors.map((e) => ({
+        type: e.path.join('.'),
+        message: e.message,
+      })),
+    })
+  }
+
+  const { stock } = result.data
+
+  const newStock = await WalletService.addStock(user.uid, walletId, {
+    amount: 0,
+    ticker: stock,
+  })
+
+  return json({
+    ok: true,
+    value: newStock,
+  })
 }
 
 export function ErrorBoundary() {

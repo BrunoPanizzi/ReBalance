@@ -6,6 +6,7 @@ import {
 } from '@remix-run/node'
 import { z } from 'zod'
 
+import { sessionStorage } from '~/services/cookies/session.server'
 import { Stock } from '~/services/db/schema/stock.server'
 import WalletService from '~/services/walletService'
 

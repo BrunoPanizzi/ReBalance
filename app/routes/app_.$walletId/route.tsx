@@ -1,7 +1,4 @@
-import { useLoaderData } from '@remix-run/react'
-import { useEffect } from 'react'
-
-import { useColors } from '~/context/ColorsContext'
+import { useLoaderData, MetaFunction } from '@remix-run/react'
 
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
@@ -13,16 +10,12 @@ import { NewStockModal } from './NewStockModal'
 
 export { loader, action }
 
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{ title: data?.title }]
+}
+
 export default function WalletPage() {
   const wallet = useLoaderData<typeof loader>()
-  const { setColor } = useColors()
-
-  useEffect(() => {
-    setColor(wallet.color)
-    return () => {
-      setColor('emerald')
-    }
-  }, [setColor])
 
   return (
     <>

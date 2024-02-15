@@ -6,11 +6,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useMatches,
 } from '@remix-run/react'
 
 import stylesheet from '~/tailwind.css'
-
-import { ColorsProvider } from './context/ColorsContext'
 
 import NavigationIndicator from './components/NavigationIndicator'
 
@@ -34,8 +33,22 @@ export const links: LinksFunction = () => [
 ]
 
 export default function App() {
+  const matches = useMatches()
+
+  // sets the app color if we are in a wallet page
+  const walletId = matches.find((m) => m.id === 'routes/app_.$walletId')
+
+  let color = 'emerald'
+
+  // why is js like this
+  if (walletId && walletId.data) {
+    const data = walletId.data as any
+
+    if (data.color) color = data.color
+  }
+
   return (
-    <html lang="en" className="min-h-screen">
+    <html lang="en" data-color={color} className="min-h-screen">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,14 +56,12 @@ export default function App() {
         <Links />
       </head>
       <body className="min-h-screen bg-gray-800 text-gray-100">
-        <ColorsProvider>
-          <NavigationIndicator />
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-          <div id="modal-root"></div>
-        </ColorsProvider>
+        <NavigationIndicator />
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+        <div id="modal-root"></div>
       </body>
     </html>
   )

@@ -6,9 +6,10 @@ import type {
   Wallet,
   WalletWithStocks,
 } from '~/services/db/schema/wallet.server'
-import { NewStock, Stock, stock as stockTable } from '../db/schema/stock.server'
+import { Stock, stock as stockTable } from '../db/schema/stock.server'
 
 import MarketService from '~/services/maketService/index.server'
+import { and, eq } from 'drizzle-orm'
 
 export type StockWithPrice = Stock & {
   price: number
@@ -111,7 +112,22 @@ class WalletService {
     uid: string,
     walletId: string,
     stock: { ticker: string; amount: number },
-  ): Promise<Stock> {
+  ): Promise<Stock | null> {
+    const [stockExists] = await db
+      .select()
+      .from(stockTable)
+      .where(
+        and(
+          eq(stockTable.owner, uid),
+          eq(stockTable.walletId, walletId),
+          eq(stockTable.ticker, stock.ticker),
+        ),
+      )
+
+    if (stockExists) {
+      return null
+    }
+
     const [newStock] = await db
       .insert(stockTable)
       .values({

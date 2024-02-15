@@ -7,9 +7,11 @@ import {
 } from '@remix-run/node'
 import {
   Form,
+  useActionData,
   useFetcher,
   useLoaderData,
   useNavigate,
+  useNavigation,
   useSearchParams,
 } from '@remix-run/react'
 import {
@@ -347,12 +349,20 @@ function NewStockModal() {
 }
 
 function SuggestionsList() {
+  const { state } = useNavigation()
   const fetcher = useFetcher<typeof recommendationsLoader>({
     key: 'recommendations',
   })
 
-  if (!fetcher.data) return null
+  const actionData = useActionData<typeof action>()
 
+  const displayMessage = actionData !== undefined && state === 'idle'
+  const isError = actionData?.ok === false
+  const message = actionData?.ok
+    ? `${actionData.value.ticker} adicionado com sucesso!`
+    : `Algo deu errado ao adicionar o ativo.`
+
+  if (!fetcher.data) return null
   const { recommendations, search } = fetcher.data
 
   if (!recommendations) return 'shit'
@@ -379,9 +389,21 @@ function SuggestionsList() {
             </label>
           ))
         }
-        <Button className="col-span-full mt-2 hidden w-full peer-has-[:checked]:block">
-          Adicionar
-        </Button>
+        <div className="col-span-full mt-1 hidden peer-has-[:checked]:block">
+          {displayMessage && (
+            <span
+              className={cn('text-sm', {
+                'text-red-300': isError,
+                'text-primary-300': !isError,
+              })}
+            >
+              {message}
+            </span>
+          )}
+          <Button disabled={state !== 'idle'} className="mt-1 w-full">
+            Adicionar
+          </Button>
+        </div>
       </Form>
     )
   }
@@ -447,6 +469,13 @@ export const action = async ({
     amount: 0,
     ticker: stock,
   })
+
+  if (!newStock) {
+    return json({
+      ok: false,
+      error: [{ message: 'Ticker already exists', type: 'duplicate' }],
+    })
+  }
 
   return json({
     ok: true,

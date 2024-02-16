@@ -5,7 +5,7 @@ import { DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
 
-import { StockWithPrice } from '~/services/walletService'
+import { StockWithPrice } from '~/services/stockService/index.server'
 
 import {
   Popover,

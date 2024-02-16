@@ -8,7 +8,7 @@ import { Link } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
-import { Wallet } from '~/services/db/schema/wallet.server'
+import { FullWalletWithStocks } from '~/services/walletService'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -18,7 +18,7 @@ import {
   PopoverItem,
 } from '~/components/ui/popover'
 
-type WalletProps = { wallet: Wallet }
+type WalletProps = { wallet: FullWalletWithStocks }
 
 export default function WalletCard({ wallet }: WalletProps) {
   return (
@@ -75,7 +75,9 @@ export default function WalletCard({ wallet }: WalletProps) {
         <span className="mr-2">
           ideal: {percentage(wallet.idealPercentage)}
         </span>
-        <span className="inline-block">atual: {percentage(0.1)}</span>
+        <span className="inline-block">
+          atual: {percentage(wallet.realPercentage)}
+        </span>
       </span>
 
       <span className="row-span-2 text-xl font-bold text-primary-200">

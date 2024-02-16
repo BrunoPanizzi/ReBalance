@@ -1,6 +1,6 @@
 import { createCookieSessionStorage } from '@remix-run/node'
 
-import { User } from '../auth/authService.server'
+import { DomainUser } from '../auth/authService.server'
 
 const cookieSecret = process.env.COOKIE_SECRET
 
@@ -9,7 +9,7 @@ if (!cookieSecret) {
 }
 
 export type SessionData = {
-  user: User
+  user: DomainUser
 }
 
 export const sessionStorage = createCookieSessionStorage<SessionData>({

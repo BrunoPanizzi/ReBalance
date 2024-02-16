@@ -3,10 +3,10 @@ import { useMemo, useState } from 'react'
 
 import { brl } from '~/lib/formatting'
 
-import { Wallet } from '~/services/db/schema/wallet.server'
+import { FullWalletWithStocks } from '~/services/walletService'
 
 type GraphProps = {
-  data: Wallet[]
+  data: FullWalletWithStocks[]
   w?: number
   h?: number
   m?: number
@@ -25,14 +25,14 @@ export default function Graph({ data, h = 100, w = 100, m = 0 }: GraphProps) {
   const r = Math.min(w, h) / 2 - m
 
   let pie = d3
-    .pie<Wallet>()
+    .pie<FullWalletWithStocks>()
     .value((d) => d.totalValue)
     .padAngle(0.03)
 
   let angles = pie(treatedData)
 
   let arcGenerator = d3
-    .arc<d3.PieArcDatum<Wallet>>()
+    .arc<d3.PieArcDatum<FullWalletWithStocks>>()
     .innerRadius(r / 2)
     .outerRadius(r)
 

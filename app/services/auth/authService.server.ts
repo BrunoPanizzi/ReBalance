@@ -1,21 +1,20 @@
 import { Result } from '~/types/Result'
 
 import { db } from '../db/index.server'
-import {
-  user as userTable,
-  NewUser,
-  User,
-  userSchema,
-} from '../db/schema/user.server'
+import { user as userTable, User } from '../db/schema/user.server'
 
 import { encryptPassword, verifyPassword } from '~/lib/hashing.server'
 
-export type { User }
+type PersistanceUser = User
 
-type AuthResponse = Result<Omit<User, 'password'>>
+export type DomainUser = Omit<PersistanceUser, 'password'>
+export type NewUser = Omit<PersistanceUser, 'uid'>
+export type LoginUser = Omit<NewUser, 'userName'>
+
+type AuthResponse = Result<DomainUser>
 
 class AuthService {
-  async login(userInfo: Omit<NewUser, 'userName'>): Promise<AuthResponse> {
+  async login(userInfo: LoginUser): Promise<AuthResponse> {
     const dbUser = await db.query.user.findFirst({
       where: (user, { eq }) => eq(user.email, userInfo.email),
     })

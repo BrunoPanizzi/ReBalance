@@ -11,8 +11,7 @@ import { ErrorT } from '~/context/ErrorContext'
 
 import { type Result } from '~/types/Result'
 
-import walletService from '~/services/walletService'
-import type { Wallet } from '~/services/db/schema/wallet.server'
+import WalletService, { DomainWallet } from '~/services/walletService'
 import { sessionStorage } from '~/services/cookies/session.server'
 
 const formSchema = z.object({
@@ -29,7 +28,9 @@ const formSchema = z.object({
 
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<TypedResponse<Result<Wallet, ErrorT[]>>> => {
+}: ActionFunctionArgs): Promise<
+  TypedResponse<Result<DomainWallet, ErrorT[]>>
+> => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -52,11 +53,10 @@ export const action = async ({
     })
   }
 
-  const wallet = await walletService.createWallet(user.uid, {
+  const wallet = await WalletService.createWallet(user.uid, {
     title: result.data.title,
     idealPercentage: result.data.idealAmount,
     color: result.data.color,
-    owner: user.uid,
   })
 
   return json({

@@ -1,144 +1,126 @@
+import { and, eq } from 'drizzle-orm'
+
 import { db } from '~/services/db/index.server'
 
 import { wallet as walletTable } from '~/services/db/schema/wallet.server'
-import type {
-  NewWallet,
-  Wallet,
-  WalletWithStocks,
-} from '~/services/db/schema/wallet.server'
-import { Stock, stock as stockTable } from '../db/schema/stock.server'
+import type { Wallet } from '~/services/db/schema/wallet.server'
 
-import MarketService from '~/services/maketService/index.server'
-import { and, eq } from 'drizzle-orm'
+import StocksService, {
+  DomainStock,
+  StockWithPrice,
+} from '../stockService/index.server'
 
-export type StockWithPrice = Stock & {
-  price: number
-  totalValue: number
-  percentage: number
+type PersistanceWallet = Wallet
+
+export type NewWallet = Omit<PersistanceWallet, 'owner' | 'id'>
+
+export type DomainWallet = Omit<PersistanceWallet, 'owner'>
+
+export type WalletWithStocks = DomainWallet & {
+  stocks: DomainStock[]
 }
-
-export type WalletWithStocksAndPrices = Wallet & {
+export type FullWalletWithStocks = DomainWallet & {
+  totalValue: number
+  realPercentage: number
   stocks: StockWithPrice[]
 }
 
-// TODO: return Result type for better error handling
+/*
+- getWallets: PlainWallet[]
+    returns all wallets, straight form the db, no prices or anything
+- getFullWallets: FullWallet[]
+    returns all wallets, with stocks, with updated prices
+   
+- getWallet: PlainWallet
+    returns a single wallet, straight from the db
+- getFullWallet: fullWallet
+    returns a single wallet, with stocks and prices, only `realPercentage` will be left untouched
+*/
+
+function toDomain(wallet: PersistanceWallet): DomainWallet {
+  return {
+    id: wallet.id,
+    title: wallet.title,
+    color: wallet.color,
+    idealPercentage: wallet.idealPercentage,
+  }
+}
+
 class WalletService {
-  async getWallets(uid: string): Promise<Wallet[]> {
-    const wallets = await db.query.wallet.findMany({
-      where: (wallet, { eq }) => eq(wallet.owner, uid),
-    })
+  async getWallet(uid: string, id: string): Promise<DomainWallet> {
+    const [wallet] = await db
+      .select()
+      .from(walletTable)
+      .where(and(eq(walletTable.id, id), eq(walletTable.owner, uid)))
 
-    return wallets
+    if (!wallet) {
+      throw new Error('Wallet not found')
+    }
+
+    return toDomain(wallet)
   }
 
-  async getWallet(uid: string, id: string): Promise<Wallet | undefined> {
-    const wallet = await db.query.wallet.findFirst({
-      where: (wallet, { and, eq }) =>
-        and(eq(wallet.owner, uid), eq(wallet.id, id)),
-    })
+  /**
+   * Returns a full wallet, with full stocks.
+   *
+   * The `realPercentage` field is always set to -1, becuase it is not calculated.
+   */
+  async getFullWallet(uid: string, id: string): Promise<FullWalletWithStocks> {
+    const wallet = await this.getWallet(uid, id)
 
-    return wallet
+    const stocks = await StocksService.getStocksByWalletWithPrices(uid, id)
+
+    const totalValue = stocks.reduce((a, s) => a + s.totalValue, 0)
+
+    return { ...wallet, stocks, totalValue, realPercentage: -1 }
   }
 
-  async getWalletWithStocks(
-    uid: string,
-    id: string,
-  ): Promise<WalletWithStocks | undefined> {
-    const wallet = await db.query.wallet.findFirst({
-      where: (wallet, { eq, and }) =>
-        and(eq(wallet.owner, uid), eq(wallet.id, id)),
-      with: { stocks: true },
-    })
+  async getWallets(uid: string): Promise<DomainWallet[]> {
+    const wallets = await db
+      .select()
+      .from(walletTable)
+      .where(eq(walletTable.owner, uid))
+      .orderBy(walletTable.title)
 
-    return wallet
+    return wallets.map(toDomain)
   }
 
-  async getWalletWithStocksAndPrices(
-    uid: string,
-    id: string,
-  ): Promise<WalletWithStocksAndPrices | undefined> {
-    const wallet = await this.getWalletWithStocks(uid, id)
+  async getFullWallets(uid: string): Promise<FullWalletWithStocks[]> {
+    const wallets = await this.getWallets(uid)
 
-    if (!wallet) return undefined
-
-    const marketData = await MarketService.getManyStocksData(
-      wallet.stocks.map((stock) => stock.ticker),
+    // fills total value and stocks, missign realPercentage
+    const walletsWithStocks = await Promise.all(
+      wallets.map((w) =>
+        StocksService.getStocksByWalletWithPrices(uid, w.id).then((stocks) => ({
+          ...w,
+          totalValue: stocks.reduce((a, s) => a + s.totalValue, 0),
+          stocks,
+        })),
+      ),
     )
 
-    const stocksWithPrices = wallet.stocks.map((stock) => {
-      const stockData = marketData.find((data) => data.symbol === stock.ticker)
-
-      if (!stockData) {
-        // should not happen, but just to make typescript happy
-        throw new Error(
-          `Stock data for ${stock.ticker} is not present in marketData.`,
-        )
-      }
-
-      const price = stockData.regularMarketPrice
-      const totalValue = stock.amount * price
-
-      return {
-        ...stock,
-        price,
-        totalValue,
-      }
-    })
-
-    const totalValue = stocksWithPrices.reduce(
-      (acc, stock) => acc + stock.totalValue,
+    const totalTotalValue = walletsWithStocks.reduce(
+      (a, w) => a + w.totalValue,
       0,
     )
 
-    const stocks: StockWithPrice[] = stocksWithPrices.map((stock) => ({
-      ...stock,
-      percentage: stock.totalValue / totalValue,
+    // add realPercentage
+    return walletsWithStocks.map((w) => ({
+      ...w,
+      realPercentage: w.totalValue / totalTotalValue,
     }))
-
-    return {
-      ...wallet,
-      totalValue,
-      stocks,
-    }
   }
 
-  async createWallet(uid: string, wallet: NewWallet): Promise<Wallet> {
-    const [newWallet] = await db.insert(walletTable).values(wallet).returning()
-
-    return newWallet
-  }
-
-  async addStock(
-    uid: string,
-    walletId: string,
-    stock: { ticker: string; amount: number },
-  ): Promise<Stock | null> {
-    const [stockExists] = await db
-      .select()
-      .from(stockTable)
-      .where(
-        and(
-          eq(stockTable.owner, uid),
-          eq(stockTable.walletId, walletId),
-          eq(stockTable.ticker, stock.ticker),
-        ),
-      )
-
-    if (stockExists) {
-      return null
-    }
-
-    const [newStock] = await db
-      .insert(stockTable)
+  async createWallet(uid: string, wallet: NewWallet): Promise<DomainWallet> {
+    const [newWallet] = await db
+      .insert(walletTable)
       .values({
+        ...wallet,
         owner: uid,
-        ticker: stock.ticker,
-        amount: stock.amount,
-        walletId,
       })
       .returning()
 
-    return newStock
+    return toDomain(newWallet)
   }
 }
 

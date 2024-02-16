@@ -7,8 +7,7 @@ import {
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import { Stock } from '~/services/db/schema/stock.server'
-import WalletService from '~/services/walletService'
+import StockService, { DomainStock } from '~/services/stockService/index.server'
 
 import { ErrorT } from '~/context/ErrorContext'
 
@@ -22,7 +21,9 @@ const formSchema = z.object({
 export const action = async ({
   request,
   params,
-}: ActionFunctionArgs): Promise<TypedResponse<Result<Stock, ErrorT[]>>> => {
+}: ActionFunctionArgs): Promise<
+  TypedResponse<Result<DomainStock, ErrorT[]>>
+> => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -36,7 +37,7 @@ export const action = async ({
   if (!walletId) {
     return json({
       ok: false,
-      error: [{ message: 'no wallet id found', type: 'request' }],
+      error: [{ message: 'no wallet id found', type: 'unreachable' }],
     })
   }
 
@@ -56,20 +57,20 @@ export const action = async ({
 
   const { stock } = result.data
 
-  const newStock = await WalletService.addStock(user.uid, walletId, {
-    amount: 0,
-    ticker: stock,
-  })
+  try {
+    const newStock = await StockService.createStock(user.uid, walletId, {
+      amount: 0,
+      ticker: stock,
+    })
 
-  if (!newStock) {
+    return json({
+      ok: true,
+      value: newStock,
+    })
+  } catch (e) {
     return json({
       ok: false,
       error: [{ message: 'Ticker already exists', type: 'duplicate' }],
     })
   }
-
-  return json({
-    ok: true,
-    value: newStock,
-  })
 }

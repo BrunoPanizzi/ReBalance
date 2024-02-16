@@ -10,9 +10,7 @@ import { type Stock, stock, stockSchema } from './stock.server'
 export const wallet = pgTable('wallet', {
   id: uuid('id').defaultRandom().primaryKey().notNull(),
   title: text('title').notNull(),
-  totalValue: real('total_value').default(0).notNull(),
   idealPercentage: real('ideal_percentage').default(0).notNull(),
-  realPercentage: real('real_percentage').default(0).notNull(),
   color: pgColorEnum('color').notNull(),
 
   owner: uuid('owner')
@@ -30,9 +28,7 @@ export const walletRelations = relations(wallet, ({ one, many }) => ({
 
 export const walletSchema = createSelectSchema(wallet, {
   title: z.string().min(1),
-  totalValue: z.number().nonnegative(),
   idealPercentage: z.number().min(0).max(1),
-  realPercentage: z.number().min(0).max(1),
   color: colorsSchema,
   id: z.string().uuid(),
   owner: z.string().uuid().min(1),

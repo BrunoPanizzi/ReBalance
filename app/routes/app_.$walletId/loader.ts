@@ -15,10 +15,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Error('no walletId provided')
   }
 
-  const wallet = await WalletService.getWalletWithStocksAndPrices(
-    user.uid,
-    params.walletId,
-  )
+  const wallet = await WalletService.getFullWallet(user.uid, params.walletId)
 
   if (!wallet) {
     throw new Error('wallet not found')

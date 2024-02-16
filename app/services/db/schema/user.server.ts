@@ -20,7 +20,6 @@ export const userRelations = relations(user, ({ many }) => ({
 
 export const userSchema = createSelectSchema(user, {
   email: z.string().min(1).email(),
-  password: z.undefined(),
 })
 export const newUserSchema = createInsertSchema(user, {
   email: z.string().min(1).email(),

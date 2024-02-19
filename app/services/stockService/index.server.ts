@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '../db/index.server'
-import { stock as stockTable } from '../db/schema/stock.server'
+import { stock, stock as stockTable } from '../db/schema/stock.server'
 import type { Stock, UpdateStocks } from '../db/schema/stock.server'
 
 import MarketService from '../maketService/index.server'
@@ -34,9 +34,7 @@ class StockService {
     const stocks = await db
       .select()
       .from(stockTable)
-      .where(
-        and(eq(stockTable.owner, uid) && eq(stockTable.walletId, walletId)),
-      )
+      .where(and(eq(stockTable.owner, uid), eq(stockTable.walletId, walletId)))
 
     return stocks.map(toDomain)
   }
@@ -92,6 +90,23 @@ class StockService {
       .returning()
 
     return toDomain(created)
+  }
+
+  async deleteStock(
+    uid: string,
+    walletId: string,
+    stockId: string,
+  ): Promise<void> {
+    console.log('removing: ', stockId)
+    await db
+      .delete(stockTable)
+      .where(
+        and(
+          eq(stockTable.owner, uid),
+          eq(stockTable.walletId, walletId),
+          eq(stockTable.id, stockId),
+        ),
+      )
   }
 }
 

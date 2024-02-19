@@ -1,6 +1,6 @@
 import { memo } from 'react'
-import { useLoaderData } from '@remix-run/react'
-import { DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
+import { useFetcher, useLoaderData } from '@remix-run/react'
+import { DotsVerticalIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons'
 
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
@@ -37,6 +37,8 @@ type StockRowProps = {
 }
 
 const StockRow = memo(({ stock }: StockRowProps) => {
+  const fetcher = useFetcher({ key: stock.id })
+
   return (
     <div
       className={cn(
@@ -44,12 +46,20 @@ const StockRow = memo(({ stock }: StockRowProps) => {
         '@md:grid-cols-[auto_repeat(4,1fr)_auto] @md:grid-rows-1 @md:place-items-center',
       )}
     >
-      <button
-        className="hidden transition hover:scale-110 hover:text-red-500 @md:block"
-        onClick={() => alert('Não implementado...')}
-      >
-        <TrashIcon className="size-5" />
-      </button>
+      <fetcher.Form method="DELETE">
+        <button
+          type="submit"
+          name="stockId"
+          value={stock.id}
+          className="hidden transition hover:text-red-500 @md:block"
+        >
+          {fetcher.state === 'idle' ? (
+            <TrashIcon className="size-5 transition hover:scale-110" />
+          ) : (
+            <UpdateIcon className="size-5" />
+          )}
+        </button>
+      </fetcher.Form>
       <span className="flex items-center  gap-2 font-display text-lg text-primary-100 @md:text-base @md:font-normal @md:text-gray-50">
         {stock.ticker}
         <Popover>

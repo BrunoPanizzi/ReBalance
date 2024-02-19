@@ -33,7 +33,7 @@ export default function ListHeader() {
           </PopoverContent>
         </Popover>
       </span>
-      <menu className="mb-3 hidden gap-1 rounded-xl bg-gray-700 p-1 @md/list:flex">
+      <menu className="mb-3 hidden gap-1 rounded-lg bg-gray-700 p-1 @md/list:flex">
         <ToolBarContent />
       </menu>
     </>
@@ -49,7 +49,9 @@ function ToolBarContent() {
       <PopoverItem
         title="Nova carteira"
         icon={<PlusIcon className="size-6 text-emerald-100" />}
-        onClick={() => {navigate('?new')}}
+        onClick={() => {
+          navigate('?new')
+        }}
       />
 
       <PopoverItem

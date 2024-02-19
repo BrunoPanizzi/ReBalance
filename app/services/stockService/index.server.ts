@@ -92,12 +92,34 @@ class StockService {
     return toDomain(created)
   }
 
+  async updateAmount(
+    uid: string,
+    walletId: string,
+    stockId: string,
+    amount: number,
+  ): Promise<DomainStock> {
+    const [updated] = await db
+      .update(stockTable)
+      .set({
+        amount,
+      })
+      .where(
+        and(
+          eq(stockTable.owner, uid),
+          eq(stockTable.walletId, walletId),
+          eq(stockTable.id, stockId),
+        ),
+      )
+      .returning()
+
+    return toDomain(updated)
+  }
+
   async deleteStock(
     uid: string,
     walletId: string,
     stockId: string,
   ): Promise<void> {
-    console.log('removing: ', stockId)
     await db
       .delete(stockTable)
       .where(

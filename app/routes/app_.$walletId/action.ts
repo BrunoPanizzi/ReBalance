@@ -10,6 +10,7 @@ import StockService, { DomainStock } from '~/services/stockService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result } from '~/types/Result'
+import { z } from 'zod'
 
 type SubActionArgs = {
   user: DomainUser
@@ -73,6 +74,41 @@ const postAction = async ({
   }
 }
 
+const patchFormSchema = z.object({
+  stockId: z.string().uuid(),
+  amount: z.coerce.number().nonnegative(),
+})
+
+type PatchSubactionReturn = Result<DomainStock, string>
+const patchAction = async ({
+  user,
+  walletId,
+  formData,
+}: SubActionArgs): Promise<PatchSubactionReturn> => {
+  const result = patchFormSchema.safeParse(Object.fromEntries(formData))
+
+  if (!result.success) {
+    return {
+      ok: false,
+      error: result.error.errors[0].message,
+    }
+  }
+
+  const { stockId, amount } = result.data
+
+  const updatedStock = await StockService.updateAmount(
+    user.uid,
+    walletId,
+    stockId,
+    amount,
+  )
+
+  return {
+    ok: true,
+    value: updatedStock,
+  }
+}
+
 type ActionResponse =
   | {
       method: 'DELETE'
@@ -81,6 +117,10 @@ type ActionResponse =
   | {
       method: 'POST'
       result: PostSubactionReturn
+    }
+  | {
+      method: 'PATCH'
+      result: PatchSubactionReturn
     }
 
 // creates a stock
@@ -120,7 +160,13 @@ export const action = async ({
         method: 'POST',
         result,
       })
+    case 'PATCH':
+      result = await patchAction({ user, walletId, formData })
+      return json({
+        method: 'PATCH',
+        result,
+      })
   }
 
-  throw new Error('Unreachable')
+  throw new Error('Unsupported HTTP method: ' + request.method)
 }

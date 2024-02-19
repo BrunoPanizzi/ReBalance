@@ -1,11 +1,14 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { useFetcher, useLoaderData } from '@remix-run/react'
-import { DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
+import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
 
-import { StockWithPrice } from '~/services/stockService/index.server'
+import {
+  DomainStock,
+  StockWithPrice,
+} from '~/services/stockService/index.server'
 
 import {
   Popover,
@@ -71,12 +74,7 @@ const StockRow = memo(({ stock }: StockRowProps) => {
           </PopoverContent>
         </Popover>
       </span>
-      <span className="min-w-20 ">
-        <input
-          className="w-full rounded-md bg-white bg-opacity-10 px-2 text-center transition-all hover:bg-opacity-25 focus:rounded-xl focus:bg-opacity-25 focus:outline-0"
-          defaultValue={stock.amount}
-        />
-      </span>
+      <AmountInput stock={stock} />
 
       {/* small screens, span 2 cols */}
       <span className="col-span-2 flex items-end gap-4 @md:hidden">
@@ -97,3 +95,46 @@ const StockRow = memo(({ stock }: StockRowProps) => {
     </div>
   )
 })
+
+function AmountInput({ stock }: { stock: StockWithPrice }) {
+  const fetcher = useFetcher({ key: stock.id + 'PATCH' })
+
+  const [value, setValue] = useState(stock.amount)
+
+  const changed = value !== stock.amount
+
+  return (
+    <fetcher.Form className="relative min-w-20" method="PATCH">
+      <input type="hidden" aria-hidden name="stockId" value={stock.id} />
+      <label htmlFor="amount" className="hidden">
+        Quantidade
+      </label>
+      <input
+        id="amount"
+        className={cn(
+          'w-full rounded-md bg-white bg-opacity-10 px-2 text-center transition hover:bg-opacity-25 ',
+          'outline-2 outline-offset-1 outline-primary-300 focus:bg-opacity-25 focus:outline',
+        )}
+        value={value}
+        onChange={(e) => setValue(e.target.valueAsNumber)}
+        onFocus={(e) => e.target.select()}
+        type="number"
+        name="amount"
+      />
+      <button
+        id="submit"
+        type="submit"
+        className={cn(
+          'absolute inset-0 left-auto grid aspect-square h-full place-items-center rounded-md p-0.5 transition hover:bg-primary-500/50',
+          changed ? 'absolute' : 'hidden',
+        )}
+      >
+        {fetcher.state === 'idle' ? (
+          <CheckIcon className="h-full w-full" />
+        ) : (
+          <Loader className="h-full w-full" />
+        )}
+      </button>
+    </fetcher.Form>
+  )
+}

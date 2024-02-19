@@ -12,6 +12,7 @@ import {
 import stylesheet from '~/tailwind.css'
 
 import NavigationIndicator from './components/NavigationIndicator'
+import { Toaster } from './components/ui/toaster'
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -61,6 +62,7 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        <Toaster />
         <div id="modal-root"></div>
       </body>
     </html>

@@ -76,7 +76,8 @@ const postAction = async ({
 
 const patchFormSchema = z.object({
   stockId: z.string().uuid(),
-  amount: z.coerce.number().nonnegative(),
+  //                Postgres integer max safe value
+  amount: z.coerce.number().max(2_147_483_647).nonnegative(),
 })
 
 type PatchSubactionReturn = Result<DomainStock, string>

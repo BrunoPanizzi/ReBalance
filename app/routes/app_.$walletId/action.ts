@@ -4,13 +4,12 @@ import {
   json,
   redirect,
 } from '@remix-run/node'
-import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import StockService, { DomainStock } from '~/services/stockService/index.server'
+import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result } from '~/types/Result'
-import { DomainUser } from '~/services/auth/authService.server'
 
 type SubActionArgs = {
   user: DomainUser

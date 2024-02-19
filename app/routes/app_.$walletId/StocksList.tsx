@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { useFetcher, useLoaderData } from '@remix-run/react'
-import { DotsVerticalIcon, TrashIcon, UpdateIcon } from '@radix-ui/react-icons'
+import { DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
@@ -13,6 +13,7 @@ import {
   PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
+import Loader from '~/components/Loader'
 
 import { loader } from './loader'
 import { useSortContext } from './SortContext'
@@ -46,17 +47,12 @@ const StockRow = memo(({ stock }: StockRowProps) => {
         '@md:grid-cols-[auto_repeat(4,1fr)_auto] @md:grid-rows-1 @md:place-items-center',
       )}
     >
-      <fetcher.Form method="DELETE">
-        <button
-          type="submit"
-          name="stockId"
-          value={stock.id}
-          className="hidden transition hover:text-red-500 @md:block"
-        >
+      <fetcher.Form className="hidden justify-center @md:flex " method="DELETE">
+        <button type="submit" name="stockId" value={stock.id}>
           {fetcher.state === 'idle' ? (
-            <TrashIcon className="size-5 transition hover:scale-110" />
+            <TrashIcon className="size-5 transition hover:scale-110 hover:text-red-500" />
           ) : (
-            <UpdateIcon className="size-5" />
+            <Loader className="size-5" />
           )}
         </button>
       </fetcher.Form>

@@ -1,6 +1,4 @@
-import { Link, Outlet, useActionData, useLoaderData } from '@remix-run/react'
-
-import { ErrorProvider } from '~/context/ErrorContext'
+import { Link, Outlet, useLoaderData } from '@remix-run/react'
 
 import { Button } from '~/components/ui/button'
 
@@ -19,16 +17,11 @@ export { loader, action }
 
 export default function App() {
   const { user, wallets } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
-
-  const errors = !actionData?.ok ? actionData?.error : []
 
   return (
     <>
       <Outlet />
-      <ErrorProvider initialErrors={errors}>
-        <NewWalletModal />
-      </ErrorProvider>
+      <NewWalletModal />
 
       <Header
         title={`Bem vindo de volta, ${user.userName}`}

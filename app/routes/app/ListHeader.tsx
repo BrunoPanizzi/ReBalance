@@ -5,7 +5,8 @@ import {
   PlusIcon,
   UpdateIcon,
 } from '@radix-ui/react-icons'
-import { useNavigate } from '@remix-run/react'
+import { useNavigate, useRevalidator } from '@remix-run/react'
+import { useEffect, useRef } from 'react'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -14,6 +15,8 @@ import {
   PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
+import { toast } from '~/components/ui/use-toast'
+import { cn } from '~/lib/utils'
 
 export default function ListHeader() {
   return (
@@ -42,8 +45,23 @@ export default function ListHeader() {
 
 function ToolBarContent() {
   const navigate = useNavigate()
+  const { revalidate, state } = useRevalidator()
+  const isFirstRender = useRef(true)
 
+  // TODO: make this better
   const percentagesAddUp = true
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+
+    if (state === 'idle') {
+      toast({ title: 'Valores atualizados!' })
+    }
+  }, [state])
+
   return (
     <>
       <PopoverItem
@@ -68,8 +86,14 @@ function ToolBarContent() {
 
       <PopoverItem
         title="Atualizar valores"
-        onClick={() => {}}
-        icon={<UpdateIcon className=" size-5 text-emerald-100" />}
+        onClick={revalidate}
+        icon={
+          <UpdateIcon
+            className={cn('size-5 text-emerald-100', {
+              'animate-spin': state === 'loading',
+            })}
+          />
+        }
       />
     </>
   )

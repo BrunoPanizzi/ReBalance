@@ -16,6 +16,7 @@ import { loader as recommendationsLoader } from '~/routes/recommendations'
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
+import { toast } from '~/components/ui/use-toast'
 
 import { action } from './action'
 
@@ -78,14 +79,21 @@ function SuggestionsList() {
   const actionResult =
     (actionData?.method === 'POST' && actionData.result) || undefined
 
-  const displayMessage = actionResult !== undefined && state === 'idle'
-  const isError = actionResult?.ok === false
   const message = actionResult?.ok
     ? `${actionResult.value.ticker} adicionado com sucesso!`
     : `Algo deu errado ao adicionar o ativo.`
 
   if (!fetcher.data) return null
   const { recommendations, search } = fetcher.data
+
+  useEffect(() => {
+    if (actionData === undefined) return
+
+    toast({
+      title: message,
+      variant: actionData.result.ok ? 'default' : 'destructive',
+    })
+  }, [actionResult, message])
 
   if (!recommendations) return 'shit'
 
@@ -111,21 +119,12 @@ function SuggestionsList() {
             </label>
           ))
         }
-        <div className="col-span-full mt-1 hidden peer-has-[:checked]:block">
-          {displayMessage && (
-            <span
-              className={cn('text-sm', {
-                'text-red-300': isError,
-                'text-primary-300': !isError,
-              })}
-            >
-              {message}
-            </span>
-          )}
-          <Button disabled={state !== 'idle'} className="mt-1 w-full">
-            Adicionar
-          </Button>
-        </div>
+        <Button
+          disabled={state !== 'idle'}
+          className="col-span-full mt-1 hidden w-full peer-has-[:checked]:block"
+        >
+          Adicionar
+        </Button>
       </Form>
     )
   }

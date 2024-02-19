@@ -1,67 +1,89 @@
-import { Form, useNavigation, useSearchParams } from '@remix-run/react'
-import { useState } from 'react'
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from '@remix-run/react'
+import { useEffect, useState } from 'react'
 
 import { colorsSchema } from '~/constants/availableColors'
 
 import { percentage } from '~/lib/formatting'
 
+import { ErrorProvider } from '~/context/ErrorContext'
+
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 import { Slider } from '~/components/ui/slider'
+import { toast } from '~/components/ui/use-toast'
 
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
+
+import { action } from './action'
 
 export default function NewWalletModal() {
   const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const actionData = useActionData<typeof action>()
+
+  const success = actionData?.ok
+  const errors = !success ? actionData?.error : []
 
   const shouldOpen = searchParams.get('new')
 
   const isSubmitting = navigation.state === 'submitting'
 
+  useEffect(() => {
+    if (success) {
+      toast({ title: 'Carteira criada com sucesso!' })
+    }
+  }, [success])
+
   if (shouldOpen === null) return null
 
   return (
-    <Dialog.Root
-      defaultOpen
-      onOpenChange={(to) => {
-        if (!to) setSearchParams({}, { replace: true })
-      }}
-    >
-      <Dialog.Content className="max-w-sm">
-        <Dialog.Header>
-          <Dialog.Title>Nova carteira</Dialog.Title>
-        </Dialog.Header>
+    <ErrorProvider initialErrors={errors}>
+      <Dialog.Root
+        defaultOpen
+        onOpenChange={(to) => {
+          if (!to) setSearchParams({}, { replace: true })
+        }}
+      >
+        <Dialog.Content className="max-w-sm">
+          <Dialog.Header>
+            <Dialog.Title>Nova carteira</Dialog.Title>
+          </Dialog.Header>
 
-        <Form
-          className="flex flex-col gap-4"
-          noValidate
-          method="post"
-          id="new-wallet"
-        >
-          <InputGroup
-            label="Nome da carteira"
-            name="title"
-            input={{ placeholder: 'Nome...' }}
-          />
-
-          <BaseGroup
-            label="Quanto você gostaria de investir?"
-            name="idealAmount"
+          <Form
+            className="flex flex-col gap-4"
+            noValidate
+            method="post"
+            id="new-wallet"
           >
-            <SliderWithPreview />
-          </BaseGroup>
+            <InputGroup
+              label="Nome da carteira"
+              name="title"
+              input={{ placeholder: 'Nome...' }}
+            />
 
-          <BaseGroup name="color" label="Selecione uma cor">
-            <ColorSelection />
-          </BaseGroup>
+            <BaseGroup
+              label="Quanto você gostaria de investir?"
+              name="idealAmount"
+            >
+              <SliderWithPreview />
+            </BaseGroup>
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Criando...' : 'Criar'}
-          </Button>
-        </Form>
-      </Dialog.Content>
-    </Dialog.Root>
+            <BaseGroup name="color" label="Selecione uma cor">
+              <ColorSelection />
+            </BaseGroup>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Criando...' : 'Criar'}
+            </Button>
+          </Form>
+        </Dialog.Content>
+      </Dialog.Root>
+    </ErrorProvider>
   )
 }
 

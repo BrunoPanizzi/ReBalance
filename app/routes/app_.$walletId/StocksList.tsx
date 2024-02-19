@@ -5,10 +5,7 @@ import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
 
-import {
-  DomainStock,
-  StockWithPrice,
-} from '~/services/stockService/index.server'
+import { StockWithPrice } from '~/services/stockService/index.server'
 
 import {
   Popover,
@@ -16,6 +13,8 @@ import {
   PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
+import { EasyTooltip } from '~/components/ui/tooltip'
+
 import Loader from '~/components/Loader'
 
 import { loader } from './loader'
@@ -74,20 +73,31 @@ const StockRow = memo(({ stock }: StockRowProps) => {
           </PopoverContent>
         </Popover>
       </span>
-      <AmountInput stock={stock} />
+
+      <EasyTooltip label="Quantidade">
+        <AmountInput stock={stock} />
+      </EasyTooltip>
 
       {/* small screens, span 2 cols */}
       <span className="col-span-2 flex items-end gap-4 @md:hidden">
-        <span>{brl(stock.price)}</span>
-        <span className="text-sm">
-          <span className="mr-1 @md:hidden">Total:</span>
-          {brl(stock.totalValue)}
-        </span>
+        <EasyTooltip label="Preço atual">{brl(stock.price)}</EasyTooltip>
+        <EasyTooltip label="Valor total">
+          <span className="text-sm">
+            <span className="mr-1 @md:hidden">Total:</span>
+            {brl(stock.totalValue)}
+          </span>
+        </EasyTooltip>
       </span>
 
       {/* bigger screens, span 1 col each */}
-      <span className="hidden @md:inline">{brl(stock.price)}</span>
-      <span className="hidden text-sm @md:inline">{brl(stock.totalValue)}</span>
+      <EasyTooltip label="Preço atual">
+        <span className="hidden @md:inline">{brl(stock.price)}</span>
+      </EasyTooltip>
+      <EasyTooltip label="Valor total">
+        <span className="hidden text-sm @md:inline">
+          {brl(stock.totalValue)}
+        </span>
+      </EasyTooltip>
 
       <span className="col-start-3 row-span-2 row-start-1 flex h-full items-center justify-center rounded-md bg-white bg-opacity-20 px-2 @md:col-start-6 @md:w-[4.5rem]">
         {percentage(stock.percentage)}
@@ -116,25 +126,27 @@ function AmountInput({ stock }: { stock: StockWithPrice }) {
           'outline-2 outline-offset-1 outline-primary-300 focus:bg-opacity-25 focus:outline',
         )}
         value={value}
-        onChange={(e) => setValue(e.target.valueAsNumber)}
+        onChange={(e) => {
+          const val = e.target.valueAsNumber
+          if (!isNaN(val)) setValue(val)
+        }}
         onFocus={(e) => e.target.select()}
         type="number"
         name="amount"
       />
-      <button
-        id="submit"
-        type="submit"
-        className={cn(
-          'absolute inset-0 left-auto grid aspect-square h-full place-items-center rounded-md p-0.5 transition hover:bg-primary-500/50',
-          changed ? 'absolute' : 'hidden',
-        )}
-      >
-        {fetcher.state === 'idle' ? (
-          <CheckIcon className="h-full w-full" />
-        ) : (
-          <Loader className="h-full w-full" />
-        )}
-      </button>
+      {changed && (
+        <button
+          id="submit"
+          type="submit"
+          className="absolute inset-0 left-auto grid aspect-square h-full place-items-center rounded-md p-0.5 transition hover:bg-primary-500/50"
+        >
+          {fetcher.state === 'idle' ? (
+            <CheckIcon className="h-full w-full" />
+          ) : (
+            <Loader className="h-full w-full" />
+          )}
+        </button>
+      )}
     </fetcher.Form>
   )
 }

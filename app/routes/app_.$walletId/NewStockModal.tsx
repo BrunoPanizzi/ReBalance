@@ -74,11 +74,14 @@ function SuggestionsList() {
   })
 
   const actionData = useActionData<typeof action>()
+  // TODO: do I have to elaborate?
+  const actionResult =
+    (actionData?.method === 'POST' && actionData.result) || undefined
 
-  const displayMessage = actionData !== undefined && state === 'idle'
-  const isError = actionData?.ok === false
-  const message = actionData?.ok
-    ? `${actionData.value.ticker} adicionado com sucesso!`
+  const displayMessage = actionResult !== undefined && state === 'idle'
+  const isError = actionResult?.ok === false
+  const message = actionResult?.ok
+    ? `${actionResult.value.ticker} adicionado com sucesso!`
     : `Algo deu errado ao adicionar o ativo.`
 
   if (!fetcher.data) return null

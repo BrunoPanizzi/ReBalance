@@ -130,6 +130,13 @@ class StockService {
         ),
       )
   }
+
+  // removes all the stocks from the table
+  async deleteStocksFromWallet(uid: string, walletId: string): Promise<void> {
+    await db
+      .delete(stockTable)
+      .where(and(eq(stockTable.owner, uid), eq(stockTable.walletId, walletId)))
+  }
 }
 
 export default new StockService()

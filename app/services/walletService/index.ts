@@ -122,6 +122,13 @@ class WalletService {
 
     return toDomain(newWallet)
   }
+
+  async deleteWallet(uid: string, walletId: string): Promise<void> {
+    await StocksService.deleteStocksFromWallet(uid, walletId)
+    await db
+      .delete(walletTable)
+      .where(and(eq(walletTable.owner, uid), eq(walletTable.id, walletId)))
+  }
 }
 
 export default new WalletService()

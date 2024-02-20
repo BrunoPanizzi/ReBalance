@@ -6,8 +6,6 @@ import {
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
-import { colorsSchema } from '~/constants/availableColors'
-
 import { percentage } from '~/lib/formatting'
 
 import { ErrorProvider } from '~/context/ErrorContext'
@@ -20,6 +18,7 @@ import { toast } from '~/components/ui/use-toast'
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 
 import { action, extractValue } from './action'
+import { ColorSelection } from './ColorSelection'
 
 export default function NewWalletModal() {
   const navigation = useNavigation()
@@ -101,23 +100,6 @@ function SliderWithPreview() {
         name="idealAmount"
         onValueChange={([e]) => setValue(e)}
       />
-    </div>
-  )
-}
-
-function ColorSelection() {
-  const colors = colorsSchema.options
-  return (
-    <div className="grid grid-cols-8 gap-1.5">
-      {colors.map((c) => (
-        <label
-          data-color={c}
-          className={`aspect-square rounded border-2 border-primary-600 bg-primary-400 bg-opacity-75  has-[:checked]:scale-110 has-[:checked]:bg-opacity-100`}
-          key={c}
-        >
-          <input className="hidden" type="radio" name="color" value={c} />
-        </label>
-      ))}
     </div>
   )
 }

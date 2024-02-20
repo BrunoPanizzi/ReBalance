@@ -1,9 +1,4 @@
-import {
-  ActionFunctionArgs,
-  TypedResponse,
-  json,
-  redirect,
-} from '@remix-run/node'
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
 import { z } from 'zod'
 
 import { createMatcher } from '~/lib/actionMatcher'
@@ -82,9 +77,55 @@ async function deleteAction({
   }
 }
 
+const patchFormSchema = z
+  .object({
+    walletId: z.string().uuid(),
+    color: colorsSchema.optional(),
+    title: z.string().optional(),
+  })
+  .refine((a) => a.color || a.title, {
+    message: 'At least one param other than walletId should be provided',
+  })
+async function patchAction({
+  user,
+  formData,
+}: Args): Promise<Result<DomainWallet, ErrorT[]>> {
+  const parsedForm = patchFormSchema.safeParse(Object.fromEntries(formData))
+
+  if (!parsedForm.success) {
+    return {
+      ok: false,
+      error: parsedForm.error.errors.map((e) => ({
+        message: e.message,
+        type: e.path.join(''),
+      })),
+    }
+  }
+
+  const { walletId, color, title } = parsedForm.data
+
+  try {
+    const updatedWallet = await WalletService.update(user.uid, walletId, {
+      color,
+      title,
+    })
+
+    return {
+      ok: true,
+      value: updatedWallet,
+    }
+  } catch (e) {
+    return {
+      ok: false,
+      error: [{ message: 'Unknown database error', type: 'backend' }],
+    }
+  }
+}
+
 const { match, extractValue } = createMatcher<Args>()({
   POST: postAction,
   DELETE: deleteAction,
+  PATCH: patchAction,
 })
 export { extractValue }
 

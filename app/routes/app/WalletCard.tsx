@@ -4,7 +4,7 @@ import {
   Pencil2Icon,
   TrashIcon,
 } from '@radix-ui/react-icons'
-import { Link, useFetcher } from '@remix-run/react'
+import { Link, useFetcher, useSearchParams } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
@@ -25,6 +25,7 @@ import { toast } from '~/components/ui/use-toast'
 type WalletProps = { wallet: FullWalletWithStocks }
 
 export default function WalletCard({ wallet }: WalletProps) {
+  const [_, setSearchParams] = useSearchParams()
   const fetcher = useFetcher<typeof action>({ key: wallet.id + 'DELETE' })
   const actionResult = extractValue(fetcher.data, 'DELETE')
 
@@ -77,7 +78,7 @@ export default function WalletCard({ wallet }: WalletProps) {
               <PopoverItem
                 title="Alterar cor"
                 icon={<MagicWandIcon className="size-5 text-primary-200" />}
-                onClick={() => {}}
+                onClick={() => setSearchParams({ changeColor: wallet.id })}
               />
 
               <PopoverItem

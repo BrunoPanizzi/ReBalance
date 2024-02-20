@@ -13,6 +13,7 @@ import StocksService, {
 type PersistanceWallet = Wallet
 
 export type NewWallet = Omit<PersistanceWallet, 'owner' | 'id'>
+export type UpdateWallet = Partial<NewWallet>
 
 export type DomainWallet = Omit<PersistanceWallet, 'owner'>
 
@@ -121,6 +122,24 @@ class WalletService {
       .returning()
 
     return toDomain(newWallet)
+  }
+
+  async update(
+    uid: string,
+    walletId: string,
+    updateFields: UpdateWallet,
+  ): Promise<DomainWallet> {
+    const [updated] = await db
+      .update(walletTable)
+      .set({
+        color: updateFields.color,
+        idealPercentage: updateFields.idealPercentage,
+        title: updateFields.title,
+      })
+      .where(and(eq(walletTable.owner, uid), eq(walletTable.id, walletId)))
+      .returning()
+
+    return updated
   }
 
   async deleteWallet(uid: string, walletId: string): Promise<void> {

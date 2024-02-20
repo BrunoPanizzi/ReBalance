@@ -72,13 +72,17 @@ export default function WalletCard({ wallet }: WalletProps) {
               <PopoverItem
                 title="Alterar nome"
                 icon={<Pencil2Icon className="size-5 text-primary-200" />}
-                onClick={() => setSearchParams({ changeName: wallet.id })}
+                onClick={() =>
+                  setSearchParams({ changeName: wallet.id }, { replace: true })
+                }
               />
 
               <PopoverItem
                 title="Alterar cor"
                 icon={<MagicWandIcon className="size-5 text-primary-200" />}
-                onClick={() => setSearchParams({ changeColor: wallet.id })}
+                onClick={() =>
+                  setSearchParams({ changeColor: wallet.id }, { replace: true })
+                }
               />
 
               <PopoverItem

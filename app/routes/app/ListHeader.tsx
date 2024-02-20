@@ -8,6 +8,8 @@ import {
 import { useNavigate, useRevalidator } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 
+import { cn } from '~/lib/utils'
+
 import { Button } from '~/components/ui/button'
 import {
   Popover,
@@ -16,7 +18,6 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover'
 import { toast } from '~/components/ui/use-toast'
-import { cn } from '~/lib/utils'
 
 export default function ListHeader() {
   return (

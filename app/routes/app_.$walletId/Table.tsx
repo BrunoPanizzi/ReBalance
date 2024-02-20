@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from '@remix-run/react'
+import { useLoaderData, useSearchParams } from '@remix-run/react'
 import { PlusIcon } from '@radix-ui/react-icons'
 
 import { loader } from './loader'
@@ -11,7 +11,7 @@ import { StocksList } from './StocksList'
 export function Table() {
   const { stocks } = useLoaderData<typeof loader>()
 
-  const navigate = useNavigate()
+  const [_, setSearchParams] = useSearchParams()
 
   return (
     <SortProvider>
@@ -24,7 +24,7 @@ export function Table() {
 
             <button
               className="transition-transform hover:scale-125"
-              onClick={() => navigate('?new')}
+              onClick={() => setSearchParams({ new: '' }, { replace: true })}
             >
               <PlusIcon className="size-6 text-primary-300 " />
             </button>

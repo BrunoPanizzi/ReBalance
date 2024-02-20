@@ -45,7 +45,7 @@ export default function ChangeNameModal() {
 
   const thisWallet = wallets.find((w) => w.id === walletId)
   if (!thisWallet) {
-    setSearchParams({})
+    setSearchParams({}, { replace: true })
     return null
   }
 

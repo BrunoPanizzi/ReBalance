@@ -4,7 +4,7 @@ import {
   Pencil2Icon,
   TrashIcon,
 } from '@radix-ui/react-icons'
-import { Link } from '@remix-run/react'
+import { Link, useFetcher } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
@@ -21,6 +21,12 @@ import {
 type WalletProps = { wallet: FullWalletWithStocks }
 
 export default function WalletCard({ wallet }: WalletProps) {
+  const fetcher = useFetcher({ key: wallet.id + 'DELETE' })
+
+  function deleteWallet() {
+    fetcher.submit({ walletId: wallet.id }, { method: 'DELETE' })
+  }
+
   return (
     <Link
       to={wallet.id}
@@ -64,7 +70,7 @@ export default function WalletCard({ wallet }: WalletProps) {
               <PopoverItem
                 title="Remover carteira"
                 icon={<TrashIcon className="size-5 text-red-500" />}
-                onClick={() => {}}
+                onClick={deleteWallet}
               />
             </PopoverContent>
           </Popover>

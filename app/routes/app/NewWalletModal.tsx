@@ -19,15 +19,16 @@ import { toast } from '~/components/ui/use-toast'
 
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 
-import { action } from './action'
+import { action, extractValue } from './action'
 
 export default function NewWalletModal() {
   const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
   const actionData = useActionData<typeof action>()
+  const actionResult = extractValue(actionData, 'POST')
 
-  const success = actionData?.ok
-  const errors = !success ? actionData?.error : []
+  const success = actionResult?.ok
+  const errors = !success ? actionResult?.error : []
 
   const shouldOpen = searchParams.get('new')
 

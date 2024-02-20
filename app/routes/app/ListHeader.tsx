@@ -52,15 +52,20 @@ function ToolBarContent() {
   const percentagesAddUp = true
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-
-    if (state === 'idle') {
+    if (state === 'idle' && !isFirstRender.current) {
       toast({ title: 'Valores atualizados!' })
     }
   }, [state])
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+    }
+
+    return () => {
+      isFirstRender.current = true
+    }
+  }, [])
 
   return (
     <>

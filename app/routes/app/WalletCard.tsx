@@ -18,14 +18,27 @@ import {
   PopoverItem,
 } from '~/components/ui/popover'
 
+import { action, extractValue } from './action'
+import { useEffect } from 'react'
+import { toast } from '~/components/ui/use-toast'
+
 type WalletProps = { wallet: FullWalletWithStocks }
 
 export default function WalletCard({ wallet }: WalletProps) {
-  const fetcher = useFetcher({ key: wallet.id + 'DELETE' })
+  const fetcher = useFetcher<typeof action>({ key: wallet.id + 'DELETE' })
+  const actionResult = extractValue(fetcher.data, 'DELETE')
 
   function deleteWallet() {
     fetcher.submit({ walletId: wallet.id }, { method: 'DELETE' })
   }
+
+  useEffect(() => {
+    if (actionResult?.ok) {
+      toast({
+        title: `Carteira ${wallet.title} excluída.`,
+      })
+    }
+  }, [actionResult])
 
   return (
     <Link

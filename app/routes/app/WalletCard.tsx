@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   DotsVerticalIcon,
   MagicWandIcon,
@@ -17,10 +18,9 @@ import {
   PopoverTrigger,
   PopoverItem,
 } from '~/components/ui/popover'
+import { toast } from '~/components/ui/use-toast'
 
 import { action, extractValue } from './action'
-import { useEffect } from 'react'
-import { toast } from '~/components/ui/use-toast'
 
 type WalletProps = { wallet: FullWalletWithStocks }
 
@@ -72,7 +72,7 @@ export default function WalletCard({ wallet }: WalletProps) {
               <PopoverItem
                 title="Alterar nome"
                 icon={<Pencil2Icon className="size-5 text-primary-200" />}
-                onClick={() => {}}
+                onClick={() => setSearchParams({ changeName: wallet.id })}
               />
 
               <PopoverItem

@@ -1,16 +1,13 @@
-import {
-  ActionFunctionArgs,
-  TypedResponse,
-  json,
-  redirect,
-} from '@remix-run/node'
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
+import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import StockService, { DomainStock } from '~/services/stockService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result } from '~/types/Result'
-import { z } from 'zod'
+
+import { createMatcher } from '~/lib/actionMatcher'
 
 type SubActionArgs = {
   user: DomainUser
@@ -110,25 +107,14 @@ const patchAction = async ({
   }
 }
 
-type ActionResponse =
-  | {
-      method: 'DELETE'
-      result: DeleteSubactionReturn
-    }
-  | {
-      method: 'POST'
-      result: PostSubactionReturn
-    }
-  | {
-      method: 'PATCH'
-      result: PatchSubactionReturn
-    }
+const { match, extractValue } = createMatcher<SubActionArgs>()({
+  POST: postAction,
+  PATCH: patchAction,
+  DELETE: deleteAction,
+})
+export { extractValue }
 
-// creates a stock
-export const action = async ({
-  request,
-  params,
-}: ActionFunctionArgs): Promise<TypedResponse<ActionResponse>> => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -146,28 +132,11 @@ export const action = async ({
 
   const formData = await request.formData()
 
-  let result
+  const matchResult = await match(request.method.toUpperCase(), {
+    user,
+    walletId,
+    formData,
+  })
 
-  switch (request.method.toUpperCase()) {
-    case 'DELETE':
-      result = await deleteAction({ user, walletId, formData })
-      return json({
-        method: 'DELETE',
-        result,
-      })
-    case 'POST':
-      result = await postAction({ user, walletId, formData })
-      return json({
-        method: 'POST',
-        result,
-      })
-    case 'PATCH':
-      result = await patchAction({ user, walletId, formData })
-      return json({
-        method: 'PATCH',
-        result,
-      })
-  }
-
-  throw new Error('Unsupported HTTP method: ' + request.method)
+  return json(matchResult)
 }

@@ -18,7 +18,7 @@ import { Dialog } from '~/components/ui/dialog'
 import { Input } from '~/components/ui/input'
 import { toast } from '~/components/ui/use-toast'
 
-import { action } from './action'
+import { action, extractValue } from './action'
 
 export function NewStockModal() {
   const fetcher = useFetcher<typeof recommendationsLoader>({
@@ -76,8 +76,10 @@ function SuggestionsList() {
 
   const actionData = useActionData<typeof action>()
   // TODO: do I have to elaborate?
-  const actionResult =
-    (actionData?.method === 'POST' && actionData.result) || undefined
+  const actionResult = extractValue(actionData, 'POST')
+
+  // const actionResult =
+  //   (actionData?.method === 'POST' && actionData.result) || undefined
 
   const message = actionResult?.ok
     ? `${actionResult.value.ticker} adicionado com sucesso!`
@@ -91,7 +93,7 @@ function SuggestionsList() {
 
     toast({
       title: message,
-      variant: actionData.result.ok ? 'default' : 'destructive',
+      variant: actionResult?.ok ? 'default' : 'destructive',
     })
   }, [actionResult, message])
 

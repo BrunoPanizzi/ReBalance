@@ -15,13 +15,13 @@ export default function Information() {
       >
         <li
           data-selected={selected === 'invest'}
-          className="rounded px-3 py-1 transition-colors hover:bg-primary-400/25 data-[selected=true]:bg-primary-600/50 data-[selected=true]:text-primary-50"
+          className="rounded px-3 py-1 transition-colors hover:bg-primary-400/25 data-[selected=true]:bg-primary-600/50 data-[selected=true]:text-primary-50 data-[selected=true]:shadow"
         >
           <button onClick={() => setSelected('invest')}>Investir</button>
         </li>
         <li
           data-selected={selected === 'graph'}
-          className="rounded px-3 py-1 transition-colors hover:bg-primary-400/25 data-[selected=true]:bg-primary-600/50 data-[selected=true]:text-primary-50"
+          className="rounded px-3 py-1 transition-colors hover:bg-primary-400/25 data-[selected=true]:bg-primary-600/50 data-[selected=true]:text-primary-50 data-[selected=true]:shadow"
         >
           <button onClick={() => setSelected('graph')}>Gráfico</button>
         </li>

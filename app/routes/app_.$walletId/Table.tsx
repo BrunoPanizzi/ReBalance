@@ -18,9 +18,9 @@ export function Table() {
       <div>
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold text-primary-100">
+            <h2 className="text-2xl font-semibold text-primary-100">
               Seus ativos
-            </h1>
+            </h2>
 
             <button
               className="transition-transform hover:scale-125"

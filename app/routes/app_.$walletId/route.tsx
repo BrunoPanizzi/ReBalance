@@ -7,6 +7,7 @@ import { loader } from './loader'
 import { action } from './action'
 import { Table } from './Table'
 import { NewStockModal } from './NewStockModal'
+import Information from './Information'
 
 export { loader, action }
 
@@ -24,7 +25,7 @@ export default function WalletPage() {
       <Wrapper cols={2}>
         <Table />
 
-        <div className="bg-red-300 p-2"></div>
+        <Information />
       </Wrapper>
     </>
   )

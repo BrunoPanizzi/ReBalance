@@ -37,7 +37,7 @@ export default function Index() {
 
       <div className="relative h-screen bg-opacity-10">
         <div
-          className="absolute inset-0 -z-10 bg-squares"
+          className="absolute inset-0 -z-10 bg-squares bg-repeat-round"
           style={{
             maskImage: 'linear-gradient(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.3))',
           }}
@@ -48,7 +48,7 @@ export default function Index() {
 
         <main className="mx-auto mt-[20vh] max-w-screen-xl text-center font-display">
           <div className="mx-auto max-w-[75%]">
-            <h2 className="mx-auto mb-4 max-w-screen-md text-balance text-[clamp(3rem,6vw,5rem)] font-bold text-emerald-50">
+            <h2 className="mx-auto mb-4 max-w-screen-md text-balance text-[clamp(3rem,6vw,5rem)]/none font-bold text-emerald-50">
               Investir não precisa ser{' '}
               <strong className="text-emerald-300 underline">difícil.</strong>
             </h2>

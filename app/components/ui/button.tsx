@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           'bg-red-700 shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF10,0_4px_6px_0_#0000001A] text-gray-50 hover:bg-red-700/80',
         outline:
-          'border shadow-[-0.075em_0.1em_0.125em_inset_#FFFFFF0D,0_4px_6px_0_#0000001A] bg-transparent text-gray-100 border-gray-800 hover:bg-gray-800/50 hover:text-gray-50',
+          'border shadow-md bg-transparent text-gray-100 border-gray-800 hover:bg-gray-800/50 hover:text-gray-50',
         secondary: 'bg-gray-800 text-gray-50 hover:bg-gray-800/80',
         ghost: 'hover:bg-gray-900/50 hover:text-gray-50 hover:shadow-md',
         'colorful-ghost':
@@ -23,8 +23,8 @@ const buttonVariants = cva(
       },
       size: {
         default: 'px-4 py-2',
-        sm: 'rounded-md text-sm px-3',
-        lg: 'rounded-md px-8',
+        sm: 'rounded-md text-sm px-3 py-1',
+        lg: 'rounded-md px-8 py-3',
         icon: 'h-10 w-10',
       },
     },

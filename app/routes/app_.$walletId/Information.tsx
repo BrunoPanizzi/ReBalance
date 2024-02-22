@@ -1,15 +1,18 @@
 import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
+import { ArrowRightIcon } from '@radix-ui/react-icons'
+
+import { brl, currencyToNumber } from '~/lib/formatting'
+
+import { StockWithPrice } from '~/services/stockService/index.server'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { brl, currencyToNumber } from '~/lib/formatting'
-import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
-import { loader } from './loader'
-import { StockWithPrice } from '~/services/stockService/index.server'
 import { Tooltip } from '~/components/ui/tooltip'
-import { cn } from '~/lib/utils'
-import { ArrowRightIcon } from '@radix-ui/react-icons'
+
+import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
+
+import { loader } from './loader'
 
 export default function Information() {
   const [selected, setSelected] = useState<'invest' | 'graph'>('invest')
@@ -43,9 +46,11 @@ export default function Information() {
 }
 
 function Shopping() {
-  const fetcher = useFetcher({ key: 'shopping' })
+  const [value, setValue] = useState('')
 
-  const [value, setValue] = useState<string>('')
+  const fetcher = useFetcher({ key: 'shopping' + currencyToNumber(value) })
+
+  const isSubmitting = fetcher.state !== 'idle'
 
   return (
     <>
@@ -63,9 +68,11 @@ function Shopping() {
           <Link to="/help">Como funciona</Link>
         </Button>
       </header>
-      <fetcher.Form
+      <Form
+        fetcherKey={'shopping' + currencyToNumber(value)}
         action="suggestions"
         method="GET"
+        navigate={false}
         className="flex items-start gap-2"
       >
         <input
@@ -78,25 +85,30 @@ function Shopping() {
           onChange={(e) => setValue(brl(currencyToNumber(e.target.value)))}
           placeholder="R$ 0,00"
         />
-        <Button type="submit" disabled={fetcher.state === 'loading'}>
-          {fetcher.state === 'loading' ? 'Calculando...' : 'Calcular'}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Calculando...' : 'Calcular'}
         </Button>
-      </fetcher.Form>
-      <Result />
+      </Form>
+
+      <Result amount={currencyToNumber(value)} onClear={() => setValue('')} />
     </>
   )
 }
 
-function Result() {
+type ResultProps = {
+  amount: number
+  // ideally we shoudn't rely on this method of clearing the suggestions
+  // the best approach would be to reset the loader, as in this discussion
+  // https://github.com/remix-run/remix/discussions/2749
+  onClear: () => void
+}
+function Result({ amount, onClear }: ResultProps) {
   const { stocks } = useLoaderData<typeof loader>()
-  const fetcher = useFetcher<typeof suggestionsLoader>({ key: 'shopping' })
+  const fetcher = useFetcher<typeof suggestionsLoader>({
+    key: 'shopping' + amount,
+  })
 
   const data = fetcher.data
-
-  let state = 'initial'
-  if (data?.ok) {
-    state = data.value.stocksBought === 0 ? 'no-results' : 'results'
-  }
 
   if (!data || !data.ok) {
     return null
@@ -148,6 +160,15 @@ function Result() {
           )
         })}
       </div>
+
+      <div className="mt-6 flex gap-3">
+        <Button onClick={onClear} variant="outline">
+          Limpar
+        </Button>
+        <Form>
+          <Button>Invesitr</Button>
+        </Form>
+      </div>
     </div>
   )
 }
@@ -188,97 +209,6 @@ function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
     </>
   )
 }
-
-/*
-  return (
-    <Switch>
-      <Match when={state() === 'results'}>
-        <div class="mt-4">
-          <h3 class="text-lg">
-            Com{' '}
-            <strong class="text-secondary-200 font-bold">
-              {brl(purchase()!.totalAmount)}
-            </strong>
-            , você pode comprar:{' '}
-          </h3>
-
-          <div class="mt-2 flex flex-wrap gap-2">
-            <For each={Object.keys(purchase()!.purchases)}>
-              {(item) => {
-                const stock = stocks.find((s) => s.ticker === item)!
-                return (
-                  <StockCard
-                    name={item}
-                    amountToBuy={purchase()!.purchases[item]}
-                    oldStock={stock}
-                  />
-                )
-              }}
-            </For>
-          </div>
-
-          <span class="mt-4 flex items-center justify-between">
-            <p>E com {brl(purchase()!.amountLeft)} de troco!</p>
-            <Button onClick={handleApplyAll} size="sm">
-              Aplicar sugestões
-            </Button>
-            <Show when={purchases()}>
-              <Button
-                onClick={() => {
-                  handleInvestAndRecalculate(
-                    wallet(),
-                    purchase()!.totalAmount - purchase()!.amountLeft,
-                  )
-                  handleApplyAll()
-                }}
-                size="sm"
-              >
-                Investir e recalcular
-              </Button>
-            </Show>
-          </span>
-        </div>
-      </Match>
-
-      <Match when={state() === 'no-results'}>
-        <div class="mt-4">
-          <h3 class="text-secondary-100 text-lg font-semibold">
-            Quantia insuficiente!
-          </h3>
-          <p class="mb-1">
-            Desculpe, mas com{' '}
-            <strong class="text-secondary-200 font-semibold">
-              {brl(purchase()!.totalAmount)}
-            </strong>{' '}
-            não é possível comprar nada.
-          </p>
-          <p class="mb-1">
-            Se acredita que isso seja um engano, verifique-se de que todos os
-            ativos estejam com o preço atualizado.
-          </p>
-
-          <hr class="border-secondary-400/40 mb-3 mt-4" />
-
-          <p class="mb-1 text-gray-200">
-            Para mais informações, veja{' '}
-            <a
-              class="text-secondary-400 visited:text-secondary-400/75 underline"
-              href="/blog"
-            >
-              como o cálculo é realizado.
-            </a>
-          </p>
-          <a
-            class="text-secondary-400 visited:text-secondary-400/75 underline"
-            href="/feedback"
-          >
-            Relatar um problema.
-          </a>
-        </div>
-      </Match>
-    </Switch>
-  )
-  */
 
 function Graph() {
   return 'not implemented'

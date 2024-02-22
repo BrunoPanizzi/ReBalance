@@ -1,8 +1,15 @@
-import { Link } from '@remix-run/react'
+import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { brl, currencyToNumber } from '~/lib/formatting'
+import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
+import { loader } from './loader'
+import { StockWithPrice } from '~/services/stockService/index.server'
+import { Tooltip } from '~/components/ui/tooltip'
+import { cn } from '~/lib/utils'
+import { ArrowRightIcon } from '@radix-ui/react-icons'
 
 export default function Information() {
   const [selected, setSelected] = useState<'invest' | 'graph'>('invest')
@@ -36,6 +43,10 @@ export default function Information() {
 }
 
 function Shopping() {
+  const fetcher = useFetcher({ key: 'shopping' })
+
+  const [value, setValue] = useState<string>('')
+
   return (
     <>
       <header className="mb-3">
@@ -47,39 +58,138 @@ function Shopping() {
           asChild
           variant="link"
           size="sm"
-          className="p-0 text-primary-300"
+          className="p-0 text-primary-100"
         >
           <Link to="/help">Como funciona</Link>
         </Button>
       </header>
-      <form className="flex items-start gap-2">
-        <Input placeholder="R$ 0,00" />
-        <Button type="submit">Calcular</Button>
-      </form>
+      <fetcher.Form
+        action="suggestions"
+        method="GET"
+        className="flex items-start gap-2"
+      >
+        <input
+          type="hidden"
+          name="amount"
+          value={currencyToNumber(value || '')}
+        />
+        <Input
+          value={value}
+          onChange={(e) => setValue(brl(currencyToNumber(e.target.value)))}
+          placeholder="R$ 0,00"
+        />
+        <Button type="submit" disabled={fetcher.state === 'loading'}>
+          {fetcher.state === 'loading' ? 'Calculando...' : 'Calcular'}
+        </Button>
+      </fetcher.Form>
       <Result />
     </>
   )
 }
 
 function Result() {
-  //   const { purchases, handleInvestAndRecalculate } = useGlobalShoppingContext()
+  const { stocks } = useLoaderData<typeof loader>()
+  const fetcher = useFetcher<typeof suggestionsLoader>({ key: 'shopping' })
 
-  //   const { state, purchase, handleApplyAll } = useShopping()
-  //   const { stocks, wallet } = useStocks()
-  const state: string = 'initial'
+  const data = fetcher.data
 
-  switch (state) {
-    case 'initial':
-      return null
-    case 'no-results':
-      return 'no results found'
-    case 'results':
-      return 'here are the results'
+  let state = 'initial'
+  if (data?.ok) {
+    state = data.value.stocksBought === 0 ? 'no-results' : 'results'
   }
 
-  return
+  if (!data || !data.ok) {
+    return null
+  }
+  if (data.value.stocksBought === 0) {
+    return (
+      <div className="mt-4">
+        <strong className="text-lg font-semibold text-primary-200">
+          Não foi possível equilibrar seus invsetimentos {':('}
+        </strong>
+        <p className="mt-2">
+          Com {brl(data.value.totalAmount)} não é possível comprar nenhum ativo
+          da sua carteira.
+        </p>
+        <p className="mt-1">
+          Se você acha que isso é um erro ou possui alguma dúvida, veja nossas{' '}
+          <Button asChild variant="link" className="p-0 text-primary-100">
+            <Link to="/faq">perguntas frequentes</Link>
+          </Button>{' '}
+          ou{' '}
+          <Button asChild variant="link" className="p-0 text-primary-100">
+            <Link to="/feedback">envie feedback.</Link>
+          </Button>
+        </p>
+      </div>
+    )
+  }
 
-  /*
+  return (
+    <div className="mt-4">
+      <h3 className="text-lg">
+        Com{' '}
+        <strong className="font-bold text-primary-200">
+          {brl(data.value.totalAmount)}
+        </strong>
+        , você pode comprar:{' '}
+      </h3>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+        {Object.entries(data.value.purchases).map(([ticker, amount]) => {
+          const stock = stocks.find((s) => s.ticker === ticker)!
+          return (
+            <StockCard
+              key={ticker}
+              name={ticker}
+              amountToBuy={amount}
+              oldStock={stock}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+type StockCardProps = {
+  name: string
+  amountToBuy: number
+  oldStock: StockWithPrice
+}
+
+function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
+  return (
+    <>
+      <Tooltip.Root delayDuration={200}>
+        <Tooltip.Trigger className="flex justify-between gap-4 rounded-md border border-gray-500 px-2 py-1 transition-colors hover:border-primary-400/50 data-[state=delayed-open]:border-primary-400 ">
+          <span>{amountToBuy}</span>
+          <span>{name}</span>
+        </Tooltip.Trigger>
+
+        <Tooltip.Content className="p-2 text-center">
+          <div>
+            <p>Quantidade:</p>
+            {oldStock.amount} <ArrowRightIcon className="inline size-4" />{' '}
+            <p className="inline font-bold text-primary-200">
+              {oldStock.amount + amountToBuy}
+            </p>
+          </div>
+          <div>
+            <p>Valor total:</p>
+            {brl(oldStock.totalValue)}{' '}
+            <ArrowRightIcon className="inline size-4" />{' '}
+            <p className="inline font-bold text-primary-200">
+              {brl(oldStock.price * (oldStock.amount + amountToBuy))}
+            </p>
+          </div>
+        </Tooltip.Content>
+      </Tooltip.Root>
+    </>
+  )
+}
+
+/*
   return (
     <Switch>
       <Match when={state() === 'results'}>
@@ -169,7 +279,6 @@ function Result() {
     </Switch>
   )
   */
-}
 
 function Graph() {
   return 'not implemented'

@@ -1,5 +1,12 @@
-import { Form, Link, useFetcher, useLoaderData } from '@remix-run/react'
-import { useState } from 'react'
+import {
+  Form,
+  Link,
+  useActionData,
+  useFetcher,
+  useLoaderData,
+  useRevalidator,
+} from '@remix-run/react'
+import { useEffect, useState } from 'react'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 
 import { brl, currencyToNumber } from '~/lib/formatting'
@@ -13,6 +20,8 @@ import { Tooltip } from '~/components/ui/tooltip'
 import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
 
 import { loader } from './loader'
+import { action, extractValue } from './action'
+import { toast } from '~/components/ui/use-toast'
 
 export default function Information() {
   const [selected, setSelected] = useState<'invest' | 'graph'>('invest')
@@ -104,11 +113,25 @@ type ResultProps = {
 }
 function Result({ amount, onClear }: ResultProps) {
   const { stocks } = useLoaderData<typeof loader>()
+  const { revalidate } = useRevalidator()
   const fetcher = useFetcher<typeof suggestionsLoader>({
     key: 'shopping' + amount,
   })
 
+  const actionData = useActionData<typeof action>()
+  const actionResult = extractValue(actionData, 'PUT')
+
   const data = fetcher.data
+
+  useEffect(() => {
+    if (actionResult?.ok) {
+      onClear()
+      toast({
+        title: 'Seus ativos foram atualizados!',
+      })
+      revalidate()
+    }
+  }, [actionResult])
 
   if (!data || !data.ok) {
     return null
@@ -136,6 +159,15 @@ function Result({ amount, onClear }: ResultProps) {
       </div>
     )
   }
+
+  const newStocks = stocks.map((s) => {
+    const amountToBuy = data.value.purchases[s.ticker] || 0
+    return {
+      id: s.id,
+      ticker: s.ticker,
+      amount: s.amount + amountToBuy,
+    }
+  })
 
   return (
     <div className="mt-4">
@@ -165,8 +197,10 @@ function Result({ amount, onClear }: ResultProps) {
         <Button onClick={onClear} variant="outline">
           Limpar
         </Button>
-        <Form>
-          <Button>Invesitr</Button>
+        <Form method="PUT">
+          <Button name="stocks" value={JSON.stringify(newStocks)}>
+            Invesitr
+          </Button>
         </Form>
       </div>
     </div>

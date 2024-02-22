@@ -1,8 +1,8 @@
-import { and, eq } from 'drizzle-orm'
+import { SQL, and, eq, sql } from 'drizzle-orm'
 
 import { db } from '../db/index.server'
-import { stock, stock as stockTable } from '../db/schema/stock.server'
-import type { Stock, UpdateStocks } from '../db/schema/stock.server'
+import { stock as stockTable, stockSchema } from '../db/schema/stock.server'
+import type { Stock } from '../db/schema/stock.server'
 
 import MarketService from '../maketService/index.server'
 
@@ -10,6 +10,7 @@ type PersistanceStock = Stock
 
 export type DomainStock = Omit<PersistanceStock, 'owner'>
 export type NewStock = Omit<DomainStock, 'id' | 'walletId'>
+export type UpdateStock = Omit<PersistanceStock, 'owner' | 'walletId'>
 
 export type StockWithPrice = DomainStock & {
   price: number
@@ -113,6 +114,44 @@ class StockService {
       .returning()
 
     return toDomain(updated)
+  }
+
+  async updateMany(
+    uid: string,
+    walletId: string,
+    stocks: UpdateStock[],
+  ): Promise<DomainStock[]> {
+    const sqlChunks: SQL[] = []
+    const idsChunks: SQL[] = []
+
+    stocks.forEach((s) => {
+      idsChunks.push(sql`${s.id}`)
+    })
+
+    const finalIds = sql.join(idsChunks, sql.raw(','))
+
+    sqlChunks.push(sql`update ${stockTable} set "amount"`) // this might be bad, but it does not accpet ${stock.amount}
+
+    sqlChunks.push(sql`= case`)
+
+    stocks.forEach((s) => {
+      sqlChunks.push(
+        sql`when "id" = ${s.id} and "owner" = ${uid} then ${s.amount}`,
+      )
+    })
+
+    sqlChunks.push(sql`else "amount"`)
+    sqlChunks.push(sql`end`)
+
+    sqlChunks.push(sql`where "id" in (${finalIds})`)
+
+    sqlChunks.push(sql`returning *, wallet_id as "walletId"`) // this is where I miss the ORM
+
+    const finalSql = sql.join(sqlChunks, sql.raw(' '))
+
+    const res = await db.execute(finalSql)
+
+    return res.map((s) => toDomain(stockSchema.parse(s)))
   }
 
   async deleteStock(

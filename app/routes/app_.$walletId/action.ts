@@ -2,7 +2,10 @@ import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import StockService, { DomainStock } from '~/services/stockService/index.server'
+import StockService, {
+  DomainStock,
+  StockWithPrice,
+} from '~/services/stockService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result } from '~/types/Result'
@@ -107,7 +110,63 @@ const patchAction = async ({
   }
 }
 
+const putFormSchema = z.object({
+  stocks: z.string(),
+})
+const putJSONSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    ticker: z.string().min(1),
+    amount: z.number().nonnegative(),
+  }),
+)
+
+type PutSubactionRetur = Result<DomainStock[], string>
+const putAction = async ({
+  user,
+  walletId,
+  formData,
+}: SubActionArgs): Promise<PutSubactionRetur> => {
+  const parsedForm = putFormSchema.safeParse(Object.fromEntries(formData))
+
+  if (!parsedForm.success) {
+    return {
+      ok: false,
+      error: 'Error while parsing form',
+    }
+  }
+
+  const newStocks = putJSONSchema.safeParse(JSON.parse(parsedForm.data.stocks))
+
+  if (!newStocks.success) {
+    return {
+      ok: false,
+      error: newStocks.error.errors[0].message,
+    }
+  }
+
+  try {
+    const updatedStocks = await StockService.updateMany(
+      user.uid,
+      walletId,
+      newStocks.data,
+    )
+    return {
+      ok: true,
+      value: updatedStocks,
+    }
+  } catch (e) {
+    console.log(e)
+
+    return {
+      ok: false,
+      error: 'Unknown backend error',
+    }
+  }
+}
+
 const { match, extractValue } = createMatcher<SubActionArgs>()({
+  PUT: putAction,
   POST: postAction,
   PATCH: patchAction,
   DELETE: deleteAction,

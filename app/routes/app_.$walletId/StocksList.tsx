@@ -1,4 +1,4 @@
-import { memo, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useFetcher, useLoaderData } from '@remix-run/react'
 import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 
@@ -112,6 +112,12 @@ function AmountInput({ stock }: { stock: StockWithPrice }) {
   const [value, setValue] = useState(stock.amount)
 
   const changed = value !== stock.amount
+
+  useEffect(() => {
+    if (stock.amount !== value) {
+      setValue(stock.amount)
+    }
+  }, [stock.amount])
 
   return (
     <fetcher.Form className="relative min-w-20" method="PATCH">

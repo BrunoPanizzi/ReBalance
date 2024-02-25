@@ -8,6 +8,7 @@ import {
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
+import colors from 'tailwindcss/colors.js'
 
 import { brl, currencyToNumber } from '~/lib/formatting'
 
@@ -22,6 +23,7 @@ import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
 import { loader } from './loader'
 import { action, extractValue } from './action'
 import { toast } from '~/components/ui/use-toast'
+import Graph from '~/components/Graph'
 
 export default function Information() {
   const [selected, setSelected] = useState<'invest' | 'graph'>('invest')
@@ -48,7 +50,7 @@ export default function Information() {
 
       <main className="p-3">
         {selected === 'invest' && <Shopping />}
-        {selected === 'graph' && <Graph />}
+        {selected === 'graph' && <PieChart />}
       </main>
     </div>
   )
@@ -244,6 +246,16 @@ function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
   )
 }
 
-function Graph() {
-  return 'not implemented'
+function PieChart() {
+  const { stocks, color } = useLoaderData<typeof loader>()
+  console.log(colors)
+
+  return (
+    <Graph
+      data={stocks}
+      value="totalValue"
+      colorStops={[colors[color][200], colors[color][800]]}
+      h={50}
+    />
+  )
 }

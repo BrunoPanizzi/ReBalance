@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
 
 import { brl } from '~/lib/formatting'
 
@@ -8,6 +9,7 @@ type BaseT = { id: string }
 type GraphProps<T extends BaseT> = {
   data: T[]
   value: { [K in keyof T]: T[K] extends number ? K : never }[keyof T]
+  name: { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
   w?: number
   h?: number
   m?: number
@@ -28,6 +30,7 @@ type GraphProps<T extends BaseT> = {
 export default function Graph<T extends BaseT>({
   data,
   value,
+  name,
   color,
   colorStops,
   h = 100,
@@ -36,6 +39,7 @@ export default function Graph<T extends BaseT>({
 }: GraphProps<T>) {
   // typescript is dumb
   const valueExtractor = (el: T): number => el[value] as number
+  const nameExtractor = (el: T): string => el[name] as string
 
   const [hoveredId, setHoveredId] = useState<string | null>(null)
 
@@ -71,6 +75,7 @@ export default function Graph<T extends BaseT>({
       id: d.data.id,
       value: valueExtractor(d.data),
       color: c,
+      name: nameExtractor(d.data),
     }
   })
 
@@ -79,19 +84,7 @@ export default function Graph<T extends BaseT>({
   return (
     <>
       <svg viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
-        <text
-          x="50%"
-          y="50%"
-          textAnchor="middle"
-          dominantBaseline="middle"
-          className="font-display font-semibold transition"
-          style={{
-            fontSize: r * 0.7 + '%',
-          }}
-          fill={hoveredArc ? hoveredArc.color : 'rgb(var(--primary-300))'}
-        >
-          {brl(hoveredArc ? hoveredArc.value : totalValue)}
-        </text>
+        <InnerText {...{ hoveredArc, totalValue, r }} />
 
         <g transform={`translate(${w / 2}, ${h / 2})`}>
           {arcs.map((d) => (
@@ -107,5 +100,63 @@ export default function Graph<T extends BaseT>({
         </g>
       </svg>
     </>
+  )
+}
+
+type InnerTextProps = {
+  hoveredArc?: {
+    d: string
+    id: string
+    value: number
+    color: string
+    name: string
+  }
+
+  totalValue: number
+  r: number
+}
+function InnerText({ hoveredArc, totalValue, r }: InnerTextProps) {
+  const label = !!hoveredArc
+  const [prevLabel, setPrevLabel] = useState(hoveredArc?.name)
+
+  useEffect(() => {
+    if (hoveredArc) {
+      setPrevLabel(hoveredArc.name)
+    }
+  }, [hoveredArc])
+
+  return (
+    <g
+      textAnchor="middle"
+      dominantBaseline="middle"
+      className="font-display font-semibold transition-[fill]"
+      style={{
+        fontSize: r * 0.7 + '%',
+        fill: hoveredArc ? hoveredArc.color : 'rgb(var(--primary-300))',
+      }}
+    >
+      <text x="50%" y="50%">
+        <motion.tspan
+          variants={{
+            initial: { dy: '0', opacity: 0 },
+            withLabel: { dy: '-0.6em', opacity: 1 },
+          }}
+          animate={label ? 'withLabel' : 'initial'}
+          x="50%"
+        >
+          {prevLabel}
+        </motion.tspan>
+        <motion.tspan
+          variants={{
+            initial: { dy: '0em' },
+            withLabel: { dy: '1.2em' },
+          }}
+          animate={label ? 'withLabel' : 'initial'}
+          x="50%"
+        >
+          {brl(hoveredArc ? hoveredArc.value : totalValue)}
+        </motion.tspan>
+      </text>
+    </g>
   )
 }

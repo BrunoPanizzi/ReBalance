@@ -57,6 +57,7 @@ export default function App() {
               <Graph
                 data={wallets}
                 value="totalValue"
+                name="title"
                 color={(w) => colors[w.color][600]}
                 m={5}
               />

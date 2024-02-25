@@ -254,7 +254,8 @@ function PieChart() {
     <Graph
       data={stocks}
       value="totalValue"
-      colorStops={[colors[color][200], colors[color][800]]}
+      name="ticker"
+      colorStops={[colors[color][200], colors[color][700]]}
       h={50}
     />
   )

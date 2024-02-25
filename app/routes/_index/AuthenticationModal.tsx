@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import {
   Form,
   useActionData,
+  useNavigate,
   useNavigation,
   useSearchParams,
 } from '@remix-run/react'
@@ -25,14 +27,14 @@ const texts: {
   login: {
     modalTitle: 'Entre na sua conta',
     changeMode: 'Não possui conta? Crie uma',
-    success: 'Login efetuado com sucesso!',
+    success: 'Login efetuado com sucesso! Entrando...',
     buttonLabel: 'Login',
     next: 'signup',
   },
   signup: {
     modalTitle: 'Criar conta',
     changeMode: 'Já é usuário? Faça login',
-    success: 'Conta criada com sucesso!',
+    success: 'Conta criada com sucesso! Entrando...',
     buttonLabel: 'Criar conta',
     next: 'login',
   },
@@ -41,6 +43,7 @@ const texts: {
 export default function AuthenticationModal() {
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const mode = searchParams.get('mode')
@@ -48,6 +51,12 @@ export default function AuthenticationModal() {
   const hasError = actionData?.ok === false && !isDoingStuff
   const backendError =
     hasError && actionData.error.some((e) => e.type === 'backend')
+
+  useEffect(() => {
+    if (actionData?.ok) {
+      setTimeout(() => navigate('/app'), 300)
+    }
+  }, [actionData])
 
   if (!mode || (mode !== 'login' && mode !== 'signup')) return null
 

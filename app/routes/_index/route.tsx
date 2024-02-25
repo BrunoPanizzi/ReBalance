@@ -2,13 +2,14 @@ import { LoaderFunctionArgs } from '@remix-run/node'
 import { Form, Link, useActionData, useLoaderData } from '@remix-run/react'
 import { motion } from 'framer-motion'
 
+import { sessionStorage } from '~/services/cookies/session.server'
+
 import { ErrorProvider } from '~/context/ErrorContext'
 
 import { Button } from '~/components/ui/button'
 
 import { action } from './action'
 import AuthenticationModal from './AuthenticationModal'
-import { sessionStorage } from '~/services/cookies/session.server'
 
 export const meta = () => {
   return [
@@ -28,6 +29,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const rand = (min: number, max: number) => Math.random() * (max - min) + min
 
 export default function Index() {
+  const { isAuthenticated } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
 
   const errors = !actionData?.ok ? actionData?.error : []
@@ -93,18 +95,24 @@ export default function Index() {
               objetivos.
             </motion.p>
 
-            <motion.div variants={children}>
-              <Form>
-                <Button
-                  className="mt-8 rounded-lg border-2 border-emerald-400 px-8 py-2 text-2xl hover:scale-105"
-                  variant="outline"
-                  size="lg"
-                  name="mode"
-                  value="signup"
-                >
-                  Crie sua conta agora!
+            <motion.div className="mt-8" variants={children}>
+              {isAuthenticated ? (
+                <Button asChild size="lg" className="text-lg font-bold">
+                  <Link to="/app">Acessar o app</Link>
                 </Button>
-              </Form>
+              ) : (
+                <Form>
+                  <Button
+                    className="rounded-lg border-2 border-emerald-400 px-8 py-2 text-2xl hover:scale-105"
+                    variant="outline"
+                    size="lg"
+                    name="mode"
+                    value="signup"
+                  >
+                    Crie sua conta agora!
+                  </Button>
+                </Form>
+              )}
             </motion.div>
           </motion.div>
         </main>
@@ -184,8 +192,8 @@ function Navbar() {
         </h1>
 
         {isAuthenticated ? (
-          <Button variant="link" asChild>
-            <Link to="/app">app</Link>
+          <Button asChild>
+            <Link to="/app">App</Link>
           </Button>
         ) : (
           <>

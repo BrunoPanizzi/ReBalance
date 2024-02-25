@@ -47,8 +47,8 @@ export default function App() {
           ))}
         </div>
 
-        <div>
-          <h2 className="mb-2 flex-1 text-2xl font-semibold text-emerald-50">
+        <div className="@container">
+          <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
             Distribuição dos ativos:
           </h2>
           <div className="h-min rounded-xl bg-gray-700/50">

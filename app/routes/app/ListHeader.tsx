@@ -22,14 +22,14 @@ import { toast } from '~/components/ui/use-toast'
 export default function ListHeader() {
   return (
     <>
-      <span className="mb-2 flex items-center gap-4 @md/list:mb-0">
-        <h2 className="flex-1 text-2xl font-semibold text-emerald-50">
+      <span className="flex h-8 gap-4 @md:h-auto">
+        <h2 className="flex-1 text-xl font-semibold text-emerald-50 @md/list:text-2xl">
           Suas carteiras:
         </h2>
         <Popover>
           <Button asChild size="icon" variant="ghost">
             <PopoverTrigger className="@md/list:hidden">
-              <HamburgerMenuIcon className="size-5" />
+              <HamburgerMenuIcon className="size-4" />
             </PopoverTrigger>
           </Button>
           <PopoverContent className="flex w-fit flex-col gap-2 ">

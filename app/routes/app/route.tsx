@@ -1,14 +1,15 @@
 import { Link, Outlet, useLoaderData } from '@remix-run/react'
+import colors from 'tailwindcss/colors.js'
 
 import { Button } from '~/components/ui/button'
 
 import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
+import Graph from '~/components/Graph'
 
 import { loader } from './loader'
 import { action } from './action'
 
-import Graph from './Graph'
 import WalletCard from './WalletCard'
 import ListHeader from './ListHeader'
 import NewWalletModal from './NewWalletModal'
@@ -53,7 +54,12 @@ export default function App() {
           </h2>
           <div className="h-min rounded-xl bg-gray-700/50">
             <div className="mx-auto max-w-md">
-              <Graph data={wallets} m={5} />
+              <Graph
+                data={wallets}
+                value="totalValue"
+                color={(w) => colors[w.color][600]}
+                m={5}
+              />
             </div>
           </div>
         </div>

@@ -30,6 +30,9 @@ export default function ChangeColorModal() {
   const isSubmitting = navigation.state === 'submitting'
 
   useEffect(() => {
+    // don't show color toast when name modal submits
+    if (!walletId) return
+
     if (actionResult?.ok) {
       toast({
         title: 'Cor alterada com sucesso!',

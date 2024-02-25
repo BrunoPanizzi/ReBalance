@@ -29,6 +29,9 @@ export default function ChangeNameModal() {
   const isSubmitting = navigation.state === 'submitting'
 
   useEffect(() => {
+    // don't show name toast when color modal submits
+    if (!walletId) return
+
     if (actionResult?.ok) {
       toast({
         title: 'Nome alterado com sucesso!',

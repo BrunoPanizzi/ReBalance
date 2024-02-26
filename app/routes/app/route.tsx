@@ -31,11 +31,21 @@ export default function App() {
       <Header
         title={`Bem vindo de volta, ${user.userName}`}
         rightSide={
-          <Button asChild className="mr-4 p-0 text-red-300" variant="link">
-            <Link to="logout" relative="path">
-              Sair
-            </Link>
-          </Button>
+          <>
+            <Button
+              asChild
+              className="p-0 text-primary-100"
+              variant="link"
+              size="sm"
+            >
+              <Link to="/feedback">Enviar feedback</Link>
+            </Button>
+            <Button asChild className="mr-4 p-0 text-red-300" variant="link">
+              <Link to="logout" relative="path">
+                Sair
+              </Link>
+            </Button>
+          </>
         }
       />
 

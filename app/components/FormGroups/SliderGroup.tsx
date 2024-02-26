@@ -8,7 +8,7 @@ export type SliderGroupProps = {
   slider?: SliderProps
 }
 
-export default function SelectGroup({ name, label, slider }: SliderGroupProps) {
+export default function SliderGroup({ name, label, slider }: SliderGroupProps) {
   return (
     <BaseGroup name={name} label={label}>
       <Slider name={name} {...slider} />

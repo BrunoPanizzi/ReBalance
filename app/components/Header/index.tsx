@@ -18,7 +18,7 @@ export default function Header({
   const navigate = useNavigate()
 
   return (
-    <header className="mx-auto mb-8 flex items-center justify-between gap-10 border-0 border-b border-primary-300/10 bg-gray-700 p-3 shadow-xl shadow-primary-950/10 backdrop-blur sm:mt-4 sm:w-[min(80rem,calc(100%-2rem))] sm:rounded-xl sm:border sm:p-4">
+    <header className="mb-8 flex items-center justify-between gap-10 border-0 border-b border-primary-300/10 bg-gray-700 p-3 shadow-xl shadow-primary-950/10 backdrop-blur sm:mx-auto sm:mt-4 sm:w-[min(80rem,calc(100%-2rem))] sm:rounded-xl sm:border sm:p-4">
       <div className="flex items-center justify-center gap-3">
         {backArrow && (
           <button onClick={() => navigate('/app')} title="Voltar">

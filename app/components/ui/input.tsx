@@ -11,7 +11,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          'flex rounded-md border border-gray-950/50 bg-gray-500/25 px-3 py-2 shadow transition-colors placeholder:text-gray-400',
+          'flex rounded-md border border-gray-400/25 bg-gray-500/25 px-3 py-2 shadow transition placeholder:text-gray-400',
           'hover:border-primary-500/25 focus-visible:border-primary-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
           'file:border-0 file:bg-transparent file:text-sm file:font-medium',
           'data-[error=true]:border-red-400/75 hover:data-[error=true]:border-red-400',
@@ -33,7 +33,7 @@ const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
     return (
       <textarea
         className={cn(
-          'flex max-h-56 min-h-32 resize-y rounded-md border border-gray-800 bg-gray-500/25 px-3 py-2 text-sm shadow transition-colors placeholder:text-gray-400 sm:text-base',
+          'flex max-h-56 min-h-32 resize-y rounded-md border border-gray-400/25 bg-gray-500/25 px-3 py-2 text-sm shadow transition-colors placeholder:text-gray-400 sm:text-base',
           'hover:border-primary-500/25 focus-visible:border-primary-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
           'data-[error=true]:border-red-400/75 hover:data-[error=true]:border-red-400',
           className,

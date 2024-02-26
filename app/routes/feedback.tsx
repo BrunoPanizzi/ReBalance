@@ -7,7 +7,7 @@ import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
+import { Checkbox } from '~/components/ui/checkbox'
 import { Select } from '~/components/ui/select'
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -59,7 +59,7 @@ function FeedbackForm() {
           <Select.Root name="type">
             <Select.Trigger
               size="md"
-              className="border-gray-950/50 bg-gray-500/25 "
+              className="border-gray-400/25 bg-gray-500/25"
             >
               <Select.Value placeholder="Selecione..." />
             </Select.Trigger>
@@ -88,12 +88,11 @@ function FeedbackForm() {
       <div className="col-span-2 flex gap-6">
         <label className="flex items-center gap-2">
           <span>Incluir e-mail</span>
-          <Input
+          <Checkbox
             value={String(includeEmail)}
             checked={includeEmail}
-            onChange={(e) => setIncludeEmail(e.target.checked)}
+            onCheckedChange={() => setIncludeEmail((p) => !p)}
             name="includeEmail"
-            type="checkbox"
           />
         </label>
 

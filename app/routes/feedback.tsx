@@ -21,7 +21,7 @@ export default function Feedback() {
     <>
       <div className="grid min-h-screen grid-rows-[auto_1fr] items-center">
         <Header title="Feedback" backArrow />
-        <Wrapper cols={2}>
+        <Wrapper cols={2} className="items-center">
           <div className="text-center md:text-start">
             <h2 className="mb-4 bg-gradient-to-br from-emerald-200 to-emerald-500 bg-clip-text font-display text-3xl font-semibold text-transparent md:mb-8 md:text-5xl/snug">
               O seu feedback é muito importante para nós.
@@ -57,7 +57,10 @@ function FeedbackForm() {
       <div>
         <BaseGroup label="Selecione um assunto" name="type">
           <Select.Root name="type">
-            <Select.Trigger>
+            <Select.Trigger
+              size="md"
+              className="border-gray-950/50 bg-gray-500/25 "
+            >
               <Select.Value placeholder="Selecione..." />
             </Select.Trigger>
             <Select.Content>

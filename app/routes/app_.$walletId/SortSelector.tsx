@@ -16,7 +16,7 @@ export function SortSelector() {
         defaultValue={sort.by}
         onValueChange={(value) => setSort(value as SortOptions)}
       >
-        <Select.Trigger>
+        <Select.Trigger size="sm">
           Ordem: <Select.Value />
         </Select.Trigger>
         <Select.Content>
@@ -29,7 +29,7 @@ export function SortSelector() {
         </Select.Content>
       </Select.Root>
       <button
-        className="rounded-md border border-primary-400/50 p-2 transition-colors hover:border-primary-400"
+        className="rounded-md border border-primary-400/50 p-1.5 shadow transition-colors hover:border-primary-400"
         onClick={toggleAscending}
         title={sort.ascending ? 'Menor para maior' : 'Maior para menor'}
       >

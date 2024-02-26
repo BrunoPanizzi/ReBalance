@@ -6,6 +6,7 @@ import { cn } from '~/lib/utils'
 export type WrapperProps = {
   children: ReactNode
   cols?: 1 | 2 // for now only 1 or 2 columns are needed
+  className?: string
 }
 
 const wrapperVariants = cva(
@@ -23,6 +24,8 @@ const wrapperVariants = cva(
   },
 )
 
-export default function Wrapper({ children, cols }: WrapperProps) {
-  return <div className={cn(wrapperVariants({ cols }))}>{children}</div>
+export default function Wrapper({ children, cols, className }: WrapperProps) {
+  return (
+    <div className={cn(wrapperVariants({ cols }), className)}>{children}</div>
+  )
 }

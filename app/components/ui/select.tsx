@@ -27,21 +27,43 @@ const SelectGroup = React.forwardRef<
 
 const SelectValue = SelectPrimitive.Value
 
+type Sizes = 'sm' | 'md' | 'lg'
+
+type SelectTriggerProps = React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Trigger
+> & {
+  size?: Sizes
+}
+
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  SelectTriggerProps
+>(({ className, children, size, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'group flex w-full items-center gap-2 rounded-md border border-primary-400/50 px-3 py-1 text-gray-200 transition-colors placeholder:text-gray-400 hover:border-primary-400 focus:ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary-400 [&>span]:line-clamp-1',
+      'group flex w-full items-center justify-between gap-2 rounded-md border border-primary-400/50 text-gray-200 shadow transition-colors placeholder:text-gray-400 hover:border-primary-400 focus:ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary-400 [&>span]:line-clamp-1',
+      {
+        'px-3 py-1 text-sm': size === 'sm',
+        'px-3 py-2 text-base': !size || size === 'md',
+        'px-4 py-3 text-lg': size === 'lg',
+      },
       className,
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDownIcon className="size-5 transition-transform group-data-[state=open]:rotate-180" />
+      <ChevronDownIcon
+        className={cn(
+          'transition-transform group-data-[state=open]:rotate-180',
+          {
+            'size-4': size === 'sm',
+            'size-5': !size || size === 'md',
+            'size-6': size === 'lg',
+          },
+        )}
+      />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))

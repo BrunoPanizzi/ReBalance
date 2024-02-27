@@ -197,7 +197,10 @@ function FeedbackForm() {
           <InputGroup
             label="Seu nome (opcional)"
             name="name"
-            input={{ placeholder: 'Nome...', className: 'w-full' }}
+            input={{
+              placeholder: 'Nome...',
+              className: 'w-full backdrop-blur',
+            }}
           />
         </div>
 
@@ -206,7 +209,7 @@ function FeedbackForm() {
             <Select.Root name="type">
               <Select.Trigger
                 size="md"
-                className="border-gray-400/25 bg-gray-500/25"
+                className="border-gray-400/25 bg-gray-500/25 backdrop-blur"
               >
                 <Select.Value placeholder="Selecione..." />
               </Select.Trigger>
@@ -228,7 +231,7 @@ function FeedbackForm() {
             name="feedback"
             textarea={{
               placeholder: 'Escreva aqui seu feedback',
-              className: 'w-full',
+              className: 'w-full backdrop-blur',
               rows: 5,
             }}
           />
@@ -242,6 +245,7 @@ function FeedbackForm() {
               checked={includeEmail}
               onCheckedChange={() => setIncludeEmail((p) => !p)}
               name="includeEmail"
+              className="backdrop-blur"
             />
           </label>
 
@@ -252,7 +256,7 @@ function FeedbackForm() {
                 disabled: !includeEmail,
                 type: 'email',
                 placeholder: 'E-mail...',
-                className: 'w-full',
+                className: 'w-full backdrop-blur',
               }}
             />
           </span>

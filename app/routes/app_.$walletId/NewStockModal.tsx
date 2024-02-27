@@ -59,6 +59,7 @@ export function NewStockModal() {
             autoComplete="off"
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar..."
+            className="w-full"
           />
         </fetcher.Form>
 
@@ -75,11 +76,7 @@ function SuggestionsList() {
   })
 
   const actionData = useActionData<typeof action>()
-  // TODO: do I have to elaborate?
   const actionResult = extractValue(actionData, 'POST')
-
-  // const actionResult =
-  //   (actionData?.method === 'POST' && actionData.result) || undefined
 
   const message = actionResult?.ok
     ? `${actionResult.value.ticker} adicionado com sucesso!`
@@ -114,7 +111,7 @@ function SuggestionsList() {
           recommendations.map((s) => (
             <label
               key={s}
-              className="peer rounded-lg border border-gray-500 px-4 py-2 text-xl font-bold text-primary-200 transition hover:-translate-y-0.5 has-[:checked]:border-primary-500"
+              className="peer rounded-lg border border-gray-500 px-4 py-2 text-center text-xl font-bold text-primary-200 transition hover:-translate-y-0.5 has-[:checked]:border-primary-500"
             >
               <input value={s} name="stock" type="radio" hidden />
               {s}

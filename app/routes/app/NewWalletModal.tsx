@@ -56,7 +56,7 @@ export default function NewWalletModal() {
 
           <Form
             className="flex flex-col gap-4"
-            noValidate
+            autoComplete="on"
             method="post"
             id="new-wallet"
           >

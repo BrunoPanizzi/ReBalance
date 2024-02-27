@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, TypedResponse, json } from '@remix-run/node'
 import { Form, useActionData, useNavigation } from '@remix-run/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
 import { Result } from '~/types/Result'
@@ -19,6 +19,7 @@ import Wrapper from '~/components/Wrapper'
 import { Button } from '~/components/ui/button'
 import { Checkbox } from '~/components/ui/checkbox'
 import { Select } from '~/components/ui/select'
+import { toast } from '~/components/ui/use-toast'
 
 const formSchema = z
   .object({
@@ -85,6 +86,18 @@ export const action = async ({
 }
 
 export default function Feedback() {
+  const actionData = useActionData<typeof action>()
+
+  useEffect(() => {
+    if (actionData?.ok) {
+      toast({
+        title: 'Seu feedback foi enviado!',
+        description:
+          'Obrigado por ajudar a melhorar o app! Caso necessário, em breve entraremos em contato com você.',
+      })
+    }
+  }, [actionData])
+
   return (
     <>
       <div className="grid min-h-screen grid-rows-[auto_1fr] items-center">

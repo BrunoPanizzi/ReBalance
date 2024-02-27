@@ -6,6 +6,9 @@ import { z } from 'zod'
 import { Result } from '~/types/Result'
 
 import { options as feedbackOptions } from '~/services/feedbackService/feedbackTypes'
+import FeedbackService, {
+  DomainFeedback,
+} from '~/services/feedbackService/index.server'
 
 import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
 
@@ -40,7 +43,9 @@ const formSchema = z
 
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<TypedResponse<Result<true, ErrorT[]>>> => {
+}: ActionFunctionArgs): Promise<
+  TypedResponse<Result<DomainFeedback, ErrorT[]>>
+> => {
   await new Promise((res): any => setTimeout(res, 1000))
 
   const parsed = formSchema.safeParse(
@@ -57,10 +62,26 @@ export const action = async ({
     })
   }
 
-  return json({
-    ok: true,
-    value: true,
-  })
+  const { feedback, type, email, name } = parsed.data
+
+  try {
+    const createdFeedback = await FeedbackService.createFeedback({
+      message: feedback,
+      userName: name || undefined,
+      type,
+      email,
+    })
+
+    return json({
+      ok: true,
+      value: createdFeedback,
+    })
+  } catch (e) {
+    return json({
+      ok: false,
+      error: [{ message: 'Erro desconhecido', type: 'unknown' }],
+    })
+  }
 }
 
 export default function Feedback() {

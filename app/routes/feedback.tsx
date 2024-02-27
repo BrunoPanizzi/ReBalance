@@ -112,6 +112,7 @@ export default function Feedback() {
   )
 }
 
+// TODO: add a loader to get the user name and email
 function FeedbackForm() {
   const actionData = useActionData<typeof action>()
   const { state } = useNavigation()

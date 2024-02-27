@@ -1,9 +1,9 @@
-import { ActionFunctionArgs, TypedResponse, json } from '@remix-run/node'
+import { ActionFunctionArgs, TypedResponse } from '@remix-run/node'
 import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
-import { Result } from '~/types/Result'
+import { Result, typedError, typedOk } from '~/types/Result'
 
 import { options as feedbackOptions } from '~/services/feedbackService/feedbackTypes'
 import FeedbackService, {
@@ -54,13 +54,12 @@ export const action = async ({
   )
 
   if (!parsed.success) {
-    return json({
-      ok: false,
-      error: parsed.error.errors.map((e) => ({
+    return typedError(
+      parsed.error.errors.map((e) => ({
         message: e.message,
         type: e.path.toString(),
       })),
-    })
+    )
   }
 
   const { feedback, type, email, name } = parsed.data
@@ -73,15 +72,9 @@ export const action = async ({
       email,
     })
 
-    return json({
-      ok: true,
-      value: createdFeedback,
-    })
+    return typedOk(createdFeedback)
   } catch (e) {
-    return json({
-      ok: false,
-      error: [{ message: 'Erro desconhecido', type: 'unknown' }],
-    })
+    return typedError([{ message: 'Erro desconhecido', type: 'unknown' }])
   }
 }
 

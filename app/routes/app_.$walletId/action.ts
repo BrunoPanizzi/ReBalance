@@ -1,14 +1,11 @@
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
+import { ActionFunctionArgs, redirect, json } from '@remix-run/node'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import StockService, {
-  DomainStock,
-  StockWithPrice,
-} from '~/services/stockService/index.server'
+import StockService, { DomainStock } from '~/services/stockService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
-import { Result } from '~/types/Result'
+import { Result, error, ok } from '~/types/Result'
 
 import { createMatcher } from '~/lib/actionMatcher'
 
@@ -27,18 +24,12 @@ const deleteAction = async ({
   const stockId = formData.get('stockId')?.toString()
 
   if (!stockId) {
-    return {
-      ok: false,
-      error: 'No stock id field found',
-    }
+    return error('No stock id field found')
   }
 
   await StockService.deleteStock(user.uid, walletId, stockId)
 
-  return {
-    ok: true,
-    value: null,
-  }
+  return ok(null)
 }
 
 type PostSubactionReturn = Result<DomainStock, string>
@@ -50,10 +41,7 @@ const postAction = async ({
   const stock = formData.get('stock')?.toString()
 
   if (!stock) {
-    return {
-      ok: false,
-      error: 'No stock field found',
-    }
+    return error('No stock field found')
   }
 
   try {
@@ -62,15 +50,9 @@ const postAction = async ({
       ticker: stock,
     })
 
-    return {
-      ok: true,
-      value: newStock,
-    }
+    return ok(newStock)
   } catch (e) {
-    return {
-      ok: false,
-      error: 'Ticker already exists',
-    }
+    return error('Ticker already exists')
   }
 }
 
@@ -89,10 +71,7 @@ const patchAction = async ({
   const result = patchFormSchema.safeParse(Object.fromEntries(formData))
 
   if (!result.success) {
-    return {
-      ok: false,
-      error: result.error.errors[0].message,
-    }
+    return error(result.error.errors[0].message)
   }
 
   const { stockId, amount } = result.data
@@ -104,10 +83,7 @@ const patchAction = async ({
     amount,
   )
 
-  return {
-    ok: true,
-    value: updatedStock,
-  }
+  return ok(updatedStock)
 }
 
 const putFormSchema = z.object({
@@ -130,19 +106,13 @@ const putAction = async ({
   const parsedForm = putFormSchema.safeParse(Object.fromEntries(formData))
 
   if (!parsedForm.success) {
-    return {
-      ok: false,
-      error: 'Error while parsing form',
-    }
+    return error('Error while parsing form')
   }
 
   const newStocks = putJSONSchema.safeParse(JSON.parse(parsedForm.data.stocks))
 
   if (!newStocks.success) {
-    return {
-      ok: false,
-      error: newStocks.error.errors[0].message,
-    }
+    return error(newStocks.error.errors[0].message)
   }
 
   try {
@@ -151,17 +121,11 @@ const putAction = async ({
       walletId,
       newStocks.data,
     )
-    return {
-      ok: true,
-      value: updatedStocks,
-    }
+    return ok(updatedStocks)
   } catch (e) {
     console.log(e)
 
-    return {
-      ok: false,
-      error: 'Unknown backend error',
-    }
+    return error('Unknown backend error')
   }
 }
 

@@ -3,11 +3,11 @@ import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import { authSerivce } from '~/services/auth/authService.server'
-import { User } from '~/services/auth/userSchemas'
+import { DomainUser } from '~/services/auth/authService.server'
 
 import { ErrorT } from '~/context/ErrorContext'
 
-import { Result } from '~/types/Result'
+import { Result, typedError } from '~/types/Result'
 
 const loginFormValidator = z.object({
   email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
@@ -19,22 +19,17 @@ const signupFormValidator = loginFormValidator.extend({
 
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<TypedResponse<Result<User, ErrorT[]>>> => {
+}: ActionFunctionArgs): Promise<
+  TypedResponse<Result<DomainUser, ErrorT[]>>
+> => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const { searchParams } = new URL(request.url)
   const mode = searchParams.get('mode')
 
-  if (!mode || (mode !== 'login' && mode !== 'signup'))
-    return json({
-      ok: false,
-      error: [
-        {
-          type: 'unknown',
-          message: 'Invalid mode',
-        },
-      ],
-    })
+  if (!mode || (mode !== 'login' && mode !== 'signup')) {
+    return typedError([{ type: 'unknown', message: 'Invalid mode' }])
+  }
 
   const formData = await request.formData()
   const rawForm = Object.fromEntries(formData)
@@ -46,13 +41,12 @@ export const action = async ({
   const userInfo = formValidator.safeParse(rawForm)
 
   if (!userInfo.success) {
-    return json({
-      ok: false,
-      error: userInfo.error.errors.map((e) => ({
+    return typedError(
+      userInfo.error.errors.map((e) => ({
         type: e.path.join('.'),
         message: e.message,
       })),
-    })
+    )
   }
 
   const response = await method(userInfo.data)
@@ -70,10 +64,7 @@ export const action = async ({
         message: response.error,
       }
 
-    return json({
-      ok: false,
-      error: [error],
-    })
+    return typedError([error])
   }
 
   session.set('user', response.value)

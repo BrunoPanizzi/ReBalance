@@ -1,14 +1,9 @@
-import {
-  LoaderFunctionArgs,
-  TypedResponse,
-  json,
-  redirect,
-} from '@remix-run/node'
+import { LoaderFunctionArgs, TypedResponse, redirect } from '@remix-run/node'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import StocksService from '~/services/stockService/index.server'
 
-import { Result } from '~/types/Result'
+import { Result, typedError, typedOk } from '~/types/Result'
 
 type Purchases = Record<string, number>
 
@@ -44,10 +39,7 @@ export const loader = async ({
   const amount = Number(searchParams.get('amount'))
 
   if (isNaN(amount) || amount < 0) {
-    return json({
-      ok: false,
-      error: 'Amount should be greater than 0',
-    })
+    return typedError('Amount should be greater than 0')
   }
 
   const userStocks = await StocksService.getStocksByWalletWithPrices(
@@ -56,10 +48,7 @@ export const loader = async ({
   )
 
   if (userStocks.length === 0) {
-    return json({
-      ok: false,
-      error: 'Wallet has no stocks',
-    })
+    return typedError('Wallet has no stocks')
   }
 
   let stocks = userStocks.map((s) => ({ ...s }))
@@ -89,14 +78,11 @@ export const loader = async ({
     remainingAmount -= smallestTotalValue.price
   }
 
-  return json({
-    ok: true,
-    value: {
-      totalAmount: amount,
-      investedAmount: amount - remainingAmount,
-      change: remainingAmount,
-      stocksBought: Object.keys(purchases).length, // stocks bought is the number of different tickers
-      purchases,
-    },
+  return typedOk({
+    totalAmount: amount,
+    investedAmount: amount - remainingAmount,
+    change: remainingAmount,
+    stocksBought: Object.keys(purchases).length, // stocks bought is the number of different tickers
+    purchases,
   })
 }

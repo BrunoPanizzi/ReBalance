@@ -6,7 +6,7 @@ import { createMatcher } from '~/lib/actionMatcher'
 import { colorsSchema } from '~/constants/availableColors'
 import { ErrorT } from '~/context/ErrorContext'
 
-import { type Result } from '~/types/Result'
+import { type Result, ok, error } from '~/types/Result'
 
 import WalletService, { DomainWallet } from '~/services/walletService'
 import { sessionStorage } from '~/services/cookies/session.server'
@@ -35,13 +35,12 @@ async function postAction({
   const result = postFormSchema.safeParse(Object.fromEntries(formData))
 
   if (!result.success) {
-    return {
-      ok: false,
-      error: result.error.errors.map((e) => ({
+    return error(
+      result.error.errors.map((e) => ({
         type: e.path.join('.'),
         message: e.message,
       })),
-    }
+    )
   }
 
   const wallet = await WalletService.createWallet(user.uid, {
@@ -50,10 +49,7 @@ async function postAction({
     color: result.data.color,
   })
 
-  return {
-    ok: true,
-    value: wallet,
-  }
+  return ok(wallet)
 }
 
 async function deleteAction({
@@ -62,18 +58,16 @@ async function deleteAction({
 }: Args): Promise<Result<null, string>> {
   const walletId = formData.get('walletId')?.toString()
 
-  if (!walletId)
-    return {
-      ok: false,
-      error: '`walletId` not found in formData',
-    }
+  if (!walletId) {
+    return error('`walletId` not found in formData')
+  }
 
   try {
     await WalletService.deleteWallet(user.uid, walletId)
-    return { ok: true, value: null }
+    return ok(null)
   } catch (e) {
     console.log(e)
-    return { ok: false, error: 'Unknwon database error' }
+    return error('Unknwon database error')
   }
 }
 
@@ -93,13 +87,12 @@ async function patchAction({
   const parsedForm = patchFormSchema.safeParse(Object.fromEntries(formData))
 
   if (!parsedForm.success) {
-    return {
-      ok: false,
-      error: parsedForm.error.errors.map((e) => ({
+    return error(
+      parsedForm.error.errors.map((e) => ({
         message: e.message,
         type: e.path.join(''),
       })),
-    }
+    )
   }
 
   const { walletId, color, title } = parsedForm.data
@@ -110,15 +103,9 @@ async function patchAction({
       title,
     })
 
-    return {
-      ok: true,
-      value: updatedWallet,
-    }
+    return ok(updatedWallet)
   } catch (e) {
-    return {
-      ok: false,
-      error: [{ message: 'Unknown database error', type: 'backend' }],
-    }
+    return error([{ message: 'Unknown database error', type: 'backend' }])
   }
 }
 

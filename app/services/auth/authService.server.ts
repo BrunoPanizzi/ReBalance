@@ -1,4 +1,4 @@
-import { Result } from '~/types/Result'
+import { Result, ok, error } from '~/types/Result'
 
 import { db } from '../db/index.server'
 import { user as userTable, User } from '../db/schema/user.server'
@@ -19,31 +19,21 @@ class AuthService {
       where: (user, { eq }) => eq(user.email, userInfo.email),
     })
 
-    if (!dbUser)
-      return {
-        ok: false,
-        error: 'User not found',
-      }
+    if (!dbUser) return error('User not found')
 
     const passwordMatches = await verifyPassword(
       userInfo.password,
       dbUser.password,
     )
 
-    if (!passwordMatches)
-      return {
-        ok: false,
-        error: 'Password is incorrect',
-      }
+    if (!passwordMatches) return error('Password is incorrect')
 
-    return {
-      ok: true,
-      value: {
-        email: dbUser.email,
-        userName: dbUser.userName,
-        uid: dbUser.uid,
-      }, // removes the password
-    }
+    // removes the password
+    return ok({
+      email: dbUser.email,
+      userName: dbUser.userName,
+      uid: dbUser.uid,
+    })
   }
 
   async createUser(userInfo: NewUser): Promise<AuthResponse> {
@@ -52,10 +42,7 @@ class AuthService {
     })
 
     if (existingUser) {
-      return {
-        ok: false,
-        error: 'User already exists',
-      }
+      return error('User already exists')
     }
 
     const encryptedPassword = await encryptPassword(userInfo.password)
@@ -69,14 +56,12 @@ class AuthService {
       })
       .returning()
 
-    return {
-      ok: true,
-      value: {
-        email: user.email,
-        userName: user.userName,
-        uid: user.uid,
-      }, // removes the password
-    }
+    // removes the password
+    return ok({
+      email: user.email,
+      userName: user.userName,
+      uid: user.uid,
+    })
   }
 }
 

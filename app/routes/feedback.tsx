@@ -21,6 +21,8 @@ import { Checkbox } from '~/components/ui/checkbox'
 import { Select } from '~/components/ui/select'
 import { toast } from '~/components/ui/use-toast'
 
+export const meta = () => [{ title: 'Feedback' }]
+
 const formSchema = z
   .object({
     name: z
@@ -78,6 +80,63 @@ export const action = async ({
   }
 }
 
+function BackgroundDots() {
+  const update = () => {
+    const c = document.querySelector('#canva') as HTMLCanvasElement
+    if (!c) return console.log("Can't get canvas element")
+
+    c.width = c.clientWidth
+    c.height = c.clientHeight
+
+    const ctx = c!.getContext('2d')
+
+    if (!ctx) return console.log("Can't get canvas context")
+
+    const radius = Math.max(c.width / 2, c.height / 2, 500)
+    const spacing = radius / 50
+
+    const center = {
+      x: c.width * 0.5,
+      y: c.height * 0.3,
+    }
+
+    if (c.clientWidth >= 768) {
+      center.x = c.width * 0.2
+      center.y = c.height * 0.4
+    }
+
+    ctx.clearRect(0, 0, c.width, c.height)
+    ctx.fillStyle = 'rgba(255,255,255,.05)'
+
+    for (let y = 0; y < (radius * 2) / spacing; y++) {
+      for (let x = 0; x < (radius * 2) / spacing; x++) {
+        const pos = {
+          x: center.x - radius + x * spacing,
+          y: center.y - radius + y * spacing,
+        }
+        if (y % 2 === 0) pos.x += spacing / 2
+        const dst = Math.sqrt((pos.x - center.x) ** 2 + (pos.y - center.y) ** 2)
+        const r = (1 - dst / radius) * 4
+
+        ctx.beginPath()
+        ctx.arc(pos.x, pos.y, r > 0 ? r : 0, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+  }
+
+  useEffect(() => {
+    update()
+    window.addEventListener('resize', update)
+
+    return () => {
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
+  return <canvas id="canva" className="absolute inset-0 -z-30 h-full w-full" />
+}
+
 export default function Feedback() {
   const actionData = useActionData<typeof action>()
 
@@ -93,20 +152,27 @@ export default function Feedback() {
 
   return (
     <>
-      <div className="grid min-h-screen grid-rows-[auto_1fr] items-center">
+      <div className="grid min-h-screen grid-rows-[auto_1fr_auto] items-center">
         <Header title="Feedback" backArrow />
-        <Wrapper cols={2} className="items-center">
+        <Wrapper cols={2} className="items-center gap-y-6">
+          <BackgroundDots />
           <div className="text-center md:text-start">
             <h2 className="mb-4 bg-gradient-to-br from-emerald-200 to-emerald-500 bg-clip-text font-display text-3xl font-semibold text-transparent md:mb-8 md:text-5xl/snug">
               O seu feedback é muito importante para nós.
             </h2>
-            <p className="text-lg md:text-xl">
+            <p className="text-emerald-50 sm:text-lg md:text-xl">
               Conte um pouco de sua experiência utilizando nosso serviço. Diga o
               que gostou, o que não gostou e o que podemos melhorar.
             </p>
           </div>
           <FeedbackForm />
         </Wrapper>
+        <footer className="mt-6 bg-emerald-950 py-6">
+          <Wrapper className="flex items-center gap-1">
+            <img src="/logo.svg" alt="Logo" className="size-8 sm:size-10" />
+            <h3 className="font-display text-xl text-emerald-100">ReBalance</h3>
+          </Wrapper>
+        </footer>
       </div>
     </>
   )

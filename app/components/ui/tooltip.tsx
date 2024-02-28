@@ -67,13 +67,22 @@ export const Tooltip = {
 type EasyTooltipProps = {
   children: React.ReactNode
   label: string
+  color?: string
+  delay?: number
 }
 
-export const EasyTooltip = ({ children, label }: EasyTooltipProps) => {
+export const EasyTooltip = ({
+  children,
+  label,
+  color = 'emerald',
+  delay,
+}: EasyTooltipProps) => {
   return (
-    <Root>
-      <TooltipTrigger>{children}</TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
+    <Root delayDuration={delay}>
+      <TooltipTrigger data-color={color} asChild>
+        {children}
+      </TooltipTrigger>
+      <TooltipContent data-color={color}>{label}</TooltipContent>
     </Root>
   )
 }

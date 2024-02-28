@@ -87,7 +87,7 @@ function ToolBarContent() {
             <InfoCircledIcon className="size-5 text-orange-300" />
           )
         }
-        onClick={() => {}}
+        onClick={() => navigate('?rebalance')}
       />
 
       <PopoverItem

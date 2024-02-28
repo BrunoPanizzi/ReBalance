@@ -15,6 +15,7 @@ import ListHeader from './ListHeader'
 import NewWalletModal from './NewWalletModal'
 import ChangeColorModal from './ChangeWalletColor'
 import ChangeNameModal from './ChangeWalletName'
+import RebalancePercentagesModal from './RebalanceModal'
 
 export { loader, action }
 
@@ -27,6 +28,7 @@ export default function App() {
       <NewWalletModal />
       <ChangeColorModal />
       <ChangeNameModal />
+      <RebalancePercentagesModal />
 
       <Header
         title={`Bem vindo de volta, ${user.userName}`}

@@ -1,16 +1,110 @@
-import { useLoaderData, useNavigation, useSearchParams } from '@remix-run/react'
-import { loader } from './loader'
+import { useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
+import { ReactElement, createContext, useContext, useState } from 'react'
+
+import { percentage } from '~/lib/formatting'
+
+import { FullWalletWithStocks } from '~/services/walletService'
+
 import { Dialog } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
-import { EasyTooltip } from '~/components/ui/tooltip'
 import { Slider } from '~/components/ui/slider'
-import { percentage } from '~/lib/formatting'
-import React from 'react'
+import { EasyTooltip } from '~/components/ui/tooltip'
+
+import { loader } from './loader'
+import { cn } from '~/lib/utils'
+
+type RebalanceContext = {
+  wallets: FullWalletWithStocks[]
+  handleChangeIdealPercentage: (walletId: string, value: number) => void
+  totalPercentage: number
+
+  handleAllEqual: () => void
+  handleReset: () => void
+  handleNormalize: () => void
+
+  handleClose: () => void
+  handleConfirm: () => void
+}
+
+const rebalanceContext = createContext<RebalanceContext | null>(null)
+
+function RebalanceContextProvider({ children }: { children: ReactElement }) {
+  const { wallets: originalWallets } = useLoaderData<typeof loader>()
+
+  const navigate = useNavigate()
+
+  const [wallets, setWallets] = useState(originalWallets)
+
+  const totalPercentage = Number(
+    wallets.reduce((acc, w) => acc + w.idealPercentage, 0).toFixed(4),
+  )
+
+  function handleChangeIdealPercentage(walletId: string, value: number) {
+    setWallets((p) =>
+      p.map((w) => {
+        if (w.id === walletId) {
+          return {
+            ...w,
+            idealPercentage: value,
+          }
+        }
+        return w
+      }),
+    )
+  }
+
+  function handleAllEqual() {
+    setWallets((p) =>
+      p.map((w) => ({ ...w, idealPercentage: 1 / wallets.length })),
+    )
+  }
+
+  function handleNormalize() {
+    setWallets(
+      wallets.map((w) => ({
+        ...w,
+        idealPercentage: w.idealPercentage / totalPercentage,
+      })),
+    )
+  }
+
+  function handleReset() {
+    setWallets(originalWallets)
+  }
+
+  return (
+    <rebalanceContext.Provider
+      value={{
+        wallets,
+        totalPercentage,
+        handleChangeIdealPercentage,
+
+        handleAllEqual,
+        handleNormalize,
+        handleReset,
+
+        handleClose: () => navigate('/app', { replace: true }),
+        handleConfirm: () => alert('hold up'),
+      }}
+    >
+      {children}
+    </rebalanceContext.Provider>
+  )
+}
+
+function useRebalanceContext() {
+  const ctx = useContext(rebalanceContext)
+
+  if (ctx === null) {
+    throw new Error(
+      'useRebalanceContext should be used within a RebalanceContextProvider.',
+    )
+  }
+
+  return ctx
+}
 
 export default function RebalancePercentagesModal() {
-  const { wallets } = useLoaderData<typeof loader>()
-
-  const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const shouldOpen = searchParams.get('rebalance')
@@ -24,88 +118,79 @@ export default function RebalancePercentagesModal() {
         if (!to) setSearchParams({}, { replace: true })
       }}
     >
-      <Dialog.Content className="max-w-md">
-        <Dialog.Title>Hello world!</Dialog.Title>
+      <RebalanceContextProvider>
+        <Dialog.Content className="max-w-md">
+          <Dialog.Title>Hello world!</Dialog.Title>
 
-        <div className="flex flex-col gap-2">
-          <SplitIndicator
-            label="Distribuição ideal"
-            wallets={wallets.map((w) => ({
-              name: w.title,
-              color: w.color,
-              size: w.idealPercentage,
-            }))}
-          />
-          <SplitIndicator
-            label="Distribuição atual"
-            wallets={wallets.map((w) => ({
-              name: w.title,
-              size: w.realPercentage,
-              color: w.color,
-            }))}
-          />
+          <Toolbar />
 
-          <menu className="flex gap-1 rounded-lg bg-gray-600 p-0.5">
-            <li>
-              <Button variant="colorful-ghost" size="sm">
-                Igual
-              </Button>
-            </li>
-            <li>
-              <Button variant="colorful-ghost" size="sm">
-                Normalizar
-              </Button>
-            </li>
-            <li>
-              <Button variant="colorful-ghost" size="sm">
-                Voltar
-              </Button>
-            </li>
-          </menu>
+          <Preview />
 
-          <div className="grid grid-cols-[auto_1fr_auto] gap-2 text-center">
-            {wallets.map((w) => (
-              <div
-                key={w.id}
-                data-color={w.color}
-                className="col-span-3 grid grid-cols-subgrid items-center"
-              >
-                <div className="rounded-lg bg-primary-700 px-2 font-display">
-                  {w.title}
-                </div>
-                <div data-color={w.color}>
-                  <Slider
-                    defaultValue={[w.realPercentage]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                  />
-                </div>
-                <div
-                  data-color={w.color}
-                  className="rounded border border-primary-500/50 px-2"
-                >
-                  {percentage(w.idealPercentage)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <Sliders />
 
-        <Dialog.Footer>
-          <Button variant="ghost">Cancelar</Button>
-          <Button className="">Confirmar</Button>
-        </Dialog.Footer>
-      </Dialog.Content>
+          <TotalValue />
+
+          <Footer />
+        </Dialog.Content>
+      </RebalanceContextProvider>
     </Dialog.Root>
   )
 }
 
-type SplitIndicatorProps = {
+function Toolbar() {
+  const { handleAllEqual, handleNormalize, handleReset } = useRebalanceContext()
+
+  return (
+    <menu className="flex gap-1 rounded-lg bg-gray-600 p-0.5">
+      <li>
+        <Button onClick={handleAllEqual} variant="colorful-ghost" size="sm">
+          Igual
+        </Button>
+      </li>
+      <li>
+        <Button onClick={handleNormalize} variant="colorful-ghost" size="sm">
+          Normalizar
+        </Button>
+      </li>
+      <li>
+        <Button onClick={handleReset} variant="colorful-ghost" size="sm">
+          Original
+        </Button>
+      </li>
+    </menu>
+  )
+}
+
+function Preview() {
+  const { wallets } = useRebalanceContext()
+
+  return (
+    <div className="space-y-2">
+      <PercentagesPreview
+        label="Distribuição ideal"
+        wallets={wallets.map((w) => ({
+          name: w.title,
+          color: w.color,
+          size: w.idealPercentage,
+        }))}
+      />
+      <PercentagesPreview
+        label="Distribuição atual"
+        wallets={wallets.map((w) => ({
+          name: w.title,
+          size: w.realPercentage,
+          color: w.color,
+        }))}
+      />
+    </div>
+  )
+}
+
+type PercentagesPreviewProps = {
   label: string
   wallets: { name: string; size: number; color: string }[]
 }
-function SplitIndicator({ wallets, label }: SplitIndicatorProps) {
+function PercentagesPreview({ wallets, label }: PercentagesPreviewProps) {
   return (
     <div>
       <label className="text-sm text-gray-200">{label}</label>
@@ -123,5 +208,70 @@ function SplitIndicator({ wallets, label }: SplitIndicatorProps) {
         ))}
       </div>
     </div>
+  )
+}
+
+function Sliders() {
+  const { wallets, handleChangeIdealPercentage } = useRebalanceContext()
+
+  return (
+    <div className="grid grid-cols-[auto_1fr_auto] gap-2 text-center">
+      {wallets.map((w) => (
+        <div
+          key={w.id}
+          data-color={w.color}
+          className="col-span-3 grid grid-cols-subgrid items-center"
+        >
+          <div className="rounded-lg bg-primary-700 px-2 font-display">
+            {w.title}
+          </div>
+          <div data-color={w.color}>
+            <Slider
+              value={[w.idealPercentage]}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={([v]) => handleChangeIdealPercentage(w.id, v)}
+            />
+          </div>
+          <div
+            data-color={w.color}
+            className="rounded border border-primary-500/50 px-2"
+          >
+            {percentage(w.idealPercentage)}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function TotalValue() {
+  const { totalPercentage } = useRebalanceContext()
+
+  return (
+    <span
+      className={cn(
+        'text-right font-semibold',
+        totalPercentage === 1 ? 'text-emerald-300' : 'text-orange-300',
+      )}
+    >
+      {percentage(totalPercentage, 0)}
+
+      <hr className="border-dashed border-gray-400" />
+    </span>
+  )
+}
+
+function Footer() {
+  const { handleClose, handleConfirm } = useRebalanceContext()
+
+  return (
+    <Dialog.Footer>
+      <Button onClick={handleClose} variant="ghost">
+        Cancelar
+      </Button>
+      <Button onClick={handleConfirm}>Confirmar</Button>
+    </Dialog.Footer>
   )
 }

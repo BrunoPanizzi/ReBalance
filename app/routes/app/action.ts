@@ -109,10 +109,58 @@ async function patchAction({
   }
 }
 
+const putFormSchema = z.object({
+  wallets: z.string(),
+})
+const putJSONSchema = z.array(
+  z.object({
+    id: z.string().uuid(),
+    title: z.string().min(1),
+    color: colorsSchema,
+    idealPercentage: z.number().nonnegative(),
+  }),
+)
+async function putAction({
+  formData,
+  user,
+}: Args): Promise<Result<DomainWallet[], string>> {
+  const parsedForm = putFormSchema.safeParse(Object.fromEntries(formData))
+
+  if (!parsedForm.success) {
+    return { error: 'Error while parsing form', ok: false }
+  }
+
+  const wallets = putJSONSchema.safeParse(JSON.parse(parsedForm.data.wallets))
+
+  if (!wallets.success) {
+    return { ok: false, error: wallets.error.errors[0].message }
+  }
+
+  try {
+    await new Promise((res) => setTimeout(res, 200))
+    const updatedWallets = await WalletService.updateIdealPercentages(
+      user.uid,
+      wallets.data,
+    )
+    return {
+      ok: true,
+      value: updatedWallets,
+    }
+  } catch (e) {
+    console.log(e)
+
+    return {
+      ok: false,
+      error: 'Database error',
+    }
+  }
+}
+
 const { match, extractValue } = createMatcher<Args>()({
   POST: postAction,
   DELETE: deleteAction,
   PATCH: patchAction,
+  PUT: putAction,
 })
 export { extractValue }
 

@@ -1,7 +1,13 @@
-import { useLoaderData, useNavigate, useSearchParams } from '@remix-run/react'
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+  useSearchParams,
+} from '@remix-run/react'
 import { ReactElement, createContext, useContext, useState } from 'react'
 
 import { percentage } from '~/lib/formatting'
+import { cn } from '~/lib/utils'
 
 import { FullWalletWithStocks } from '~/services/walletService'
 
@@ -11,7 +17,6 @@ import { Slider } from '~/components/ui/slider'
 import { EasyTooltip } from '~/components/ui/tooltip'
 
 import { loader } from './loader'
-import { cn } from '~/lib/utils'
 
 type RebalanceContext = {
   wallets: FullWalletWithStocks[]
@@ -24,12 +29,15 @@ type RebalanceContext = {
 
   handleClose: () => void
   handleConfirm: () => void
+  isSubmitting: boolean
 }
 
 const rebalanceContext = createContext<RebalanceContext | null>(null)
 
 function RebalanceContextProvider({ children }: { children: ReactElement }) {
   const { wallets: originalWallets } = useLoaderData<typeof loader>()
+  const fetcher = useFetcher({ key: 'rebalance' })
+  const isSubmitting = fetcher.state === 'submitting'
 
   const navigate = useNavigate()
 
@@ -72,6 +80,17 @@ function RebalanceContextProvider({ children }: { children: ReactElement }) {
     setWallets(originalWallets)
   }
 
+  function handleConfirm() {
+    fetcher.submit(
+      {
+        wallets: JSON.stringify(wallets),
+      },
+      {
+        method: 'PUT',
+      },
+    )
+  }
+
   return (
     <rebalanceContext.Provider
       value={{
@@ -84,7 +103,8 @@ function RebalanceContextProvider({ children }: { children: ReactElement }) {
         handleReset,
 
         handleClose: () => navigate('/app', { replace: true }),
-        handleConfirm: () => alert('hold up'),
+        handleConfirm,
+        isSubmitting,
       }}
     >
       {children}
@@ -264,14 +284,16 @@ function TotalValue() {
 }
 
 function Footer() {
-  const { handleClose, handleConfirm } = useRebalanceContext()
+  const { handleClose, handleConfirm, isSubmitting } = useRebalanceContext()
 
   return (
     <Dialog.Footer>
       <Button onClick={handleClose} variant="ghost">
         Cancelar
       </Button>
-      <Button onClick={handleConfirm}>Confirmar</Button>
+      <Button disabled={isSubmitting} onClick={handleConfirm}>
+        {isSubmitting ? 'Atualizando...' : 'Confirmar'}
+      </Button>
     </Dialog.Footer>
   )
 }

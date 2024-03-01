@@ -1,8 +1,11 @@
-import { and, eq } from 'drizzle-orm'
+import { SQL, and, eq, sql } from 'drizzle-orm'
 
 import { db } from '~/services/db/index.server'
 
-import { wallet as walletTable } from '~/services/db/schema/wallet.server'
+import {
+  wallet as walletTable,
+  walletSchema,
+} from '~/services/db/schema/wallet.server'
 import type { Wallet } from '~/services/db/schema/wallet.server'
 
 import StocksService, {
@@ -25,18 +28,6 @@ export type FullWalletWithStocks = DomainWallet & {
   realPercentage: number
   stocks: StockWithPrice[]
 }
-
-/*
-- getWallets: PlainWallet[]
-    returns all wallets, straight form the db, no prices or anything
-- getFullWallets: FullWallet[]
-    returns all wallets, with stocks, with updated prices
-   
-- getWallet: PlainWallet
-    returns a single wallet, straight from the db
-- getFullWallet: fullWallet
-    returns a single wallet, with stocks and prices, only `realPercentage` will be left untouched
-*/
 
 function toDomain(wallet: PersistanceWallet): DomainWallet {
   return {
@@ -140,6 +131,45 @@ class WalletService {
       .returning()
 
     return updated
+  }
+
+  async updateIdealPercentages(
+    uid: string,
+    updateWallets: Pick<DomainWallet, 'id' | 'idealPercentage'>[],
+  ): Promise<DomainWallet[]> {
+    const sqlChunks: SQL[] = []
+    const idsChunks: SQL[] = []
+
+    updateWallets.forEach((w) => {
+      idsChunks.push(sql`${w.id}`)
+    })
+
+    const finalIds = sql.join(idsChunks, sql.raw(','))
+
+    sqlChunks.push(sql`update ${walletTable} set "ideal_percentage"`)
+
+    sqlChunks.push(sql`= case`)
+
+    updateWallets.forEach((w) => {
+      sqlChunks.push(
+        sql`when "id" = ${w.id} and "owner" = ${uid} then ${w.idealPercentage}`,
+      )
+    })
+
+    sqlChunks.push(sql`else "ideal_percentage"`)
+    sqlChunks.push(sql`end`)
+
+    sqlChunks.push(sql`where "id" in (${finalIds})`)
+
+    sqlChunks.push(sql`returning *, ideal_percentage as "idealPercentage"`)
+
+    const finalSql = sql.join(sqlChunks, sql.raw(' '))
+
+    const res = await db.execute(finalSql)
+
+    console.log(res)
+
+    return res.map((w) => toDomain(walletSchema.parse(w)))
   }
 
   async deleteWallet(uid: string, walletId: string): Promise<void> {

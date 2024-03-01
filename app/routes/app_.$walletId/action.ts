@@ -97,12 +97,12 @@ const putJSONSchema = z.array(
   }),
 )
 
-type PutSubactionRetur = Result<DomainStock[], string>
+type PutSubactionReturn = Result<DomainStock[], string>
 const putAction = async ({
   user,
   walletId,
   formData,
-}: SubActionArgs): Promise<PutSubactionRetur> => {
+}: SubActionArgs): Promise<PutSubactionReturn> => {
   const parsedForm = putFormSchema.safeParse(Object.fromEntries(formData))
 
   if (!parsedForm.success) {

@@ -12,6 +12,7 @@ import { DomainUser } from '~/services/auth/authService.server'
 import { Result, error, ok } from '~/types/Result'
 
 import { createMatcher } from '~/lib/actionMatcher'
+import { currencyToNumber } from '~/lib/formatting'
 
 type SubActionArgs = {
   user: DomainUser
@@ -65,11 +66,21 @@ const postAction = async ({
   }
 }
 
-const patchFormSchema = z.object({
-  assetId: z.string().uuid(),
-  //                Postgres integer max safe value
-  amount: z.coerce.number().max(2_147_483_647).nonnegative(),
-})
+const patchFormSchema = z
+  .object({
+    assetId: z.string().uuid(),
+    //                Postgres integer max safe value
+    amount: z.coerce.number().max(2_147_483_647).nonnegative().optional(),
+    price: z
+      .string()
+      .transform((val) => currencyToNumber(val))
+      .refine((val) => val > 0)
+      .optional(),
+  })
+  .refine(
+    (form) => form.amount || form.price,
+    'Amount or price should be provided',
+  )
 
 type PatchSubactionReturn = Result<DomainAsset, string>
 const patchAction = async ({
@@ -79,18 +90,18 @@ const patchAction = async ({
 }: SubActionArgs): Promise<PatchSubactionReturn> => {
   const result = patchFormSchema.safeParse(Object.fromEntries(formData))
 
+  console.log(Object.fromEntries(formData))
+
   if (!result.success) {
     return error(result.error.errors[0].message)
   }
 
-  const { assetId, amount } = result.data
+  const { assetId, amount, price } = result.data
 
-  const updatedAssets = await AssetService.updateAmount(
-    user.uid,
-    walletId,
-    assetId,
+  const updatedAssets = await AssetService.update(user.uid, walletId, assetId, {
     amount,
-  )
+    price,
+  })
 
   return ok(updatedAssets)
 }

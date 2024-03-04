@@ -3,6 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import { loader } from '../loader'
 import { useSortContext } from '../SortContext'
 import { BrStockRow } from './BrStockRow'
+import { FixedValueRow } from './FixedValueRow'
 
 export function AssetList() {
   const { assets: baseAssets, type } = useLoaderData<typeof loader>()
@@ -19,6 +20,8 @@ export function AssetList() {
   return sortedAssets.map((a) => {
     if (type === 'br-stock') {
       return <BrStockRow key={a.id} stock={a} />
+    } else if (type === 'fixed-value') {
+      return <FixedValueRow key={a.id} asset={a} />
     } else {
       throw new Error(`Wallet of type ${type} is not currently supported`)
     }

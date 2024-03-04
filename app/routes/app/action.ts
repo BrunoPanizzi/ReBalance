@@ -11,6 +11,7 @@ import { type Result, ok, error } from '~/types/Result'
 import WalletService, { DomainWallet } from '~/services/walletService'
 import { sessionStorage } from '~/services/cookies/session.server'
 import { DomainUser } from '~/services/auth/authService.server'
+import { assetType } from '~/services/assetService/index.server'
 
 type Args = {
   user: DomainUser
@@ -19,8 +20,10 @@ type Args = {
 
 const postFormSchema = z.object({
   title: z.string().min(1, 'Insira um nome para sua carteira'),
-  // TODO: change this
-  type: z.literal('br-stock'),
+  type: z.enum(assetType, {
+    invalid_type_error: 'Tipo inválido',
+    required_error: 'Selecione um tipo',
+  }),
   idealAmount: z.coerce
     .number()
     .min(0, 'A porcentagem ideal deve ser maior que 0')

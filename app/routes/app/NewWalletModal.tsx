@@ -6,6 +6,8 @@ import {
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
+import { AssetType } from '~/services/assetService/index.server'
+
 import { percentage } from '~/lib/formatting'
 
 import { ErrorProvider } from '~/context/ErrorContext'
@@ -13,6 +15,7 @@ import { ErrorProvider } from '~/context/ErrorContext'
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 import { Slider } from '~/components/ui/slider'
+import { Select } from '~/components/ui/select'
 import { toast } from '~/components/ui/use-toast'
 
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
@@ -66,8 +69,7 @@ export default function NewWalletModal() {
               input={{ placeholder: 'Nome...' }}
             />
 
-
-            <input contentEditable='false' value='br-stock' name='type' />
+            <TypeSelect />
 
             <BaseGroup
               label="Quanto você gostaria de investir?"
@@ -87,6 +89,37 @@ export default function NewWalletModal() {
         </Dialog.Content>
       </Dialog.Root>
     </ErrorProvider>
+  )
+}
+
+const typeOptions: {
+  value: AssetType
+  displayName: string
+  disabled: boolean
+}[] = [
+  { value: 'br-stock', displayName: 'Ações', disabled: false },
+  { value: 'br-bond', displayName: 'Renda fixa', disabled: true },
+  { value: 'usa-stock', displayName: 'Ações americanas', disabled: true },
+  { value: 'usa-bond', displayName: 'Renda fixa americana', disabled: true },
+  { value: 'fixed-value', displayName: 'Valor fixo', disabled: false },
+]
+
+function TypeSelect() {
+  return (
+    <BaseGroup name="type" label="Tipo da carteira">
+      <Select.Root name="type">
+        <Select.Trigger className="border-gray-400/25 bg-gray-500/25">
+          <Select.Value placeholder="Selecione o tipo..." />
+        </Select.Trigger>
+        <Select.Content>
+          {typeOptions.map((a) => (
+            <Select.Item key={a.value} disabled={a.disabled} value={a.value}>
+              {a.displayName}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+    </BaseGroup>
   )
 }
 

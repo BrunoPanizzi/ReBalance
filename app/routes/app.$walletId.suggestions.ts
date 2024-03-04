@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, TypedResponse, redirect } from '@remix-run/node'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import StocksService from '~/services/stockService/index.server'
+import AssetService from '~/services/assetService/index.server'
 
 import { Result, typedError, typedOk } from '~/types/Result'
 
@@ -12,7 +12,7 @@ type LoaderResponse = Result<
     totalAmount: number
     investedAmount: number
     change: number
-    stocksBought: number
+    assetsBought: number
     purchases: Purchases
   },
   string
@@ -42,35 +42,35 @@ export const loader = async ({
     return typedError('Amount should be greater than 0')
   }
 
-  const userStocks = await StocksService.getStocksByWalletWithPrices(
+  const userAssets = await AssetService.getAssetsByWalletWithPrices(
     user.uid,
     walletId,
   )
 
-  if (userStocks.length === 0) {
-    return typedError('Wallet has no stocks')
+  if (userAssets.length === 0) {
+    return typedError('Wallet has no assets')
   }
 
-  let stocks = userStocks.map((s) => ({ ...s }))
+  let assets = userAssets.map((s) => ({ ...s }))
 
   const purchases: Purchases = {}
 
   let remainingAmount = amount
 
   while (true) {
-    const smallestTotalValue = stocks.reduce(
+    const smallestTotalValue = assets.reduce(
       (a, s) => (s.totalValue < a.totalValue ? s : a),
-      stocks[0],
+      assets[0],
     )
 
     if (smallestTotalValue.price > remainingAmount) {
       break
     }
 
-    if (purchases[smallestTotalValue.ticker]) {
-      purchases[smallestTotalValue.ticker]++
+    if (purchases[smallestTotalValue.name]) {
+      purchases[smallestTotalValue.name]++
     } else {
-      purchases[smallestTotalValue.ticker] = 1
+      purchases[smallestTotalValue.name] = 1
     }
 
     smallestTotalValue.amount++
@@ -82,7 +82,7 @@ export const loader = async ({
     totalAmount: amount,
     investedAmount: amount - remainingAmount,
     change: remainingAmount,
-    stocksBought: Object.keys(purchases).length, // stocks bought is the number of different tickers
+    assetsBought: Object.keys(purchases).length, // stocks bought is the number of different tickers
     purchases,
   })
 }

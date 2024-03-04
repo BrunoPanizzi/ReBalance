@@ -20,7 +20,7 @@ import { toast } from '~/components/ui/use-toast'
 
 import { action, extractValue } from './action'
 
-export function NewStockModal() {
+export function NewAssetModal() {
   const fetcher = useFetcher<typeof recommendationsLoader>({
     key: 'recommendations',
   })
@@ -79,7 +79,7 @@ function SuggestionsList() {
   const actionResult = extractValue(actionData, 'POST')
 
   const message = actionResult?.ok
-    ? `${actionResult.value.ticker} adicionado com sucesso!`
+    ? `${actionResult.value.name} adicionado com sucesso!`
     : `Algo deu errado ao adicionar o ativo.`
 
   if (!fetcher.data) return null
@@ -113,7 +113,7 @@ function SuggestionsList() {
               key={s}
               className="peer rounded-lg border border-gray-500 px-4 py-2 text-center text-xl font-bold text-primary-200 transition hover:-translate-y-0.5 has-[:checked]:border-primary-500"
             >
-              <input value={s} name="stock" type="radio" hidden />
+              <input value={s} name="name" type="radio" hidden />
               {s}
             </label>
           ))

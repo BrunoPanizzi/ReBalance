@@ -2,7 +2,7 @@ import { ActionFunctionArgs, redirect, json } from '@remix-run/node'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import StockService, { DomainStock } from '~/services/stockService/index.server'
+import AssetService, { DomainAsset } from '~/services/assetService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result, error, ok } from '~/types/Result'
@@ -21,48 +21,50 @@ const deleteAction = async ({
   user,
   walletId,
 }: SubActionArgs): Promise<DeleteSubactionReturn> => {
-  const stockId = formData.get('stockId')?.toString()
+  const assetId = formData.get('assetId')?.toString()
 
-  if (!stockId) {
-    return error('No stock id field found')
+  if (!assetId) {
+    return error('No assetId field found')
   }
 
-  await StockService.deleteStock(user.uid, walletId, stockId)
+  await AssetService.deleteAsset(user.uid, walletId, assetId)
 
   return ok(null)
 }
 
-type PostSubactionReturn = Result<DomainStock, string>
+type PostSubactionReturn = Result<DomainAsset, string>
 const postAction = async ({
   user,
   walletId,
   formData,
 }: SubActionArgs): Promise<PostSubactionReturn> => {
-  const stock = formData.get('stock')?.toString()
+  const asset = formData.get('name')?.toString()
 
-  if (!stock) {
-    return error('No stock field found')
+  if (!asset) {
+    return error('No name field found')
   }
 
   try {
-    const newStock = await StockService.createStock(user.uid, walletId, {
+    const newAsset = await AssetService.createAsset(user.uid, walletId, {
       amount: 0,
-      ticker: stock,
+      name: asset,
+      // TODO: change this based on the wallet type
+      type: 'br-stock',
     })
 
-    return ok(newStock)
+    return ok(newAsset)
   } catch (e) {
-    return error('Ticker already exists')
+    return error('Name already exists')
   }
 }
 
 const patchFormSchema = z.object({
-  stockId: z.string().uuid(),
+  assetId: z.string().uuid(),
   //                Postgres integer max safe value
   amount: z.coerce.number().max(2_147_483_647).nonnegative(),
 })
 
-type PatchSubactionReturn = Result<DomainStock, string>
+type PatchSubactionReturn = Result<DomainAsset, string>
 const patchAction = async ({
   user,
   walletId,
@@ -74,30 +76,30 @@ const patchAction = async ({
     return error(result.error.errors[0].message)
   }
 
-  const { stockId, amount } = result.data
+  const { assetId, amount } = result.data
 
-  const updatedStock = await StockService.updateAmount(
+  const updatedAssets = await AssetService.updateAmount(
     user.uid,
     walletId,
-    stockId,
+    assetId,
     amount,
   )
 
-  return ok(updatedStock)
+  return ok(updatedAssets)
 }
 
 const putFormSchema = z.object({
-  stocks: z.string(),
+  assets: z.string(),
 })
 const putJSONSchema = z.array(
   z.object({
     id: z.string().uuid(),
-    ticker: z.string().min(1),
+    name: z.string().min(1),
     amount: z.number().nonnegative(),
   }),
 )
 
-type PutSubactionReturn = Result<DomainStock[], string>
+type PutSubactionReturn = Result<DomainAsset[], string>
 const putAction = async ({
   user,
   walletId,
@@ -109,19 +111,19 @@ const putAction = async ({
     return error('Error while parsing form')
   }
 
-  const newStocks = putJSONSchema.safeParse(JSON.parse(parsedForm.data.stocks))
+  const newAssets = putJSONSchema.safeParse(JSON.parse(parsedForm.data.assets))
 
-  if (!newStocks.success) {
-    return error(newStocks.error.errors[0].message)
+  if (!newAssets.success) {
+    return error(newAssets.error.errors[0].message)
   }
 
   try {
-    const updatedStocks = await StockService.updateMany(
+    const updatedAssets = await AssetService.updateMany(
       user.uid,
       walletId,
-      newStocks.data,
+      newAssets.data,
     )
-    return ok(updatedStocks)
+    return ok(updatedAssets)
   } catch (e) {
     console.log(e)
 

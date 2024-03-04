@@ -9,7 +9,7 @@ import { Link, useFetcher, useSearchParams } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
-import { FullWalletWithStocks } from '~/services/walletService'
+import { FullWalletWithAssets } from '~/services/walletService'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -22,7 +22,7 @@ import { toast } from '~/components/ui/use-toast'
 
 import { action, extractValue } from './action'
 
-type WalletProps = { wallet: FullWalletWithStocks }
+type WalletProps = { wallet: FullWalletWithAssets }
 
 export default function WalletCard({ wallet }: WalletProps) {
   const [_, setSearchParams] = useSearchParams()
@@ -52,6 +52,10 @@ export default function WalletCard({ wallet }: WalletProps) {
         <h3 className="text-xl font-semibold text-primary-200">
           {wallet.title}
         </h3>
+
+        <span className='bg-primary-400 select-none text-sm text-primary-950 rounded-full px-2'>
+          {wallet.type}
+        </span>
 
         <div onClick={(e) => e.preventDefault()}>
           <Popover>

@@ -4,7 +4,7 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 import { wallet } from './wallet.server'
-import { stock } from './stock.server'
+import { asset } from './asset.server'
 
 export const user = pgTable('user', {
   uid: uuid('uid').primaryKey().defaultRandom().notNull(),
@@ -15,7 +15,7 @@ export const user = pgTable('user', {
 
 export const userRelations = relations(user, ({ many }) => ({
   wallets: many(wallet),
-  stocks: many(stock),
+  stocks: many(asset),
 }))
 
 export const userSchema = createSelectSchema(user, {

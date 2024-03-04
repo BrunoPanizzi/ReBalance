@@ -5,7 +5,9 @@ import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
 
-import { StockWithPrice } from '~/services/stockService/index.server'
+import { AssetWithPrice } from '~/services/assetService/index.server'
+
+// TODO: this whole file, check for asset type and ultimately rename to <AssetsList />
 
 import {
   Popover,
@@ -21,22 +23,22 @@ import { loader } from './loader'
 import { useSortContext } from './SortContext'
 
 export function StocksList() {
-  const baseStocks = useLoaderData<typeof loader>()
+  const baseAssets = useLoaderData<typeof loader>()
 
   const { sort } = useSortContext()
 
-  const sortedStocks = baseStocks.stocks.sort((a, b) => {
+  const sortedAssets = baseAssets.assets.sort((a, b) => {
     if (sort.ascending) {
       return b[sort.by] < a[sort.by] ? 1 : -1
     }
     return b[sort.by] > a[sort.by] ? 1 : -1
   })
 
-  return sortedStocks.map((s) => <StockRow key={s.id} stock={s} />)
+  return sortedAssets.map((s) => <StockRow key={s.id} stock={s} />)
 }
 
 type StockRowProps = {
-  stock: StockWithPrice
+  stock: AssetWithPrice
 }
 
 const StockRow = memo(({ stock }: StockRowProps) => {
@@ -50,7 +52,7 @@ const StockRow = memo(({ stock }: StockRowProps) => {
       )}
     >
       <fetcher.Form className="hidden justify-center @md:flex " method="DELETE">
-        <button type="submit" name="stockId" value={stock.id}>
+        <button type="submit" name="assetId" value={stock.id}>
           {fetcher.state === 'idle' ? (
             <TrashIcon className="size-5 transition hover:scale-110 hover:text-red-500" />
           ) : (
@@ -59,7 +61,7 @@ const StockRow = memo(({ stock }: StockRowProps) => {
         </button>
       </fetcher.Form>
       <span className="flex items-center  gap-2 font-display text-lg text-primary-100 @md:text-base @md:font-normal @md:text-gray-50">
-        {stock.ticker}
+        {stock.name}
         <Popover>
           <PopoverTrigger className="@md:hidden">
             <DotsVerticalIcon className="size-4" />
@@ -106,7 +108,7 @@ const StockRow = memo(({ stock }: StockRowProps) => {
   )
 })
 
-function AmountInput({ stock }: { stock: StockWithPrice }) {
+function AmountInput({ stock }: { stock: AssetWithPrice }) {
   const fetcher = useFetcher({ key: stock.id + 'PATCH' })
 
   const [value, setValue] = useState(stock.amount)
@@ -121,7 +123,7 @@ function AmountInput({ stock }: { stock: StockWithPrice }) {
 
   return (
     <fetcher.Form className="relative min-w-20" method="PATCH">
-      <input type="hidden" aria-hidden name="stockId" value={stock.id} />
+      <input type="hidden" aria-hidden name="assetId" value={stock.id} />
       <label htmlFor="amount" className="hidden">
         Quantidade
       </label>

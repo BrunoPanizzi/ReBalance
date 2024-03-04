@@ -5,13 +5,14 @@ import { z } from 'zod'
 
 import { user } from './user.server'
 import { pgColorEnum, colorsSchema } from './color.server'
-import { type Stock, stock, stockSchema } from './stock.server'
+import { type Asset, asset, assetTypeEnum, assetSchema } from './asset.server'
 
 export const wallet = pgTable('wallet', {
   id: uuid('id').defaultRandom().primaryKey().notNull(),
   title: text('title').notNull(),
   idealPercentage: real('ideal_percentage').default(0).notNull(),
   color: pgColorEnum('color').notNull(),
+  type: assetTypeEnum('asset_type').default('br-stock'),
 
   owner: uuid('owner')
     .notNull()
@@ -23,7 +24,7 @@ export const walletRelations = relations(wallet, ({ one, many }) => ({
     fields: [wallet.owner],
     references: [user.uid],
   }),
-  stocks: many(stock),
+  assets: many(asset),
 }))
 
 export const walletSchema = createSelectSchema(wallet, {
@@ -52,10 +53,10 @@ export type Wallet = z.infer<typeof walletSchema>
 export type NewWallet = z.infer<typeof newWalletSchema>
 export type UpdateWallet = z.infer<typeof updateWalletSchema>
 
-export type WalletWithStocks = Wallet & {
-  stocks: Stock[]
+export type WalletWithAssets = Wallet & {
+  assets: Asset[]
 }
 
-export const walletWithStocksSchema = walletSchema.extend({
-  stocks: z.array(stockSchema),
+export const walletWithAssetsSchema = walletSchema.extend({
+  assets: z.array(assetSchema),
 })

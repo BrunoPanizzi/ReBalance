@@ -6,7 +6,7 @@ import Wrapper from '~/components/Wrapper'
 import { loader } from './loader'
 import { action } from './action'
 import { Table } from './Table'
-import { NewStockModal } from './NewStockModal'
+import { NewAssetModal } from './NewAssetModal'
 import Information from './Information'
 
 export { loader, action }
@@ -20,7 +20,7 @@ export default function WalletPage() {
 
   return (
     <>
-      <NewStockModal />
+      <NewAssetModal />
       <Header backArrow title={wallet.title} />
       <Wrapper cols={2}>
         <Table />

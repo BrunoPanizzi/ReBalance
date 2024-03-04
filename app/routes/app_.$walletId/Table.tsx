@@ -6,10 +6,11 @@ import { loader } from './loader'
 import { SortProvider } from './SortContext'
 import { SortSelector } from './SortSelector'
 import { StocksList } from './StocksList'
+// TODO: change ^^^ this to match the asset type 
 
 // Table might not be the most descriptive name ever...
 export function Table() {
-  const { stocks } = useLoaderData<typeof loader>()
+  const { assets } = useLoaderData<typeof loader>()
 
   const [_, setSearchParams] = useSearchParams()
 
@@ -33,7 +34,7 @@ export function Table() {
           <SortSelector />
         </header>
 
-        {stocks.length === 0 ? (
+        {assets.length === 0 ? (
           <div className="flex h-40 items-center justify-center">
             <span className="text-primary-300">Nenhum ativo encontrado</span>
           </div>

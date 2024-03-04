@@ -12,7 +12,7 @@ import colors from 'tailwindcss/colors.js'
 
 import { brl, currencyToNumber } from '~/lib/formatting'
 
-import { StockWithPrice } from '~/services/stockService/index.server'
+import { AssetWithPrice } from '~/services/assetService/index.server'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -114,7 +114,7 @@ type ResultProps = {
   onClear: () => void
 }
 function Result({ amount, onClear }: ResultProps) {
-  const { stocks } = useLoaderData<typeof loader>()
+  const { assets } = useLoaderData<typeof loader>()
   const { revalidate } = useRevalidator()
   const fetcher = useFetcher<typeof suggestionsLoader>({
     key: 'shopping' + amount,
@@ -138,7 +138,7 @@ function Result({ amount, onClear }: ResultProps) {
   if (!data || !data.ok) {
     return null
   }
-  if (data.value.stocksBought === 0) {
+  if (data.value.assetsBought === 0) {
     return (
       <div className="mt-4">
         <strong className="text-lg font-semibold text-primary-200">
@@ -162,11 +162,11 @@ function Result({ amount, onClear }: ResultProps) {
     )
   }
 
-  const newStocks = stocks.map((s) => {
-    const amountToBuy = data.value.purchases[s.ticker] || 0
+  const newAssets = assets.map((s) => {
+    const amountToBuy = data.value.purchases[s.name] || 0
     return {
       id: s.id,
-      ticker: s.ticker,
+      name: s.name,
       amount: s.amount + amountToBuy,
     }
   })
@@ -182,14 +182,14 @@ function Result({ amount, onClear }: ResultProps) {
       </h3>
 
       <div className="mt-2 flex flex-wrap gap-2">
-        {Object.entries(data.value.purchases).map(([ticker, amount]) => {
-          const stock = stocks.find((s) => s.ticker === ticker)!
+        {Object.entries(data.value.purchases).map(([name, amount]) => {
+          const asset = assets.find((s) => s.name === name)!
           return (
-            <StockCard
-              key={ticker}
-              name={ticker}
+            <AssetCard
+              key={name}
+              name={name}
               amountToBuy={amount}
-              oldStock={stock}
+              oldAsset={asset}
             />
           )
         })}
@@ -200,7 +200,7 @@ function Result({ amount, onClear }: ResultProps) {
           Limpar
         </Button>
         <Form method="PUT">
-          <Button name="stocks" value={JSON.stringify(newStocks)}>
+          <Button name="assets" value={JSON.stringify(newAssets)}>
             Invesitr
           </Button>
         </Form>
@@ -209,13 +209,13 @@ function Result({ amount, onClear }: ResultProps) {
   )
 }
 
-type StockCardProps = {
+type AssetCardProps = {
   name: string
   amountToBuy: number
-  oldStock: StockWithPrice
+  oldAsset: AssetWithPrice
 }
 
-function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
+function AssetCard({ amountToBuy, name, oldAsset }: AssetCardProps) {
   return (
     <>
       <Tooltip.Root delayDuration={200}>
@@ -227,17 +227,17 @@ function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
         <Tooltip.Content className="p-2 text-center">
           <div>
             <p>Quantidade:</p>
-            {oldStock.amount} <ArrowRightIcon className="inline size-4" />{' '}
+            {oldAsset.amount} <ArrowRightIcon className="inline size-4" />{' '}
             <p className="inline font-bold text-primary-200">
-              {oldStock.amount + amountToBuy}
+              {oldAsset.amount + amountToBuy}
             </p>
           </div>
           <div>
             <p>Valor total:</p>
-            {brl(oldStock.totalValue)}{' '}
+            {brl(oldAsset.totalValue)}{' '}
             <ArrowRightIcon className="inline size-4" />{' '}
             <p className="inline font-bold text-primary-200">
-              {brl(oldStock.price * (oldStock.amount + amountToBuy))}
+              {brl(oldAsset.price * (oldAsset.amount + amountToBuy))}
             </p>
           </div>
         </Tooltip.Content>
@@ -247,14 +247,13 @@ function StockCard({ amountToBuy, name, oldStock }: StockCardProps) {
 }
 
 function PieChart() {
-  const { stocks, color } = useLoaderData<typeof loader>()
-  console.log(colors)
+  const { assets, color } = useLoaderData<typeof loader>()
 
   return (
     <Graph
-      data={stocks}
+      data={assets}
       value="totalValue"
-      name="ticker"
+      name="name"
       colorStops={[colors[color][200], colors[color][700]]}
       h={50}
     />

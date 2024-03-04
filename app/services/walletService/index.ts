@@ -8,10 +8,10 @@ import {
 } from '~/services/db/schema/wallet.server'
 import type { Wallet } from '~/services/db/schema/wallet.server'
 
-import StocksService, {
-  DomainStock,
-  StockWithPrice,
-} from '../stockService/index.server'
+import AssetService, {
+  DomainAsset,
+  AssetWithPrice,
+} from '../assetService/index.server'
 
 type PersistanceWallet = Wallet
 
@@ -20,18 +20,19 @@ export type UpdateWallet = Partial<NewWallet>
 
 export type DomainWallet = Omit<PersistanceWallet, 'owner'>
 
-export type WalletWithStocks = DomainWallet & {
-  stocks: DomainStock[]
+export type WalletWithAssets = DomainWallet & {
+  assets: DomainAsset[]
 }
-export type FullWalletWithStocks = DomainWallet & {
+export type FullWalletWithAssets = DomainWallet & {
   totalValue: number
   realPercentage: number
-  stocks: StockWithPrice[]
+  assets: AssetWithPrice[]
 }
 
 function toDomain(wallet: PersistanceWallet): DomainWallet {
   return {
     id: wallet.id,
+    type: wallet.type,
     title: wallet.title,
     color: wallet.color,
     idealPercentage: wallet.idealPercentage,
@@ -53,18 +54,18 @@ class WalletService {
   }
 
   /**
-   * Returns a full wallet, with full stocks.
+   * Returns a full wallet, with full assets.
    *
    * The `realPercentage` field is always set to -1, becuase it is not calculated.
    */
-  async getFullWallet(uid: string, id: string): Promise<FullWalletWithStocks> {
+  async getFullWallet(uid: string, id: string): Promise<FullWalletWithAssets> {
     const wallet = await this.getWallet(uid, id)
 
-    const stocks = await StocksService.getStocksByWalletWithPrices(uid, id)
+    const assets = await AssetService.getAssetsByWalletWithPrices(uid, id)
 
-    const totalValue = stocks.reduce((a, s) => a + s.totalValue, 0)
+    const totalValue = assets.reduce((a, s) => a + s.totalValue, 0)
 
-    return { ...wallet, stocks, totalValue, realPercentage: -1 }
+    return { ...wallet, assets, totalValue, realPercentage: -1 }
   }
 
   async getWallets(uid: string): Promise<DomainWallet[]> {
@@ -77,27 +78,27 @@ class WalletService {
     return wallets.map(toDomain)
   }
 
-  async getFullWallets(uid: string): Promise<FullWalletWithStocks[]> {
+  async getFullWallets(uid: string): Promise<FullWalletWithAssets[]> {
     const wallets = await this.getWallets(uid)
 
-    // fills total value and stocks, missign realPercentage
-    const walletsWithStocks = await Promise.all(
+    // fills total value and assets, missign realPercentage
+    const walletsWithAssets = await Promise.all(
       wallets.map((w) =>
-        StocksService.getStocksByWalletWithPrices(uid, w.id).then((stocks) => ({
+        AssetService.getAssetsByWalletWithPrices(uid, w.id).then((assets) => ({
           ...w,
-          totalValue: stocks.reduce((a, s) => a + s.totalValue, 0),
-          stocks,
+          totalValue: assets.reduce((a, s) => a + s.totalValue, 0),
+          assets,
         })),
       ),
     )
 
-    const totalTotalValue = walletsWithStocks.reduce(
+    const totalTotalValue = walletsWithAssets.reduce(
       (a, w) => a + w.totalValue,
       0,
     )
 
     // add realPercentage
-    return walletsWithStocks.map((w) => ({
+    return walletsWithAssets.map((w) => ({
       ...w,
       realPercentage: w.totalValue / totalTotalValue,
     }))
@@ -173,7 +174,7 @@ class WalletService {
   }
 
   async deleteWallet(uid: string, walletId: string): Promise<void> {
-    await StocksService.deleteStocksFromWallet(uid, walletId)
+    await AssetService.deleteAssetsFromWallet(uid, walletId)
     await db
       .delete(walletTable)
       .where(and(eq(walletTable.owner, uid), eq(walletTable.id, walletId)))

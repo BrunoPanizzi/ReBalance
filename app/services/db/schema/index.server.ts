@@ -1,26 +1,31 @@
 import { user, userRelations } from './user.server'
+import { pgColorEnum } from './color.server'
 import { wallet, walletRelations } from './wallet.server'
-import { stock, stockRelations } from './stock.server'
+import { asset, assetRelations, assetTypeEnum } from './asset.server'
 import { feedback } from './feedback.server'
 
 const schema = {
   user,
   userRelations,
+  pgColorEnum,
   wallet,
   walletRelations,
-  stock,
-  stockRelations,
+  asset,
+  assetTypeEnum,
+  assetRelations,
   feedback,
 }
 
-export default schema 
+export default schema
 
 export {
   user,
   userRelations,
+  pgColorEnum,
   wallet,
   walletRelations,
-  stock,
-  stockRelations,
+  asset,
+  assetTypeEnum,
+  assetRelations,
   feedback,
 }

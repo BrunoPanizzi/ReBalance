@@ -19,6 +19,8 @@ type Args = {
 
 const postFormSchema = z.object({
   title: z.string().min(1, 'Insira um nome para sua carteira'),
+  // TODO: change this
+  type: z.literal('br-stock'),
   idealAmount: z.coerce
     .number()
     .min(0, 'A porcentagem ideal deve ser maior que 0')
@@ -45,6 +47,7 @@ async function postAction({
 
   const wallet = await WalletService.createWallet(user.uid, {
     title: result.data.title,
+    type: result.data.type,
     idealPercentage: result.data.idealAmount,
     color: result.data.color,
   })

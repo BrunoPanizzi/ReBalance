@@ -66,6 +66,9 @@ export default function NewWalletModal() {
               input={{ placeholder: 'Nome...' }}
             />
 
+
+            <input contentEditable='false' value='br-stock' name='type' />
+
             <BaseGroup
               label="Quanto você gostaria de investir?"
               name="idealAmount"

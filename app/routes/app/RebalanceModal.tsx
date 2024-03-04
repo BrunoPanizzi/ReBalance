@@ -9,7 +9,7 @@ import { ReactElement, createContext, useContext, useState } from 'react'
 import { percentage } from '~/lib/formatting'
 import { cn } from '~/lib/utils'
 
-import { FullWalletWithStocks } from '~/services/walletService'
+import { FullWalletWithAssets } from '~/services/walletService'
 
 import { Dialog } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
@@ -19,7 +19,7 @@ import { EasyTooltip } from '~/components/ui/tooltip'
 import { loader } from './loader'
 
 type RebalanceContext = {
-  wallets: FullWalletWithStocks[]
+  wallets: FullWalletWithAssets[]
   handleChangeIdealPercentage: (walletId: string, value: number) => void
   totalPercentage: number
 

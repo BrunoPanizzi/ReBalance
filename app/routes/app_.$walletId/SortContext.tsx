@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 
-export type SortOptions = 'ticker' | 'amount' | 'price' | 'percentage'
+export type SortOptions = 'name' | 'amount' | 'price' | 'percentage'
 
 export type SortContext = {
   sort: {
@@ -22,7 +22,7 @@ export function useSortContext() {
 }
 
 export function SortProvider({ children }: { children: React.ReactNode }) {
-  const [sort, setSort] = useState<SortOptions>('ticker')
+  const [sort, setSort] = useState<SortOptions>('name')
   const [ascending, setAscending] = useState(true)
 
   const toggleAscending = () => setAscending((prev) => !prev)

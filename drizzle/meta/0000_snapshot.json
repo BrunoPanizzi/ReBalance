@@ -1,9 +1,84 @@
 {
-  "id": "cdc696b4-f8c1-424a-9fab-aea60409fd9d",
+  "id": "e3049f84-5f09-4e1a-9c0d-5bde76a22bf3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
+    "asset": {
+      "name": "asset",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "asset_type": {
+          "name": "asset_type",
+          "type": "asset_type",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "wallet_id": {
+          "name": "wallet_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner": {
+          "name": "owner",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "asset_wallet_id_wallet_id_fk": {
+          "name": "asset_wallet_id_wallet_id_fk",
+          "tableFrom": "asset",
+          "tableTo": "wallet",
+          "columnsFrom": [
+            "wallet_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "asset_owner_user_uid_fk": {
+          "name": "asset_owner_user_uid_fk",
+          "tableFrom": "asset",
+          "tableTo": "user",
+          "columnsFrom": [
+            "owner"
+          ],
+          "columnsTo": [
+            "uid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "feedback": {
       "name": "feedback",
       "schema": "",
@@ -43,75 +118,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "stock": {
-      "name": "stock",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "ticker": {
-          "name": "ticker",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "amount": {
-          "name": "amount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "wallet_id": {
-          "name": "wallet_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "owner": {
-          "name": "owner",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "stock_wallet_id_wallet_id_fk": {
-          "name": "stock_wallet_id_wallet_id_fk",
-          "tableFrom": "stock",
-          "tableTo": "wallet",
-          "columnsFrom": [
-            "wallet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "stock_owner_user_uid_fk": {
-          "name": "stock_owner_user_uid_fk",
-          "tableFrom": "stock",
-          "tableTo": "user",
-          "columnsFrom": [
-            "owner"
-          ],
-          "columnsTo": [
-            "uid"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -167,22 +173,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "total_value": {
-          "name": "total_value",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
         "ideal_percentage": {
           "name": "ideal_percentage",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "real_percentage": {
-          "name": "real_percentage",
           "type": "real",
           "primaryKey": false,
           "notNull": true,
@@ -193,6 +185,13 @@
           "type": "color",
           "primaryKey": false,
           "notNull": true
+        },
+        "asset_type": {
+          "name": "asset_type",
+          "type": "asset_type",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'br-stock'"
         },
         "owner": {
           "name": "owner",
@@ -221,7 +220,39 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "asset_type": {
+      "name": "asset_type",
+      "values": {
+        "br-stock": "br-stock",
+        "br-bond": "br-bond",
+        "usa-stock": "usa-stock",
+        "usa-bond": "usa-bond",
+        "fixed_value": "fixed_value"
+      }
+    },
+    "color": {
+      "name": "color",
+      "values": {
+        "orange": "orange",
+        "amber": "amber",
+        "yellow": "yellow",
+        "lime": "lime",
+        "green": "green",
+        "emerald": "emerald",
+        "teal": "teal",
+        "cyan": "cyan",
+        "sky": "sky",
+        "blue": "blue",
+        "indigo": "indigo",
+        "violet": "violet",
+        "purple": "purple",
+        "fuchsia": "fuchsia",
+        "pink": "pink",
+        "rose": "rose"
+      }
+    }
+  },
   "schemas": {},
   "_meta": {
     "columns": {},

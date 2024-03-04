@@ -12,7 +12,7 @@ export const wallet = pgTable('wallet', {
   title: text('title').notNull(),
   idealPercentage: real('ideal_percentage').default(0).notNull(),
   color: pgColorEnum('color').notNull(),
-  type: assetTypeEnum('asset_type').default('br-stock'),
+  type: assetTypeEnum('asset_type').default('br-stock').notNull(),
 
   owner: uuid('owner')
     .notNull()
@@ -33,6 +33,7 @@ export const walletSchema = createSelectSchema(wallet, {
   color: colorsSchema,
   id: z.string().uuid(),
   owner: z.string().uuid().min(1),
+  type: z.enum(assetTypeEnum.enumValues),
 })
 
 export const newWalletSchema = createInsertSchema(wallet, {

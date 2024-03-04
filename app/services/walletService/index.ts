@@ -61,7 +61,11 @@ class WalletService {
   async getFullWallet(uid: string, id: string): Promise<FullWalletWithAssets> {
     const wallet = await this.getWallet(uid, id)
 
-    const assets = await AssetService.getAssetsByWalletWithPrices(uid, id)
+    const assets = await AssetService.getAssetsByWalletWithPrices(
+      uid,
+      id,
+      wallet.type,
+    )
 
     const totalValue = assets.reduce((a, s) => a + s.totalValue, 0)
 
@@ -84,11 +88,13 @@ class WalletService {
     // fills total value and assets, missign realPercentage
     const walletsWithAssets = await Promise.all(
       wallets.map((w) =>
-        AssetService.getAssetsByWalletWithPrices(uid, w.id).then((assets) => ({
-          ...w,
-          totalValue: assets.reduce((a, s) => a + s.totalValue, 0),
-          assets,
-        })),
+        AssetService.getAssetsByWalletWithPrices(uid, w.id, w.type).then(
+          (assets) => ({
+            ...w,
+            totalValue: assets.reduce((a, s) => a + s.totalValue, 0),
+            assets,
+          }),
+        ),
       ),
     )
 

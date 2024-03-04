@@ -1,10 +1,17 @@
 import { SQL, and, eq, sql } from 'drizzle-orm'
 
 import { db } from '../db/index.server'
-import { asset as assetTable, assetSchema } from '../db/schema/asset.server'
-import type { Asset } from '../db/schema/asset.server'
+import {
+  asset as assetTable,
+  assetSchema,
+  assetType,
+} from '../db/schema/asset.server'
+import type { Asset, AssetType } from '../db/schema/asset.server'
 
 import MarketService from '../maketService/index.server'
+
+export { assetType }
+export type { AssetType }
 
 type PersistanceAsset = Asset
 
@@ -19,12 +26,15 @@ export type AssetWithPrice = DomainAsset & {
 }
 
 function toDomain(asset: PersistanceAsset): DomainAsset {
+  console.log('Parsing: ', asset)
+
   return {
     id: asset.id,
     type: asset.type,
     name: asset.name,
     amount: asset.amount,
     walletId: asset.walletId,
+    totalValue: asset.totalValue,
   }
 }
 
@@ -44,18 +54,38 @@ class AssetService {
   async getAssetsByWalletWithPrices(
     uid: string,
     walletId: string,
+    walletType: AssetType,
   ): Promise<AssetWithPrice[]> {
     const assets = await this.getAssetsByWallet(uid, walletId)
 
-    const assetssWithPrices = await Promise.all(
-      assets.map((s) =>
-        MarketService.getStockData(s.name).then(({ regularMarketPrice }) => ({
-          ...s,
-          price: regularMarketPrice,
-          totalValue: s.amount * regularMarketPrice,
-        })),
-      ),
-    )
+    let assetssWithPrices
+    if (walletType === 'br-stock') {
+      assetssWithPrices = await Promise.all(
+        assets.map((a) =>
+          MarketService.getStockData(a.name).then(({ regularMarketPrice }) => ({
+            ...a,
+            price: regularMarketPrice,
+            totalValue: a.amount * regularMarketPrice,
+          })),
+        ),
+      )
+    } else if (walletType === 'fixed-value') {
+      assetssWithPrices = assets.map((a) => {
+        // simple == to catch undefined too
+        if (a.totalValue == null)
+          throw new Error(
+            `Asset ${a.id} of type ${a.type} does not have total value.`,
+          )
+
+        return {
+          ...a,
+          price: a.totalValue / a.amount,
+          totalValue: a.totalValue,
+        }
+      })
+    } else {
+      throw new Error(`Wallet type ${walletType} is not supported yet.`)
+    }
 
     const totalValue = assetssWithPrices.reduce((a, s) => a + s.totalValue, 0)
 
@@ -89,6 +119,7 @@ class AssetService {
         type: newAsset.type,
         name: newAsset.name,
         amount: newAsset.amount,
+        totalValue: newAsset.type === 'fixed-value' ? 0 : undefined,
       })
       .returning()
 

@@ -1,4 +1,11 @@
-import { integer, pgEnum, pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  real,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { z } from 'zod'
@@ -6,13 +13,15 @@ import { z } from 'zod'
 import { wallet } from './wallet.server'
 import { user } from './user.server'
 
-const assetType = [
-  'br-stock', //    everything listed on bovespa
-  'br-bond', //     tesouro direto e renda fixa privada
-  'usa-stock', //   nasdaq, nyse, etc
-  'usa-bond', //    all us bonds, still need research
-  'fixed_value', // just a fixed total value wallet,
+export const assetType = [
+  'br-stock', //    [✅] everything listed on bovespa
+  'br-bond', //     [❌] tesouro direto e renda fixa privada
+  'usa-stock', //   [❌] nasdaq, nyse, etc
+  'usa-bond', //    [❌] all us bonds, still need research
+  'fixed-value', // [❌] just a fixed total value wallet,
 ] as const
+
+export type AssetType = (typeof assetType)[number]
 
 export const assetTypeEnum = pgEnum('asset_type', assetType)
 
@@ -21,6 +30,7 @@ export const asset = pgTable('asset', {
   name: varchar('name', { length: 10 }).notNull(),
   type: assetTypeEnum('asset_type').notNull(),
   amount: integer('amount').default(0).notNull(),
+  totalValue: real('total_value').default(0),
 
   walletId: uuid('wallet_id')
     .references(() => wallet.id)
@@ -47,6 +57,7 @@ export const assetSchema = createSelectSchema(asset, {
   amount: z.number().int().nonnegative(),
   walletId: z.string().uuid().min(1),
   owner: z.string().uuid().min(1),
+  totalValue: z.number().optional(),
 })
 
 export const newAssetSchema = createInsertSchema(asset, {

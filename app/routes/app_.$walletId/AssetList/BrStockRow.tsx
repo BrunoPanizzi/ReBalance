@@ -1,47 +1,26 @@
-import { memo, useEffect, useState } from 'react'
-import { useFetcher, useLoaderData } from '@remix-run/react'
 import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
+import { memo, useEffect, useState } from 'react'
+import { useFetcher } from '@remix-run/react'
 
-import { cn } from '~/lib/utils'
 import { brl, percentage } from '~/lib/formatting'
+import { cn } from '~/lib/utils'
 
 import { AssetWithPrice } from '~/services/assetService/index.server'
-
-// TODO: this whole file, check for asset type and ultimately rename to <AssetsList />
 
 import {
   Popover,
   PopoverContent,
-  PopoverItem,
   PopoverTrigger,
 } from '~/components/ui/popover'
+import { PopoverItem } from '~/components/ui/popover'
 import { EasyTooltip } from '~/components/ui/tooltip'
-
 import Loader from '~/components/Loader'
 
-import { loader } from './loader'
-import { useSortContext } from './SortContext'
-
-export function StocksList() {
-  const baseAssets = useLoaderData<typeof loader>()
-
-  const { sort } = useSortContext()
-
-  const sortedAssets = baseAssets.assets.sort((a, b) => {
-    if (sort.ascending) {
-      return b[sort.by] < a[sort.by] ? 1 : -1
-    }
-    return b[sort.by] > a[sort.by] ? 1 : -1
-  })
-
-  return sortedAssets.map((s) => <StockRow key={s.id} stock={s} />)
-}
-
-type StockRowProps = {
+export type BrStockRowProps = {
   stock: AssetWithPrice
 }
 
-const StockRow = memo(({ stock }: StockRowProps) => {
+export const BrStockRow = memo(({ stock }: BrStockRowProps) => {
   const fetcher = useFetcher({ key: stock.id })
 
   return (
@@ -77,7 +56,7 @@ const StockRow = memo(({ stock }: StockRowProps) => {
       </span>
 
       <EasyTooltip label="Quantidade">
-        <AmountInput stock={stock} />
+        <AmountInput asset={stock} />
       </EasyTooltip>
 
       {/* small screens, span 2 cols */}
@@ -108,22 +87,22 @@ const StockRow = memo(({ stock }: StockRowProps) => {
   )
 })
 
-function AmountInput({ stock }: { stock: AssetWithPrice }) {
-  const fetcher = useFetcher({ key: stock.id + 'PATCH' })
+function AmountInput({ asset }: { asset: AssetWithPrice }) {
+  const fetcher = useFetcher({ key: asset.id + 'PATCH' })
 
-  const [value, setValue] = useState(stock.amount)
+  const [value, setValue] = useState(asset.amount)
 
-  const changed = value !== stock.amount
+  const changed = value !== asset.amount
 
   useEffect(() => {
-    if (stock.amount !== value) {
-      setValue(stock.amount)
+    if (asset.amount !== value) {
+      setValue(asset.amount)
     }
-  }, [stock.amount])
+  }, [asset.amount])
 
   return (
     <fetcher.Form className="relative min-w-20" method="PATCH">
-      <input type="hidden" aria-hidden name="assetId" value={stock.id} />
+      <input type="hidden" aria-hidden name="assetId" value={asset.id} />
       <label htmlFor="amount" className="hidden">
         Quantidade
       </label>

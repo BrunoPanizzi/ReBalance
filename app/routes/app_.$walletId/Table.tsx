@@ -5,8 +5,7 @@ import { loader } from './loader'
 
 import { SortProvider } from './SortContext'
 import { SortSelector } from './SortSelector'
-import { StocksList } from './StocksList'
-// TODO: change ^^^ this to match the asset type 
+import { AssetList } from './AssetList'
 
 // Table might not be the most descriptive name ever...
 export function Table() {
@@ -40,7 +39,7 @@ export function Table() {
           </div>
         ) : (
           <div className="@container">
-            <StocksList />
+            <AssetList />
           </div>
         )}
       </div>

@@ -17,7 +17,9 @@ type PersistanceAsset = Asset
 
 export type DomainAsset = Omit<PersistanceAsset, 'owner'>
 export type NewAsset = Omit<DomainAsset, 'id' | 'walletId'>
-export type UpdateAsset = Omit<PersistanceAsset, 'owner' | 'walletId' | 'type'>
+export type UpdateAsset = Partial<
+  Omit<PersistanceAsset, 'owner' | 'walletId' | 'type'>
+>
 
 export type AssetWithPrice = DomainAsset & {
   price: number
@@ -26,15 +28,13 @@ export type AssetWithPrice = DomainAsset & {
 }
 
 function toDomain(asset: PersistanceAsset): DomainAsset {
-  console.log('Parsing: ', asset)
-
   return {
     id: asset.id,
     type: asset.type,
     name: asset.name,
     amount: asset.amount,
     walletId: asset.walletId,
-    totalValue: asset.totalValue,
+    price: asset.price,
   }
 }
 
@@ -72,15 +72,15 @@ class AssetService {
     } else if (walletType === 'fixed-value') {
       assetssWithPrices = assets.map((a) => {
         // simple == to catch undefined too
-        if (a.totalValue == null)
+        if (a.price == null)
           throw new Error(
-            `Asset ${a.id} of type ${a.type} does not have total value.`,
+            `Asset ${a.id} of type ${a.type} does not have price.`,
           )
 
         return {
           ...a,
-          price: a.totalValue / a.amount,
-          totalValue: a.totalValue,
+          price: a.price,
+          totalValue: a.price * a.amount,
         }
       })
     } else {
@@ -119,11 +119,32 @@ class AssetService {
         type: newAsset.type,
         name: newAsset.name,
         amount: newAsset.amount,
-        totalValue: newAsset.type === 'fixed-value' ? 0 : undefined,
+        price: newAsset.type === 'fixed-value' ? 0 : undefined,
       })
       .returning()
 
     return toDomain(created)
+  }
+
+  async update(
+    uid: string,
+    walletId: string,
+    assetId: string,
+    updateAsset: UpdateAsset,
+  ): Promise<DomainAsset> {
+    const [updated] = await db
+      .update(assetTable)
+      .set({ amount: updateAsset.amount, price: updateAsset.price })
+      .where(
+        and(
+          eq(assetTable.owner, uid),
+          eq(assetTable.walletId, walletId),
+          eq(assetTable.id, assetId),
+        ),
+      )
+      .returning()
+
+    return updated
   }
 
   async updateAmount(

@@ -30,7 +30,7 @@ export const asset = pgTable('asset', {
   name: varchar('name', { length: 10 }).notNull(),
   type: assetTypeEnum('asset_type').notNull(),
   amount: integer('amount').default(0).notNull(),
-  totalValue: real('total_value').default(0),
+  price: real('price').default(0),
 
   walletId: uuid('wallet_id')
     .references(() => wallet.id)
@@ -55,24 +55,24 @@ export const assetSchema = createSelectSchema(asset, {
   id: z.string().uuid().min(1),
   name: z.string().min(1),
   amount: z.number().int().nonnegative(),
+  price: z.number().optional(),
   walletId: z.string().uuid().min(1),
   owner: z.string().uuid().min(1),
-  totalValue: z.number().optional(),
 })
 
 export const newAssetSchema = createInsertSchema(asset, {
   name: z.string().min(1),
   amount: z.number().int().nonnegative(),
+  price: z.number().nonnegative().optional(),
   walletId: z.string().uuid().min(1),
   owner: z.string().uuid().min(1),
 })
 
-export const updateAssetSchema = z.array(
-  z.object({
-    id: z.string().uuid().min(1),
-    amount: z.number().int().nonnegative(),
-  }),
-)
+export const updateAssetSchema = z.object({
+  id: z.string().uuid().min(1),
+  amount: z.number().int().nonnegative(),
+  price: z.number().nonnegative(),
+})
 
 export type Asset = z.infer<typeof assetSchema>
 export type NewAsset = z.infer<typeof newAssetSchema>

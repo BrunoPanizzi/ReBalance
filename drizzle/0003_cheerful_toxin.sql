@@ -1,0 +1,1 @@
+ALTER TABLE "asset" RENAME COLUMN "total_value" TO "price";

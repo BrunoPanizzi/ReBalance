@@ -2,7 +2,11 @@ import { ActionFunctionArgs, redirect, json } from '@remix-run/node'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import AssetService, { DomainAsset } from '~/services/assetService/index.server'
+import AssetService, {
+  AssetType,
+  DomainAsset,
+  assetType,
+} from '~/services/assetService/index.server'
 import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result, error, ok } from '~/types/Result'
@@ -39,17 +43,20 @@ const postAction = async ({
   formData,
 }: SubActionArgs): Promise<PostSubactionReturn> => {
   const asset = formData.get('name')?.toString()
+  const type = formData.get('type')?.toString()
 
-  if (!asset) {
-    return error('No name field found')
+  if (!asset || !type) {
+    return error('Both asset and type should be present in form data')
+  }
+  if (!assetType.find((a) => a === type)) {
+    return error('Invalid type')
   }
 
   try {
     const newAsset = await AssetService.createAsset(user.uid, walletId, {
       amount: 0,
       name: asset,
-      // TODO: change this based on the wallet type
-      type: 'br-stock',
+      type: type as AssetType,
     })
 
     return ok(newAsset)

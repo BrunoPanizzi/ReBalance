@@ -2,6 +2,7 @@ import {
   Form,
   useActionData,
   useFetcher,
+  useLoaderData,
   useNavigation,
   useSearchParams,
 } from '@remix-run/react'
@@ -19,6 +20,7 @@ import { Input } from '~/components/ui/input'
 import { toast } from '~/components/ui/use-toast'
 
 import { action, extractValue } from './action'
+import { loader } from './loader'
 
 export function NewAssetModal() {
   const fetcher = useFetcher<typeof recommendationsLoader>({
@@ -70,6 +72,7 @@ export function NewAssetModal() {
 }
 
 function SuggestionsList() {
+  const { type } = useLoaderData<typeof loader>()
   const { state } = useNavigation()
   const fetcher = useFetcher<typeof recommendationsLoader>({
     key: 'recommendations',
@@ -118,6 +121,7 @@ function SuggestionsList() {
             </label>
           ))
         }
+        <input type="hidden" name="type" value={type} />
         <Button
           disabled={state !== 'idle'}
           className="col-span-full mt-1 hidden w-full peer-has-[:checked]:block"

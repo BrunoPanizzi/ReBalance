@@ -21,7 +21,15 @@ export default function WalletPage() {
   return (
     <>
       <NewAssetModal />
-      <Header backArrow title={wallet.title} />
+      <Header
+        backArrow
+        title={wallet.title}
+        leftSide={
+          <span className="rounded-full bg-primary-400 px-2 text-sm text-primary-950">
+            {wallet.type}
+          </span>
+        }
+      />
       <Wrapper cols={2}>
         <Table />
 

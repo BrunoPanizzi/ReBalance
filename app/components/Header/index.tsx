@@ -6,6 +6,7 @@ export type HeaderProps = {
   backArrow?: boolean
   logo?: boolean
   title: string
+  leftSide?: ReactNode
   rightSide?: ReactNode
 }
 
@@ -13,6 +14,7 @@ export default function Header({
   backArrow,
   logo,
   title,
+  leftSide,
   rightSide,
 }: HeaderProps) {
   const navigate = useNavigate()
@@ -32,6 +34,7 @@ export default function Header({
         <h1 className="text-xl font-bold text-primary-200 sm:text-2xl ">
           {title}
         </h1>
+        {leftSide}
       </div>
 
       <div className="flex items-center gap-6">{rightSide}</div>

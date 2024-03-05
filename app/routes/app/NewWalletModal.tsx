@@ -108,7 +108,7 @@ function TypeSelect() {
   return (
     <BaseGroup name="type" label="Tipo da carteira">
       <Select.Root name="type">
-        <Select.Trigger className="border-gray-400/25 bg-gray-500/25">
+        <Select.Trigger>
           <Select.Value placeholder="Selecione o tipo..." />
         </Select.Trigger>
         <Select.Content>

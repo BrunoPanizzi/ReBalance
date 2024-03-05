@@ -8,10 +8,6 @@ import {
 
 import { cn } from 'app/lib/utils'
 
-// TODO: add size and style variants
-// sizes = sm, md, lg
-// variants = default, coloredBorder
-
 const Root = SelectPrimitive.Root
 
 const SelectGroup = React.forwardRef<
@@ -42,11 +38,11 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'group flex w-full items-center justify-between gap-2 rounded-md border border-primary-400/50 text-gray-200 shadow transition-colors placeholder:text-gray-400 hover:border-primary-400 focus:ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary-400 [&>span]:line-clamp-1',
+      'group flex w-full items-center justify-between gap-2 rounded-md border border-gray-400/25 bg-gray-500/25 text-gray-200 shadow transition-colors placeholder:text-gray-400 hover:border-primary-500/50 focus-visible:border-primary-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary-500 [&>span]:line-clamp-1',
       {
         'px-3 py-1 text-sm': size === 'sm',
-        'px-3 py-2 text-base': !size || size === 'md',
-        'px-4 py-3 text-lg': size === 'lg',
+        'px-3 py-2 text-sm sm:text-base': !size || size === 'md',
+        'text-md px-4 py-3 sm:text-lg': size === 'lg',
       },
       className,
     )}

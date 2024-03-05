@@ -16,10 +16,13 @@ export function SortSelector() {
         defaultValue={sort.by}
         onValueChange={(value) => setSort(value as SortOptions)}
       >
-        <Select.Trigger size="sm">
+        <Select.Trigger
+          className="border-primary-400/50 bg-transparent hover:border-primary-400 data-[state=open]:border-primary-400"
+          size="sm"
+        >
           Ordem: <Select.Value />
         </Select.Trigger>
-        <Select.Content>
+        <Select.Content className="text-sm">
           <Select.Group>
             <Select.Item value="ticker">Ticker</Select.Item>
             <Select.Item value="amount">Quantidade</Select.Item>

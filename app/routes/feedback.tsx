@@ -207,10 +207,7 @@ function FeedbackForm() {
         <div>
           <BaseGroup label="Selecione um assunto" name="type">
             <Select.Root name="type">
-              <Select.Trigger
-                size="md"
-                className="border-gray-400/25 bg-gray-500/25 backdrop-blur"
-              >
+              <Select.Trigger size="md" className="backdrop-blur">
                 <Select.Value placeholder="Selecione..." />
               </Select.Trigger>
               <Select.Content>

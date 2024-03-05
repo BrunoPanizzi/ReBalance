@@ -92,18 +92,6 @@ export default function NewWalletModal() {
   )
 }
 
-const typeOptions: {
-  value: AssetType
-  displayName: string
-  disabled: boolean
-}[] = [
-  { value: 'br-stock', displayName: 'Ações', disabled: false },
-  { value: 'br-bond', displayName: 'Renda fixa', disabled: true },
-  { value: 'usa-stock', displayName: 'Ações americanas', disabled: true },
-  { value: 'usa-bond', displayName: 'Renda fixa americana', disabled: true },
-  { value: 'fixed-value', displayName: 'Valor fixo', disabled: false },
-]
-
 function TypeSelect() {
   return (
     <BaseGroup name="type" label="Tipo da carteira">
@@ -112,11 +100,28 @@ function TypeSelect() {
           <Select.Value placeholder="Selecione o tipo..." />
         </Select.Trigger>
         <Select.Content>
-          {typeOptions.map((a) => (
-            <Select.Item key={a.value} disabled={a.disabled} value={a.value}>
-              {a.displayName}
+          <Select.Group>
+            <Select.Label>🇧🇷 Brasil</Select.Label>
+            <Select.Item value="br-stock">Ações</Select.Item>
+            <Select.Item value="br-bond" disabled>
+              Renda fixa
             </Select.Item>
-          ))}
+          </Select.Group>
+          <Select.Separator />
+          <Select.Group>
+            <Select.Label>🇺🇸 Exterior</Select.Label>
+            <Select.Item value="usa-stock" disabled>
+              Ações americanas
+            </Select.Item>
+            <Select.Item value="usa-bond" disabled>
+              Renda fixa americana
+            </Select.Item>
+          </Select.Group>
+          <Select.Separator />
+          <Select.Group>
+            <Select.Label>Outros</Select.Label>
+            <Select.Item value="fixed-value">Valor fixo</Select.Item>
+          </Select.Group>
         </Select.Content>
       </Select.Root>
     </BaseGroup>

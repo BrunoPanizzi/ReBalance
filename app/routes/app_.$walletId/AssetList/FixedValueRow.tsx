@@ -124,6 +124,7 @@ function AmountInput({ asset }: { asset: AssetWithPrice }) {
         }}
         onFocus={(e) => e.target.select()}
         type="number"
+        step={0.000001}
         name="amount"
       />
       {changed && (

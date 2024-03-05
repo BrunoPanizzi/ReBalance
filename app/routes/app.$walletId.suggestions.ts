@@ -1,7 +1,10 @@
 import { LoaderFunctionArgs, TypedResponse, redirect } from '@remix-run/node'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import AssetService from '~/services/assetService/index.server'
+import AssetService, {
+  AssetType,
+  assetType,
+} from '~/services/assetService/index.server'
 
 import { Result, typedError, typedOk } from '~/types/Result'
 
@@ -42,9 +45,16 @@ export const loader = async ({
     return typedError('Amount should be greater than 0')
   }
 
+  const walletType = searchParams.get('type')
+
+  if (!walletType || !assetType.find((a) => a === walletType)) {
+    return typedError('invalir type')
+  }
+
   const userAssets = await AssetService.getAssetsByWalletWithPrices(
     user.uid,
     walletId,
+    walletType as AssetType,
   )
 
   if (userAssets.length === 0) {
@@ -57,6 +67,7 @@ export const loader = async ({
 
   let remainingAmount = amount
 
+  // TODO: when type is `fixed-value` don't buy whole assets, buy fractions
   while (true) {
     const smallestTotalValue = assets.reduce(
       (a, s) => (s.totalValue < a.totalValue ? s : a),
@@ -82,7 +93,7 @@ export const loader = async ({
     totalAmount: amount,
     investedAmount: amount - remainingAmount,
     change: remainingAmount,
-    assetsBought: Object.keys(purchases).length, // stocks bought is the number of different tickers
+    assetsBought: Object.keys(purchases).length, // assets bought is the number of different tickers
     purchases,
   })
 }

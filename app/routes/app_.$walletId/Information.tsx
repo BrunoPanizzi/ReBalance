@@ -17,13 +17,14 @@ import { AssetWithPrice } from '~/services/assetService/index.server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Tooltip } from '~/components/ui/tooltip'
+import { toast } from '~/components/ui/use-toast'
+
+import Graph from '~/components/Graph'
 
 import { loader as suggestionsLoader } from '../app.$walletId.suggestions'
 
 import { loader } from './loader'
 import { action, extractValue } from './action'
-import { toast } from '~/components/ui/use-toast'
-import Graph from '~/components/Graph'
 
 export default function Information() {
   const [selected, setSelected] = useState<'invest' | 'graph'>('invest')
@@ -57,6 +58,7 @@ export default function Information() {
 }
 
 function Shopping() {
+  const { type } = useLoaderData<typeof loader>()
   const [value, setValue] = useState('')
 
   const fetcher = useFetcher({ key: 'shopping' + currencyToNumber(value) })
@@ -91,6 +93,7 @@ function Shopping() {
           name="amount"
           value={currencyToNumber(value || '')}
         />
+        <input type="hidden" name="type" value={type} />
         <Input
           value={value}
           onChange={(e) => setValue(brl(currencyToNumber(e.target.value)))}

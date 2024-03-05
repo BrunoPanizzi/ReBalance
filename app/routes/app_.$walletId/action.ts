@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import AssetService, {
-  AssetType,
   DomainAsset,
   assetType,
 } from '~/services/assetService/index.server'
@@ -11,8 +10,17 @@ import { DomainUser } from '~/services/auth/authService.server'
 
 import { Result, error, ok } from '~/types/Result'
 
+import { ErrorT } from '~/context/ErrorContext'
+
 import { createMatcher } from '~/lib/actionMatcher'
 import { currencyToNumber } from '~/lib/formatting'
+
+const currencySchema = (params?: z.CustomErrorParams) =>
+  z
+    .string()
+    .transform((val) => currencyToNumber(val))
+    .refine((val) => val > 0 && val < 10e9, params)
+//                I mean at this point ^^ you're buying whole companies
 
 type SubActionArgs = {
   user: DomainUser
@@ -37,32 +45,64 @@ const deleteAction = async ({
   return ok(null)
 }
 
-type PostSubactionReturn = Result<DomainAsset, string>
+const postSubactionForm = z
+  .object({
+    name: z.string().min(1, 'Insira um nome'),
+    type: z.enum(assetType),
+    initialAmount: z.coerce
+      .number({
+        invalid_type_error: 'Insira uma quantidade válida',
+      })
+      .nonnegative('A quantidade não pode ser negativa')
+      .max(10e12, 'A quantidade deve ser menor que 1 trilhão')
+      .optional(),
+    price: currencySchema({ message: 'Insira um preço válido' }).optional(),
+  })
+  .refine((form) => (form.type === 'fixed-value' ? form.initialAmount : true), {
+    message: 'Insira uma quantidade válida',
+    path: ['initialAmount'],
+  })
+  .refine((form) => (form.type === 'fixed-value' ? form.price : true), {
+    message: 'Insira uma preço',
+    path: ['price'],
+  })
+type PostSubactionReturn = Result<DomainAsset, ErrorT[]>
 const postAction = async ({
   user,
   walletId,
   formData,
 }: SubActionArgs): Promise<PostSubactionReturn> => {
-  const asset = formData.get('name')?.toString()
-  const type = formData.get('type')?.toString()
+  const parsedForm = postSubactionForm.safeParse(Object.fromEntries(formData))
 
-  if (!asset || !type) {
-    return error('Both asset and type should be present in form data')
+  if (!parsedForm.success) {
+    return error(
+      parsedForm.error.errors.map((e) => ({
+        message: e.message,
+        type: e.path.join(),
+      })),
+    )
   }
-  if (!assetType.find((a) => a === type)) {
-    return error('Invalid type')
-  }
+
+  const { name, type, initialAmount, price } = parsedForm.data
 
   try {
     const newAsset = await AssetService.createAsset(user.uid, walletId, {
-      amount: 0,
-      name: asset,
-      type: type as AssetType,
+      name,
+      type,
+      amount: initialAmount ?? 0,
+      price,
     })
 
     return ok(newAsset)
   } catch (e) {
-    return error('Name already exists')
+    console.log(e)
+
+    return error([
+      {
+        message: 'Backend error',
+        type: 'backend',
+      },
+    ])
   }
 }
 
@@ -71,11 +111,7 @@ const patchFormSchema = z
     assetId: z.string().uuid(),
     //                Postgres integer max safe value
     amount: z.coerce.number().max(2_147_483_647).nonnegative().optional(),
-    price: z
-      .string()
-      .transform((val) => currencyToNumber(val))
-      .refine((val) => val > 0)
-      .optional(),
+    price: currencySchema().optional(),
   })
   .refine(
     (form) => form.amount || form.price,

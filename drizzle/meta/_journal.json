@@ -29,6 +29,20 @@
       "when": 1709589034920,
       "tag": "0003_cheerful_toxin",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1709594558840,
+      "tag": "0004_busy_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1709599572116,
+      "tag": "0005_loose_overlord",
+      "breakpoints": true
     }
   ]
 }

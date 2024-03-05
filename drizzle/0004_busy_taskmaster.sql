@@ -1,0 +1,1 @@
+ALTER TABLE "asset" ALTER COLUMN "name" SET DATA TYPE varchar;

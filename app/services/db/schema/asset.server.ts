@@ -27,9 +27,9 @@ export const assetTypeEnum = pgEnum('asset_type', assetType)
 
 export const asset = pgTable('asset', {
   id: uuid('id').defaultRandom().primaryKey().notNull(),
-  name: varchar('name', { length: 10 }).notNull(),
+  name: varchar('name').notNull(),
   type: assetTypeEnum('asset_type').notNull(),
-  amount: integer('amount').default(0).notNull(),
+  amount: real('amount').default(0).notNull(),
   price: real('price').default(0),
 
   walletId: uuid('wallet_id')

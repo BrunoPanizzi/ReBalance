@@ -119,7 +119,7 @@ class AssetService {
         type: newAsset.type,
         name: newAsset.name,
         amount: newAsset.amount,
-        price: newAsset.type === 'fixed-value' ? 0 : undefined,
+        price: newAsset.price ?? 0,
       })
       .returning()
 

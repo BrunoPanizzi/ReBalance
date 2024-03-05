@@ -77,7 +77,7 @@ class WalletService {
       .select()
       .from(walletTable)
       .where(eq(walletTable.owner, uid))
-      .orderBy(walletTable.title)
+      .orderBy(walletTable.color)
 
     return wallets.map(toDomain)
   }

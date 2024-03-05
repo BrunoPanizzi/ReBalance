@@ -21,8 +21,16 @@ type Args = {
 const postFormSchema = z.object({
   title: z.string().min(1, 'Insira um nome para sua carteira'),
   type: z.enum(assetType, {
-    invalid_type_error: 'Tipo inválido',
-    required_error: 'Selecione um tipo',
+    errorMap: (issue) => {
+      switch (issue.code) {
+        case 'invalid_type':
+          return { message: 'Selecione um tipo' }
+        case 'invalid_enum_value':
+          return { message: 'Selecione um tipo válido' }
+        default:
+          return { message: 'Tipo inválido' }
+      }
+    },
   }),
   idealAmount: z.coerce
     .number()

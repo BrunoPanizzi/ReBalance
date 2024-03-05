@@ -140,7 +140,7 @@ export default function RebalancePercentagesModal() {
     >
       <RebalanceContextProvider>
         <Dialog.Content className="max-w-md">
-          <Dialog.Title>Hello world!</Dialog.Title>
+          <Dialog.Title>Rebalancear carteiras</Dialog.Title>
 
           <Toolbar />
 

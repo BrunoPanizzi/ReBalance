@@ -7,6 +7,8 @@ import Header from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 import Graph from '~/components/Graph'
 
+import { EmptyWallet } from '~/components/icons/empty_wallet'
+
 import { loader } from './loader'
 import { action } from './action'
 
@@ -21,6 +23,8 @@ export { loader, action }
 
 export default function App() {
   const { user, wallets } = useLoaderData<typeof loader>()
+
+  const showGraph = wallets.filter((w) => w.totalValue > 0).length > 0
 
   return (
     <>
@@ -55,27 +59,57 @@ export default function App() {
         <div className="flex flex-col gap-2 @container/list">
           <ListHeader />
 
-          {wallets.map((w) => (
-            <WalletCard wallet={w} key={w.id} />
-          ))}
+          {wallets.length > 0 ? (
+            wallets.map((w) => <WalletCard wallet={w} key={w.id} />)
+          ) : (
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-x-4">
+              <div className="w-1/2 max-w-36 text-orange-400/90">
+                <EmptyWallet />
+              </div>
+              <div className="">
+                <p className="text-lg font-semibold text-orange-100">
+                  Você ainda não possui nenhuma carteira
+                </p>
+                <p className="mb-2 ">
+                  <Link
+                    to="/app?new"
+                    className="text-lg font-bold text-primary-100 underline underline-offset-2 transition hover:text-primary-300"
+                  >
+                    Clique aqui e crie uma!
+                  </Link>
+                </p>
+                <small className="text-sm">
+                  Precisa de ajuda? Veja{' '}
+                  <Link
+                    to="/blog/carteiras"
+                    className="text-primary-200 underline"
+                  >
+                    como as carteiras funcionam.
+                  </Link>
+                </small>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="@container">
-          <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
-            Distribuição dos ativos:
-          </h2>
-          <div className="h-min rounded-xl bg-gray-700/50">
-            <div className="mx-auto max-w-md">
-              <Graph
-                data={wallets}
-                value="totalValue"
-                name="title"
-                color={(w) => colors[w.color][600]}
-                m={5}
-              />
+        {showGraph && (
+          <div className="@container">
+            <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
+              Distribuição dos ativos:
+            </h2>
+            <div className="h-min rounded-xl bg-gray-700/50">
+              <div className="mx-auto max-w-md">
+                <Graph
+                  data={wallets}
+                  value="totalValue"
+                  name="title"
+                  color={(w) => colors[w.color][600]}
+                  m={5}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </Wrapper>
     </>
   )

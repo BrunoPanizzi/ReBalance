@@ -2,22 +2,22 @@ import * as d3 from 'd3'
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 
+import { KeyOfType } from '~/types/KeyOfType'
+
 import { brl } from '~/lib/formatting'
 
 type BaseT = { id: string }
 
 type GraphProps<T extends BaseT> = {
   data: T[]
-  value: { [K in keyof T]: T[K] extends number ? K : never }[keyof T]
-  name: { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
+  value: KeyOfType<T, number>
+  name: KeyOfType<T, string>
   w?: number
   h?: number
   m?: number
 } & (
   | {
-      color:
-        | { [K in keyof T]: T[K] extends string ? K : never }[keyof T]
-        | ((el: T) => string)
+      color: KeyOfType<T, string> | ((el: T) => string)
       colorStops?: never
     }
   | {

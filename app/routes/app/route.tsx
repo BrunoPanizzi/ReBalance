@@ -92,12 +92,12 @@ export default function App() {
           )}
         </div>
 
-        {showGraph && (
-          <div className="@container">
-            <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
-              Distribuição dos ativos:
-            </h2>
-            <div className="h-min rounded-xl bg-gray-700/50">
+        <div className="@container">
+          <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
+            Distribuição dos ativos:
+          </h2>
+          <div className="h-min rounded-xl bg-gray-700/50">
+            {showGraph ? (
               <div className="mx-auto max-w-md">
                 <Graph
                   data={wallets}
@@ -107,9 +107,13 @@ export default function App() {
                   m={5}
                 />
               </div>
-            </div>
+            ) : (
+              <p className="p-4 text-center text-orange-100">
+                Nada para mostrar aqui...
+              </p>
+            )}
           </div>
-        )}
+        </div>
       </Wrapper>
     </>
   )

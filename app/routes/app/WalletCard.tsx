@@ -48,19 +48,14 @@ export default function WalletCard({ wallet }: WalletProps) {
       data-color={wallet.color}
       className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] items-center gap-2 rounded-md border border-primary-500/50 bg-primary-300/10 px-4 py-2 transition first-of-type:rounded-t-xl last-of-type:rounded-b-xl hover:border-primary-500/75 hover:bg-primary-400/20"
     >
-      <span className="flex items-center gap-2">
-        <h3 className="text-xl font-semibold text-primary-200">
+      <span className="flex flex-wrap items-center gap-2">
+        <h3 className="text-lg font-semibold text-primary-200 @md/list:text-xl">
           {wallet.title}
         </h3>
-
-        <span className='bg-primary-400 select-none text-sm text-primary-950 rounded-full px-2'>
-          {wallet.type}
-        </span>
-
         <div onClick={(e) => e.preventDefault()}>
           <Popover>
             <Button
-              className="size-auto p-1"
+              className="size-auto p-0.5"
               asChild
               size="icon"
               variant="ghost"
@@ -97,13 +92,17 @@ export default function WalletCard({ wallet }: WalletProps) {
             </PopoverContent>
           </Popover>
         </div>
+
+        <span className="select-none rounded-full bg-primary-400 px-2 text-xs text-primary-950 @md/list:text-sm">
+          {wallet.type}
+        </span>
       </span>
 
       <span className="row-start-2">
-        <span className="mr-2">
+        <span className="mr-2 text-sm sm:text-base">
           ideal: {percentage(wallet.idealPercentage)}
         </span>
-        <span className="inline-block">
+        <span className="inline-block text-sm sm:text-base">
           atual: {percentage(wallet.realPercentage)}
         </span>
       </span>

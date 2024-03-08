@@ -13,7 +13,7 @@ import FeedbackService, {
 import { ErrorProvider, ErrorT } from '~/context/ErrorContext'
 
 import { BaseGroup, InputGroup, TextAreaGroup } from '~/components/FormGroups'
-import Header from '~/components/Header'
+import FloatingHeader from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
 import { Button } from '~/components/ui/button'
@@ -153,7 +153,7 @@ export default function Feedback() {
   return (
     <>
       <div className="grid min-h-screen grid-rows-[auto_1fr_auto] items-center">
-        <Header title="Feedback" backArrow />
+        <FloatingHeader title="Feedback" backArrow />
         <Wrapper cols={2} className="items-center gap-y-6">
           <BackgroundDots />
           <div className="text-center md:text-start">

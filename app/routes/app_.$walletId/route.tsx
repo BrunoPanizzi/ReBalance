@@ -1,6 +1,6 @@
 import { useLoaderData, MetaFunction } from '@remix-run/react'
 
-import Header from '~/components/Header'
+import FloatingHeader from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
 import { loader } from './loader'
@@ -21,7 +21,7 @@ export default function WalletPage() {
   return (
     <>
       <NewAssetModal />
-      <Header
+      <FloatingHeader
         backArrow
         title={wallet.title}
         leftSide={

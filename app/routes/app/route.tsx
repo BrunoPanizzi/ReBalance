@@ -3,7 +3,7 @@ import colors from 'tailwindcss/colors.js'
 
 import { Button } from '~/components/ui/button'
 
-import Header from '~/components/Header'
+import FloatingHeader from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 import Graph from '~/components/Graph'
 
@@ -34,7 +34,7 @@ export default function App() {
       <ChangeNameModal />
       <RebalancePercentagesModal />
 
-      <Header
+      <FloatingHeader
         title={`Bem vindo de volta, ${user.userName}`}
         rightSide={
           <>

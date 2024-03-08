@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button'
 
 import { action } from './action'
 import AuthenticationModal from './AuthenticationModal'
+import { NavBar } from '~/components/Header'
 
 export const meta = () => {
   return [
@@ -64,7 +65,7 @@ export default function Index() {
       <div className="relative h-screen bg-opacity-10">
         <CoolBg />
 
-        <Navbar />
+        <NavBar isAuthenticated={isAuthenticated} />
 
         <main className="mx-auto mt-[20vh] max-w-screen-xl text-center font-display">
           <motion.div
@@ -173,54 +174,5 @@ function CoolBg() {
         </svg>
       </div>
     </>
-  )
-}
-
-function Navbar() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
-
-  return (
-    <div className="bg-gray-700/50 p-2 backdrop-blur-sm">
-      <nav className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 ">
-        <img
-          src="/logo.svg"
-          alt="Stock shop logo"
-          className="h-8 w-8 sm:h-10 sm:w-10"
-        />
-        <h1 className="flex-1 font-display text-3xl font-semibold text-emerald-100">
-          <p className="hidden xs:inline">ReBalance</p>
-        </h1>
-
-        {isAuthenticated ? (
-          <Button asChild className="py-1.5" variant="default">
-            <Link to="/app">Dashboard</Link>
-          </Button>
-        ) : (
-          <>
-            <Form replace>
-              <Button
-                className="text-sm sm:text-base"
-                size="sm"
-                variant="ghost"
-                name="mode"
-                value="login"
-              >
-                Entrar
-              </Button>
-            </Form>
-            <Form replace>
-              <Button
-                className="text-sm sm:text-base"
-                size="sm"
-                name="mode"
-                value="signup"
-              >
-                Criar conta
-              </Button>
-            </Form>
-          </>
-        )}
-      </nav>
-    </div>
   )
 }

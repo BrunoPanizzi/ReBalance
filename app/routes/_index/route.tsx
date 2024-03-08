@@ -192,14 +192,15 @@ function Navbar() {
         </h1>
 
         {isAuthenticated ? (
-          <Button asChild>
-            <Link to="/app">App</Link>
+          <Button asChild className="py-1.5" variant="default">
+            <Link to="/app">Dashboard</Link>
           </Button>
         ) : (
           <>
             <Form replace>
               <Button
                 className="text-sm sm:text-base"
+                size="sm"
                 variant="ghost"
                 name="mode"
                 value="login"
@@ -210,6 +211,7 @@ function Navbar() {
             <Form replace>
               <Button
                 className="text-sm sm:text-base"
+                size="sm"
                 name="mode"
                 value="signup"
               >

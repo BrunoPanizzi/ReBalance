@@ -1,5 +1,6 @@
 import * as React from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { Link } from '@remix-run/react'
 
 import { cn } from '~/lib/utils'
 
@@ -33,18 +34,54 @@ export { Popover, PopoverTrigger, PopoverContent }
 type PopoverItemProps = {
   title: string
   icon: React.ReactNode
-  onClick: () => void
-}
+  className?: string
+  colorful?: boolean
+} & (
+  | {
+      onClick: () => void
+    }
+  | {
+      to: string
+    }
+)
 
-export function PopoverItem({ icon, onClick, title }: PopoverItemProps) {
-  return (
-    <Button
-      variant="colorful-ghost"
-      className="justify-start gap-2 rounded-md px-2 py-1 transition "
-      onClick={onClick}
-    >
-      {icon}
-      <span>{title}</span>
-    </Button>
+export function PopoverItem({
+  icon,
+  title,
+  className,
+  colorful,
+  ...rest
+}: PopoverItemProps) {
+  const styles = cn(
+    'justify-start gap-2 rounded-md px-2 py-1 transition',
+    className,
   )
+
+  if (rest.hasOwnProperty('onClick')) {
+    const { onClick } = rest as { onClick: () => void }
+    return (
+      <Button
+        variant={colorful ? 'default' : 'colorful-ghost'}
+        className={styles}
+        onClick={onClick}
+      >
+        {icon}
+        <span>{title}</span>
+      </Button>
+    )
+  } else if (rest.hasOwnProperty('to')) {
+    const { to } = rest as { to: string }
+    return (
+      <Button
+        variant={colorful ? 'default' : 'colorful-ghost'}
+        className={styles}
+        asChild
+      >
+        <Link to={to}>
+          {icon}
+          <span>{title}</span>
+        </Link>
+      </Button>
+    )
+  }
 }

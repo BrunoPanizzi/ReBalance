@@ -1,8 +1,15 @@
-import { ArrowLeftIcon } from '@radix-ui/react-icons'
-import { Form, Link, useNavigate } from '@remix-run/react'
+import { ArrowLeftIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { Link, useNavigate } from '@remix-run/react'
 import { ReactNode } from 'react'
 
 import { Button } from '../ui/button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverItem,
+  PopoverTrigger,
+} from '../ui/popover'
+import Wrapper from '../Wrapper'
 
 export type HeaderProps = {
   backArrow?: boolean
@@ -50,18 +57,20 @@ export type NavBarProps = {
 
 export function NavBar({ isAuthenticated }: NavBarProps) {
   return (
-    <div className="bg-gray-700/50 p-2 backdrop-blur-sm">
-      <nav className="mx-auto flex max-w-screen-xl items-center justify-between gap-4 ">
+    <div className="bg-gray-700/50 py-2 backdrop-blur-sm">
+      <Wrapper className="flex items-center justify-between gap-4 ">
         <img
           src="/logo.svg"
           alt="Stock shop logo"
           className="h-8 w-8 sm:h-10 sm:w-10"
         />
-        <h1 className="flex-1 font-display text-3xl font-semibold text-emerald-100">
-          <p className="hidden xs:inline">ReBalance</p>
-        </h1>
+        <div className="flex-1">
+          <h1 className="font-display text-lg font-semibold text-emerald-100 sm:text-2xl md:text-3xl">
+            ReBalance
+          </h1>
+        </div>
 
-        <ul className="flex gap-6 px-6">
+        <ul className="hidden items-center gap-6 px-3 text-sm sm:flex sm:text-base">
           <li>
             <Link
               className="transition hover:text-emerald-100 hover:underline"
@@ -87,37 +96,82 @@ export function NavBar({ isAuthenticated }: NavBarProps) {
             </Link>
           </li>
         </ul>
-
+        <div className="hidden self-stretch border-l-[1px] border-gray-500 sm:block" />
         {isAuthenticated ? (
-          <Button asChild className="py-1.5" variant="default">
+          <Button asChild className="hidden py-1.5 xs:block" variant="default">
             <Link to="/app">Dashboard</Link>
           </Button>
         ) : (
           <>
-            <Form replace>
-              <Button
-                className="text-sm sm:text-base"
-                size="sm"
-                variant="ghost"
-                name="mode"
-                value="login"
-              >
-                Entrar
-              </Button>
-            </Form>
-            <Form replace>
-              <Button
-                className="text-sm sm:text-base"
-                size="sm"
-                name="mode"
-                value="signup"
-              >
-                Criar conta
-              </Button>
-            </Form>
+            <Button
+              className="hidden text-sm xs:block sm:text-base"
+              size="sm"
+              variant="ghost"
+              asChild
+            >
+              <Link to="/?mode=login">Entrar</Link>
+            </Button>
+            <Button
+              asChild
+              className="hidden text-sm xs:block sm:text-base"
+              size="sm"
+            >
+              <Link to="/?mode=signup">Criar conta</Link>
+            </Button>
           </>
         )}
-      </nav>
+
+        <HamburguerMenu isAuthenticated={isAuthenticated} />
+      </Wrapper>
     </div>
+  )
+}
+
+type HamburguerMenuProps = {
+  isAuthenticated: boolean
+}
+
+function HamburguerMenu({ isAuthenticated }: HamburguerMenuProps) {
+  return (
+    <Popover>
+      <PopoverTrigger className="sm:hidden">
+        <Button variant="ghost" className="p-1" size="icon">
+          <HamburgerMenuIcon className="size-6" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="flex w-fit min-w-48 flex-col gap-2 ">
+        {isAuthenticated ? (
+          <PopoverItem
+            className="block xs:hidden"
+            title="Dashboard"
+            to="/app"
+            icon={<></>}
+            colorful
+          />
+        ) : (
+          <>
+            <PopoverItem
+              className="block xs:hidden"
+              title="Criar conta"
+              to="/?mode=signup"
+              icon={<></>}
+              colorful
+            />
+            <PopoverItem
+              className="block xs:hidden"
+              title="Entrar"
+              to="/?mode=login"
+              icon={<></>}
+            />
+          </>
+        )}
+
+        <hr className="block border-gray-500 xs:hidden" />
+
+        <PopoverItem title="Sobre" to="/sobre" icon={<></>} />
+        <PopoverItem title="FAQ" to="/faq" icon={<></>} />
+        <PopoverItem title="Blog" to="/blog" icon={<></>} />
+      </PopoverContent>
+    </Popover>
   )
 }

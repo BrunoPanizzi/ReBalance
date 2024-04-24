@@ -24,7 +24,7 @@ export function SortSelector() {
         </Select.Trigger>
         <Select.Content className="text-sm">
           <Select.Group>
-            <Select.Item value="ticker">Ticker</Select.Item>
+            <Select.Item value="name">Ticker</Select.Item>
             <Select.Item value="amount">Quantidade</Select.Item>
             <Select.Item value="price">Preço</Select.Item>
             <Select.Item value="percentage">Porcentagem</Select.Item>

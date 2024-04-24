@@ -129,7 +129,9 @@ function Result({ amount, onClear }: ResultProps) {
   const data = fetcher.data
 
   useEffect(() => {
-    if (actionResult?.ok) {
+    if (actionResult === undefined) return
+
+    if (actionResult.ok) {
       onClear()
       toast({
         title: 'Seus ativos foram atualizados!',

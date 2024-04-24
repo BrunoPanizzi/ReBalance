@@ -53,6 +53,15 @@ class WalletService {
     return toDomain(wallet)
   }
 
+  async getWalletByName(uid: string, title: string): Promise<DomainWallet> {
+    const [wallet] = await db
+      .select()
+      .from(walletTable)
+      .where(and(eq(walletTable.title, title), eq(walletTable.owner, uid)))
+
+    return toDomain(wallet)
+  }
+
   /**
    * Returns a full wallet, with full assets.
    *
@@ -111,6 +120,12 @@ class WalletService {
   }
 
   async createWallet(uid: string, wallet: NewWallet): Promise<DomainWallet> {
+    const sameName = await this.getWalletByName(uid, wallet.title)
+
+    if (sameName) {
+      throw new Error('Wallet with same name already exists')
+    }
+
     const [newWallet] = await db
       .insert(walletTable)
       .values({

@@ -56,14 +56,19 @@ async function postAction({
     )
   }
 
-  const wallet = await WalletService.createWallet(user.uid, {
-    title: result.data.title,
-    type: result.data.type,
-    idealPercentage: result.data.idealAmount,
-    color: result.data.color,
-  })
+  try {
+    const wallet = await WalletService.createWallet(user.uid, {
+      title: result.data.title,
+      type: result.data.type,
+      idealPercentage: result.data.idealAmount,
+      color: result.data.color,
+    })
 
-  return ok(wallet)
+    return ok(wallet)
+  } catch (e) {
+    console.log(e)
+    return error([{ message: 'Unknown database error', type: 'backend' }])
+  }
 }
 
 async function deleteAction({

@@ -82,6 +82,12 @@ export default function NewWalletModal() {
               <ColorSelection />
             </BaseGroup>
 
+            {errors?.find((e) => e.type === 'backend') && (
+              <p className="text-sm text-red-400">
+                Ocorreu um erro ao criar a carteira.
+              </p>
+            )}
+
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Criando...' : 'Criar'}
             </Button>

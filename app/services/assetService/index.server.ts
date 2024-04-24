@@ -199,7 +199,9 @@ class AssetService {
 
     sqlChunks.push(sql`where "id" in (${finalIds})`)
 
-    sqlChunks.push(sql`returning *, wallet_id as "walletId"`) // this is where I miss the ORM
+    sqlChunks.push(
+      sql`returning id, name, asset_type as "type", amount, wallet_id as "walletId", owner, price`,
+    ) // this is where I miss the ORM
 
     const finalSql = sql.join(sqlChunks, sql.raw(' '))
 

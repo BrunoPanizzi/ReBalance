@@ -135,6 +135,11 @@ function Result({ amount, onClear }: ResultProps) {
         title: 'Seus ativos foram atualizados!',
       })
       revalidate()
+    } else {
+      toast({
+        title: 'Algo deu errado',
+        variant: 'destructive',
+      })
     }
   }, [actionResult])
 

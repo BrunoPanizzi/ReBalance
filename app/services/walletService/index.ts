@@ -53,11 +53,18 @@ class WalletService {
     return toDomain(wallet)
   }
 
-  async getWalletByName(uid: string, title: string): Promise<DomainWallet> {
+  async getWalletByName(
+    uid: string,
+    title: string,
+  ): Promise<DomainWallet | undefined> {
     const [wallet] = await db
       .select()
       .from(walletTable)
       .where(and(eq(walletTable.title, title), eq(walletTable.owner, uid)))
+
+    if (!wallet) {
+      return undefined
+    }
 
     return toDomain(wallet)
   }

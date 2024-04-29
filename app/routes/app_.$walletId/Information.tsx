@@ -7,8 +7,9 @@ import {
   useRevalidator,
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { ArrowRightIcon } from '@radix-ui/react-icons'
+import { ArrowRightIcon, Cross2Icon } from '@radix-ui/react-icons'
 import colors from 'tailwindcss/colors.js'
+import { AnimatePresence, motion } from 'framer-motion'
 
 import { brl, currencyToNumber } from '~/lib/formatting'
 
@@ -16,7 +17,7 @@ import { AssetWithPrice } from '~/services/assetService/index.server'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { EasyTooltip, Tooltip } from '~/components/ui/tooltip'
+import { Tooltip } from '~/components/ui/tooltip'
 import { toast } from '~/components/ui/use-toast'
 
 import Graph from '~/components/Graph'
@@ -270,7 +271,9 @@ type BarChartProps = {
 }
 
 function BarChart({ purchases }: BarChartProps) {
-  const { assets, color } = useLoaderData<typeof loader>()
+  const { assets } = useLoaderData<typeof loader>()
+
+  const [selected, setSelected] = useState<string | null>(null)
 
   const filteredAssets = assets
     .filter((a) => purchases[a.name] !== undefined)
@@ -282,28 +285,93 @@ function BarChart({ purchases }: BarChartProps) {
     ),
   )
 
-  console.log(max)
-
   return (
-    <div className="flex h-24 max-w-full gap-1 overflow-y-scroll rounded-lg border border-gray-700 bg-gray-700/75 p-0.5">
-      {filteredAssets.map((a) => (
-        <div className="relative h-full w-12">
+    <motion.div
+      animate={{
+        height: selected !== null ? 176 : 96,
+      }}
+      className="flex max-h-44 min-h-24 w-full overflow-hidden rounded-lg border border-gray-700 bg-gray-700/75 p-0.5"
+    >
+      <SelectedInfo
+        asset={assets.find((a) => a.name === selected)!}
+        purchasedAmount={purchases[selected || ''] || 0}
+        clearSelected={() => setSelected(null)}
+        hasSelected={selected !== null}
+      />
+
+      <div className="flex w-full gap-1 overflow-y-scroll">
+        {filteredAssets.map((a) => (
           <div
-            className="absolute inset-0 top-auto rounded-t-md bg-primary-600"
-            style={{
-              height: (((purchases[a.name] || 0) * a.price) / max) * 100 + '%',
-              bottom: (a.totalValue / max) * 100 + '%',
-            }}
-          />
-          <div
-            className="absolute inset-0 top-auto rounded-b-md bg-primary-400"
-            style={{
-              height: (a.totalValue / max) * 100 + '%',
-            }}
-          />
-        </div>
-      ))}
-    </div>
+            onClick={() => setSelected(a.name)}
+            className="group relative h-full min-w-12 transition data-[has-selected=true]:opacity-50 data-[selected=true]:opacity-100"
+            data-selected={selected === a.name}
+            data-has-selected={selected !== null}
+          >
+            <div
+              className="absolute inset-0 top-auto rounded-t-md bg-primary-600"
+              style={{
+                height:
+                  (((purchases[a.name] || 0) * a.price) / max) * 100 + '%',
+                bottom: (a.totalValue / max) * 100 + '%',
+              }}
+            />
+            <div
+              className="absolute inset-0 top-auto rounded-b-md bg-primary-400"
+              style={{
+                height: (a.totalValue / max) * 100 + '%',
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+type SelectedInfoProps = {
+  asset: AssetWithPrice
+  purchasedAmount: number
+  clearSelected: () => void
+  hasSelected: boolean
+}
+function SelectedInfo({
+  asset,
+  purchasedAmount,
+  clearSelected,
+  hasSelected,
+}: SelectedInfoProps) {
+  return (
+    <AnimatePresence>
+      {hasSelected && (
+        <motion.div
+          initial={{ width: 0, opacity: 0, padding: 0, marginRight: 0 }}
+          animate={{ width: 'auto', opacity: 1, marginRight: 8, padding: 4 }}
+          exit={{ width: 0, opacity: 0, marginRight: 0, padding: 0 }}
+          className="rounded-md bg-gray-600"
+        >
+          <header className="relative pr-6">
+            <h4 className="font-bold text-primary-200">{asset.name}</h4>
+            <Cross2Icon
+              onClick={clearSelected}
+              className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer"
+            />
+          </header>
+          <div className="flex flex-col text-sm">
+            <span>
+              Comprar {purchasedAmount} cotas (
+              {brl(purchasedAmount * asset.price)})
+            </span>
+            <span>
+              Atual {asset.amount} cotas ({brl(asset.totalValue)})
+            </span>
+            <span className="mt-1 font-bold text-primary-200">
+              Total {asset.amount + purchasedAmount} cotas (
+              {brl((asset.amount + purchasedAmount) * asset.price)})
+            </span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

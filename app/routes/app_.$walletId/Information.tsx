@@ -58,10 +58,10 @@ export default function Information() {
 }
 
 function Shopping() {
-  const { type } = useLoaderData<typeof loader>()
+  const { type, id } = useLoaderData<typeof loader>()
   const [value, setValue] = useState('')
 
-  const fetcher = useFetcher({ key: 'shopping' + currencyToNumber(value) })
+  const fetcher = useFetcher({ key: 'shopping' + currencyToNumber(value) + id })
 
   const isSubmitting = fetcher.state !== 'idle'
 
@@ -82,7 +82,7 @@ function Shopping() {
         </Button>
       </header>
       <Form
-        fetcherKey={'shopping' + currencyToNumber(value)}
+        fetcherKey={'shopping' + currencyToNumber(value) + id}
         action="suggestions"
         method="GET"
         navigate={false}
@@ -117,10 +117,10 @@ type ResultProps = {
   onClear: () => void
 }
 function Result({ amount, onClear }: ResultProps) {
-  const { assets } = useLoaderData<typeof loader>()
+  const { assets, id } = useLoaderData<typeof loader>()
   const { revalidate } = useRevalidator()
   const fetcher = useFetcher<typeof suggestionsLoader>({
-    key: 'shopping' + amount,
+    key: 'shopping' + amount + id,
   })
 
   const actionData = useActionData<typeof action>()

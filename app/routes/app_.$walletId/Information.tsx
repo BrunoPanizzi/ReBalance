@@ -16,7 +16,7 @@ import { AssetWithPrice } from '~/services/assetService/index.server'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { Tooltip } from '~/components/ui/tooltip'
+import { EasyTooltip, Tooltip } from '~/components/ui/tooltip'
 import { toast } from '~/components/ui/use-toast'
 
 import Graph from '~/components/Graph'
@@ -192,17 +192,11 @@ function Result({ amount, onClear }: ResultProps) {
       </h3>
 
       <div className="mt-2 flex flex-wrap gap-2">
-        {Object.entries(data.value.purchases).map(([name, amount]) => {
-          const asset = assets.find((s) => s.name === name)!
-          return (
-            <AssetCard
-              key={name}
-              name={name}
-              amountToBuy={amount}
-              oldAsset={asset}
-            />
-          )
-        })}
+        <PurchasesCards purchases={data.value.purchases} />
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+        <BarChart purchases={data.value.purchases} />
       </div>
 
       <div className="mt-6 flex gap-3">
@@ -217,6 +211,21 @@ function Result({ amount, onClear }: ResultProps) {
       </div>
     </div>
   )
+}
+
+type PurchasesCardsProps = {
+  purchases: Record<string, number>
+}
+
+function PurchasesCards({ purchases }: PurchasesCardsProps) {
+  const { assets } = useLoaderData<typeof loader>()
+
+  return Object.entries(purchases).map(([name, amount]) => {
+    const asset = assets.find((s) => s.name === name)!
+    return (
+      <AssetCard key={name} name={name} amountToBuy={amount} oldAsset={asset} />
+    )
+  })
 }
 
 type AssetCardProps = {
@@ -253,6 +262,48 @@ function AssetCard({ amountToBuy, name, oldAsset }: AssetCardProps) {
         </Tooltip.Content>
       </Tooltip.Root>
     </>
+  )
+}
+
+type BarChartProps = {
+  purchases: Record<string, number>
+}
+
+function BarChart({ purchases }: BarChartProps) {
+  const { assets, color } = useLoaderData<typeof loader>()
+
+  const filteredAssets = assets
+    .filter((a) => purchases[a.name] !== undefined)
+    .sort((a, b) => a.amount * a.price - b.amount * b.price)
+
+  const max = Math.max(
+    ...filteredAssets.map(
+      (a) => (a.amount + (purchases[a.name] || 0)) * a.price,
+    ),
+  )
+
+  console.log(max)
+
+  return (
+    <div className="flex h-24 max-w-full gap-1 overflow-y-scroll rounded-lg border border-gray-700 bg-gray-700/75 p-0.5">
+      {filteredAssets.map((a) => (
+        <div className="relative h-full w-12">
+          <div
+            className="absolute inset-0 top-auto rounded-t-md bg-primary-600"
+            style={{
+              height: (((purchases[a.name] || 0) * a.price) / max) * 100 + '%',
+              bottom: (a.totalValue / max) * 100 + '%',
+            }}
+          />
+          <div
+            className="absolute inset-0 top-auto rounded-b-md bg-primary-400"
+            style={{
+              height: (a.totalValue / max) * 100 + '%',
+            }}
+          />
+        </div>
+      ))}
+    </div>
   )
 }
 

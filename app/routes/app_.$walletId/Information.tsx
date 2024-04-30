@@ -290,7 +290,7 @@ function BarChart({ purchases }: BarChartProps) {
       animate={{
         height: selected !== null ? 176 : 96,
       }}
-      className="flex max-h-44 min-h-24 w-full overflow-hidden rounded-lg border border-gray-700 bg-gray-700/75 p-0.5"
+      className="grid max-h-44 min-h-24 w-full grid-cols-[auto_1fr] overflow-hidden rounded-lg border border-gray-700 bg-gray-700/75 p-0.5"
     >
       <SelectedInfo
         asset={assets.find((a) => a.name === selected)!}
@@ -347,27 +347,27 @@ function SelectedInfo({
           initial={{ width: 0, opacity: 0, padding: 0, marginRight: 0 }}
           animate={{ width: 'auto', opacity: 1, marginRight: 8, padding: 4 }}
           exit={{ width: 0, opacity: 0, marginRight: 0, padding: 0 }}
-          className="rounded-md bg-gray-600"
+          className="max-w-40 overflow-hidden rounded-md bg-gray-600"
         >
-          <header className="relative pr-6">
+          <header className="flex items-center justify-between gap-2">
             <h4 className="font-bold text-primary-200">{asset.name}</h4>
             <Cross2Icon
               onClick={clearSelected}
-              className="absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 cursor-pointer"
+              className="size-4 cursor-pointer"
             />
           </header>
-          <div className="flex flex-col text-sm">
-            <span>
+          <div className="text-sm">
+            <p>
               Comprar {purchasedAmount} cotas (
               {brl(purchasedAmount * asset.price)})
-            </span>
-            <span>
+            </p>
+            <p>
               Atual {asset.amount} cotas ({brl(asset.totalValue)})
-            </span>
-            <span className="mt-1 font-bold text-primary-200">
+            </p>
+            <p className="mt-1 font-bold text-primary-200">
               Total {asset.amount + purchasedAmount} cotas (
               {brl((asset.amount + purchasedAmount) * asset.price)})
-            </span>
+            </p>
           </div>
         </motion.div>
       )}

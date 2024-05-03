@@ -7,7 +7,11 @@ import {
   useRevalidator,
 } from '@remix-run/react'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRightIcon, Cross2Icon } from '@radix-ui/react-icons'
+import {
+  ArrowRightIcon,
+  Cross2Icon,
+  QuestionMarkCircledIcon,
+} from '@radix-ui/react-icons'
 import colors from 'tailwindcss/colors.js'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -198,7 +202,30 @@ function Result({ fetcherKey, onClear }: ResultProps) {
         <PurchasesCards purchases={data.value.purchases} />
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div className="mt-2">
+        <header className="mb-1 flex items-center justify-between gap-2">
+          <h3 className="font-semibold text-primary-100">
+            Distribuição das compras
+          </h3>
+          <EasyTooltip
+            color="orange"
+            label={
+              <>
+                <p className="mb-2">
+                  Este gráfico representa o valor investido em cada ativo e como
+                  a distribuição vai ser alterada após a compra.
+                </p>
+                <p>
+                  Para ver qual barra representa qual ativo, clique nelas para
+                  ver mais informações.
+                </p>
+              </>
+            }
+            side="left"
+          >
+            <QuestionMarkCircledIcon className="size-4 cursor-pointer stroke-orange-200" />
+          </EasyTooltip>
+        </header>
         <BarChart purchases={data.value.purchases} />
       </div>
 

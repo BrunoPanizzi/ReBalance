@@ -17,7 +17,7 @@ import { AssetWithPrice } from '~/services/assetService/index.server'
 
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { Tooltip } from '~/components/ui/tooltip'
+import { EasyTooltip, Tooltip } from '~/components/ui/tooltip'
 import { toast } from '~/components/ui/use-toast'
 
 import Graph from '~/components/Graph'
@@ -271,7 +271,7 @@ type BarChartProps = {
 }
 
 function BarChart({ purchases }: BarChartProps) {
-  const { assets } = useLoaderData<typeof loader>()
+  const { assets, color } = useLoaderData<typeof loader>()
 
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -299,30 +299,40 @@ function BarChart({ purchases }: BarChartProps) {
         hasSelected={selected !== null}
       />
 
-      <div className="flex w-full gap-1 overflow-y-scroll">
-        {filteredAssets.map((a) => (
-          <div
-            onClick={() => setSelected(a.name)}
-            className="group relative h-full min-w-12 transition data-[has-selected=true]:opacity-50 data-[selected=true]:opacity-100"
-            data-selected={selected === a.name}
-            data-has-selected={selected !== null}
-          >
-            <div
-              className="absolute inset-0 top-auto rounded-t-md bg-primary-600"
-              style={{
-                height:
-                  (((purchases[a.name] || 0) * a.price) / max) * 100 + '%',
-                bottom: (a.totalValue / max) * 100 + '%',
-              }}
-            />
-            <div
-              className="absolute inset-0 top-auto rounded-b-md bg-primary-400"
-              style={{
-                height: (a.totalValue / max) * 100 + '%',
-              }}
-            />
-          </div>
-        ))}
+      <div className="overflow-y-scroll">
+        <div className="relative flex h-full w-max gap-1">
+          {filteredAssets.map((a) => (
+            <EasyTooltip
+              open={selected === a.name || undefined} // Js is dumb
+              delay={0}
+              color={color}
+              label={a.name}
+              side="bottom"
+            >
+              <div
+                onClick={() => setSelected(a.name)}
+                className="group relative h-full min-w-8 max-w-12 overflow-hidden rounded-md transition data-[has-selected=true]:opacity-50 data-[selected=true]:opacity-100"
+                data-selected={selected === a.name}
+                data-has-selected={selected !== null}
+              >
+                <div
+                  className="absolute inset-0 top-auto rounded-t-md bg-primary-600"
+                  style={{
+                    height:
+                      (((purchases[a.name] || 0) * a.price) / max) * 100 + '%',
+                    bottom: (a.totalValue / max) * 100 + '%',
+                  }}
+                />
+                <div
+                  className="absolute inset-0 top-auto rounded-b-md bg-primary-400"
+                  style={{
+                    height: (a.totalValue / max) * 100 + '%',
+                  }}
+                />
+              </div>
+            </EasyTooltip>
+          ))}
+        </div>
       </div>
     </motion.div>
   )
@@ -345,9 +355,9 @@ function SelectedInfo({
       {hasSelected && (
         <motion.div
           initial={{ width: 0, opacity: 0, padding: 0, marginRight: 0 }}
-          animate={{ width: 'auto', opacity: 1, marginRight: 8, padding: 4 }}
+          animate={{ width: '10rem', opacity: 1, marginRight: 8, padding: 4 }}
           exit={{ width: 0, opacity: 0, marginRight: 0, padding: 0 }}
-          className="max-w-40 overflow-hidden rounded-md bg-gray-600"
+          className="min-w-0 overflow-hidden rounded-md bg-gray-600"
         >
           <header className="flex items-center justify-between gap-2">
             <h4 className="font-bold text-primary-200">{asset.name}</h4>

@@ -67,22 +67,28 @@ export const Tooltip = {
 type EasyTooltipProps = {
   children: React.ReactNode
   label: string
+  open?: boolean
   color?: string
   delay?: number
+  side?: TooltipPrimitive.TooltipContentProps['side']
 }
 
 export const EasyTooltip = ({
   children,
   label,
-  color = 'emerald',
   delay,
+  open,
+  side, // = 'top',
+  color = 'emerald',
 }: EasyTooltipProps) => {
   return (
-    <Root delayDuration={delay}>
+    <Root open={open} delayDuration={delay}>
       <TooltipTrigger data-color={color} asChild>
         {children}
       </TooltipTrigger>
-      <TooltipContent data-color={color}>{label}</TooltipContent>
+      <TooltipContent side={side} data-color={color}>
+        {label}
+      </TooltipContent>
     </Root>
   )
 }

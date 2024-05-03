@@ -37,7 +37,7 @@ export default function App() {
   const matches = useMatches()
 
   // sets the app color if we are in a wallet page
-  const walletId = matches.find((m) => m.id === 'routes/app_.$walletId')
+  const walletId = matches.find((m) => m.id === 'routes/_shop.app_.$walletId')
 
   let color = 'emerald'
 

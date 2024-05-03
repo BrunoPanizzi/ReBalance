@@ -6,7 +6,7 @@ import {
   useLoaderData,
   useRevalidator,
 } from '@remix-run/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightIcon, Cross2Icon } from '@radix-ui/react-icons'
 import colors from 'tailwindcss/colors.js'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -59,10 +59,12 @@ export default function Information() {
 }
 
 function Shopping() {
-  const { type, id } = useLoaderData<typeof loader>()
+  const { type } = useLoaderData<typeof loader>()
   const [value, setValue] = useState('')
 
-  const fetcher = useFetcher({ key: 'shopping' + currencyToNumber(value) + id })
+  const fetcherKey = useMemo(() => value + Date.now(), [value])
+
+  const fetcher = useFetcher({ key: fetcherKey })
 
   const isSubmitting = fetcher.state !== 'idle'
 
@@ -83,7 +85,7 @@ function Shopping() {
         </Button>
       </header>
       <Form
-        fetcherKey={'shopping' + currencyToNumber(value) + id}
+        fetcherKey={fetcherKey}
         action="suggestions"
         method="GET"
         navigate={false}
@@ -105,23 +107,23 @@ function Shopping() {
         </Button>
       </Form>
 
-      <Result amount={currencyToNumber(value)} onClear={() => setValue('')} />
+      <Result fetcherKey={fetcherKey} onClear={() => setValue('')} />
     </>
   )
 }
 
 type ResultProps = {
-  amount: number
+  fetcherKey: string
   // ideally we shoudn't rely on this method of clearing the suggestions
   // the best approach would be to reset the loader, as in this discussion
   // https://github.com/remix-run/remix/discussions/2749
   onClear: () => void
 }
-function Result({ amount, onClear }: ResultProps) {
-  const { assets, id } = useLoaderData<typeof loader>()
+function Result({ fetcherKey, onClear }: ResultProps) {
+  const { assets } = useLoaderData<typeof loader>()
   const { revalidate } = useRevalidator()
   const fetcher = useFetcher<typeof suggestionsLoader>({
-    key: 'shopping' + amount + id,
+    key: fetcherKey,
   })
 
   const actionData = useActionData<typeof action>()
@@ -308,6 +310,7 @@ function BarChart({ purchases }: BarChartProps) {
               color={color}
               label={a.name}
               side="bottom"
+              key={a.id}
             >
               <div
                 onClick={() => setSelected(a.name)}

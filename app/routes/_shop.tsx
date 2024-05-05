@@ -152,20 +152,20 @@ function WalletPurchaseCard({
         <>
           <div className="mt-2 text-sm/tight">
             <span>Quantidade total:</span>
-            <div className="-mt-1 flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <span className="">{brl(wallet.totalValue)}</span>
-              <ArrowRightIcon className="inline size-8" />
+              <ArrowRightIcon className="inline size-6" />
               <span>{brl(investedAmount + wallet.totalValue)}</span>
             </div>
           </div>
 
           <div className="text-sm">
             <span>Porcentagem:</span>
-            <div className="-mt-1 flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <span className="">
                 {percentage(wallet.totalValue / prevTotalValue)}
               </span>
-              <ArrowRightIcon className="inline size-8" />
+              <ArrowRightIcon className="inline size-6" />
               <span>
                 {percentage(
                   (wallet.totalValue + investedAmount) / newTotalValue,

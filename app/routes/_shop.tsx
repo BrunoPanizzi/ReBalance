@@ -5,7 +5,7 @@ import {
   ChevronDownIcon,
   Cross1Icon,
 } from '@radix-ui/react-icons'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { cn } from '~/lib/utils'
 import { brl, currencyToNumber, percentage } from '~/lib/formatting'
@@ -50,7 +50,11 @@ type ExpandedShopProps = {
 }
 
 function ExpandedShop({ onClose }: ExpandedShopProps) {
-  const fetcher = useFetcher<typeof loader>({ key: 'suggestions' })
+  const fetcherKey = useMemo(() => 'suggestions' + Math.random(), [])
+
+  const fetcher = useFetcher<typeof loader>({
+    key: fetcherKey,
+  })
   const data = fetcher.data
 
   const [value, setValue] = useState('')

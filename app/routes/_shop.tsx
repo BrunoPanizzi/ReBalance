@@ -1,4 +1,4 @@
-import { Link, Outlet, useFetcher } from '@remix-run/react'
+import { Link, Outlet, useFetcher, useMatches } from '@remix-run/react'
 import {
   ArrowRightIcon,
   BackpackIcon,
@@ -19,7 +19,17 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 
 export default function Shop() {
+  const matches = useMatches()
+
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const isWalletPage = matches.some(
+    (m) => m.id === 'routes/_shop.app_.$walletId',
+  )
+
+  if (isWalletPage && !isExpanded) {
+    return <Outlet />
+  }
 
   return (
     <>

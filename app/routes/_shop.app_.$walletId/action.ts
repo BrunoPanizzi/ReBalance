@@ -114,7 +114,7 @@ const patchFormSchema = z
     price: currencySchema().optional(),
   })
   .refine(
-    (form) => form.amount || form.price,
+    (form) => form.amount !== undefined || form.price !== undefined,
     'Amount or price should be provided',
   )
 

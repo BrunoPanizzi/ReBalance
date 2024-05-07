@@ -16,7 +16,7 @@ import { loader } from './suggestions'
 
 import Wrapper from '~/components/Wrapper'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
+import { AmountForm } from '~/components/AmountForm'
 
 export default function Shop() {
   const matches = useMatches()
@@ -89,25 +89,17 @@ function ExpandedShop({ onClose }: ExpandedShopProps) {
       </header>
 
       {data === undefined ? (
-        <fetcher.Form
-          action="/suggestions"
-          method="GET"
-          className="flex items-start gap-2"
-        >
-          <input
-            type="hidden"
-            name="amount"
-            value={currencyToNumber(value || '')}
-          />
-          <Input
-            value={value}
-            onChange={(e) => setValue(brl(currencyToNumber(e.target.value)))}
-            placeholder="R$ 0,00"
-          />
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Calculando...' : 'Calcular'}
-          </Button>
-        </fetcher.Form>
+        <AmountForm
+          value={value}
+          setValue={setValue}
+          isSubmitting={isSubmitting}
+          handleSubmit={() =>
+            fetcher.submit(
+              { amount: currencyToNumber(value), blackListedIds: [] },
+              { method: 'GET', navigate: false, action: 'suggestions' },
+            )
+          }
+        />
       ) : (
         <div className="flex max-h-96 flex-col gap-2 overflow-y-scroll">
           {data.purchases.map((p) => (

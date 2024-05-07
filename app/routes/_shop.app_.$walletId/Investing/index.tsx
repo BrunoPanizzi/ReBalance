@@ -9,12 +9,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { brl, currencyToNumber } from '~/lib/formatting'
 
 import { Button } from '~/components/ui/button'
+import { AmountForm } from '~/components/AmountForm'
 
 import { loader as suggestionsLoader } from '~/routes/app.$walletId.suggestions'
 
 import { loader } from '../loader'
 
-import { AmountForm } from './AmountForm'
 import { useOnAssetsUpdated } from './useOnAssetsUpdate'
 import { Results } from './Results'
 

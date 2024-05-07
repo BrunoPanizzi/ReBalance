@@ -1,3 +1,5 @@
+import { roundTo } from '~/lib/roundTo'
+
 import WalletService, { FullWalletWithAssets } from '../walletService'
 
 type ShoppingList = {
@@ -65,7 +67,7 @@ class ShopService {
     if (noopWallets.length === 0) {
       purchases = adjustedWallets.map((w) => ({
         wallet: w,
-        amount: w.idealTotalValue - w.totalValue,
+        amount: roundTo(w.idealTotalValue - w.totalValue, 2),
       }))
 
       return purchases
@@ -73,6 +75,7 @@ class ShopService {
 
     const walletsWithoutNoops = adjustedWallets.filter(({ diff }) => diff > 0)
 
+    // TODO: remove this recursion, this only ever happens once
     return this.calculate(walletsWithoutNoops, amount)
   }
 }

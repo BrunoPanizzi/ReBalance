@@ -1,24 +1,60 @@
-import { Link, useFetcher } from '@remix-run/react'
-import { useMemo, useState } from 'react'
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from '@remix-run/react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { brl, currencyToNumber } from '~/lib/formatting'
 
 import { Button } from '~/components/ui/button'
 
 import { loader as suggestionsLoader } from '~/routes/app.$walletId.suggestions'
+
+import { loader } from '../loader'
 
 import { AmountForm } from './AmountForm'
 import { useOnAssetsUpdated } from './useOnAssetsUpdate'
 import { Results } from './Results'
 
 export default function Investing() {
-  const [value, setValue] = useState('')
+  const { type } = useLoaderData<typeof loader>()
 
-  useOnAssetsUpdated(() => setValue(''))
+  const [searchParams] = useSearchParams()
+  const hasAmount = searchParams.has('amount')
+  const initialAmount = hasAmount
+    ? brl(parseInt(searchParams.get('amount')!))
+    : ''
+
+  const [value, setValue] = useState(initialAmount)
 
   const fetcherKey = useMemo(() => value + Date.now(), [value])
-
   const fetcher = useFetcher<typeof suggestionsLoader>({ key: fetcherKey })
 
   const isSubmitting = fetcher.state !== 'idle'
+
+  const handleSubmit = () => {
+    fetcher.submit(
+      {
+        type,
+        amount: currencyToNumber(value),
+      },
+      {
+        method: 'GET',
+        navigate: false,
+        action: 'suggestions',
+      },
+    )
+  }
+
+  useOnAssetsUpdated(() => setValue(''))
+
+  useEffect(() => {
+    if (hasAmount && !fetcher.data && !isSubmitting) {
+      handleSubmit()
+    }
+  }, [])
 
   return (
     <>
@@ -37,7 +73,7 @@ export default function Investing() {
         </Button>
       </header>
 
-      <AmountForm {...{ fetcherKey, value, setValue, isSubmitting }} />
+      <AmountForm {...{ value, setValue, isSubmitting, handleSubmit }} />
 
       <Results onClear={() => setValue('')} data={fetcher.data} />
     </>

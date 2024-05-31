@@ -18,6 +18,9 @@ import NewWalletModal from './NewWalletModal'
 import ChangeColorModal from './ChangeWalletColor'
 import ChangeNameModal from './ChangeWalletName'
 import RebalancePercentagesModal from './RebalanceModal'
+import { useState } from 'react'
+import { Checkbox } from '~/components/ui/checkbox'
+import { cn } from '~/lib/utils'
 
 export { loader, action }
 
@@ -98,15 +101,7 @@ export default function App() {
           </h2>
           <div className="h-min rounded-xl bg-gray-700/50">
             {showGraph ? (
-              <div className="mx-auto max-w-md">
-                <Graph
-                  data={wallets}
-                  value="totalValue"
-                  name="title"
-                  color={(w) => colors[w.color][600]}
-                  m={5}
-                />
-              </div>
+              <DistribuitonGraph />
             ) : (
               <p className="p-4 text-center text-orange-100">
                 Nada para mostrar aqui...
@@ -115,6 +110,48 @@ export default function App() {
           </div>
         </div>
       </Wrapper>
+    </>
+  )
+}
+
+function DistribuitonGraph() {
+  const { wallets } = useLoaderData<typeof loader>()
+
+  const [isIdeal, setIsIdeal] = useState(false)
+
+  const totalValue = wallets.reduce((acc, w) => acc + w.totalValue, 0)
+
+  const data = wallets.map((w) => ({
+    id: w.id,
+    title: w.title,
+    totalValue: isIdeal ? totalValue * w.idealPercentage : w.totalValue,
+    color: w.color,
+  }))
+
+  return (
+    <>
+      <label
+        className={cn(
+          'ml-auto flex w-fit cursor-pointer select-none items-center justify-center gap-2 rounded-bl-lg p-1 px-1.5 text-sm transition-colors',
+          isIdeal ? 'bg-emerald-500/25' : 'bg-gray-700',
+        )}
+      >
+        Ver distrubuição ideal:{' '}
+        <Checkbox
+          size="sm"
+          checked={isIdeal}
+          onCheckedChange={(c) => setIsIdeal(c === 'indeterminate' ? false : c)}
+        />
+      </label>
+      <div className="mx-auto max-w-md">
+        <Graph
+          data={data}
+          value="totalValue"
+          name="title"
+          color={(w) => colors[w.color][600]}
+          m={5}
+        />
+      </div>
     </>
   )
 }

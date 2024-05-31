@@ -4,14 +4,25 @@ import { CheckIcon } from '@radix-ui/react-icons'
 
 import { cn } from 'app/lib/utils'
 
+type CheckBoxProps = React.ComponentPropsWithoutRef<
+  typeof CheckboxPrimitive.Root
+> & {
+  size?: 'sm' | 'md' | 'lg'
+}
+
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
+  CheckBoxProps
+>(({ className, size, ...props }, ref) => (
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      'peer size-6 shrink-0 rounded border border-gray-400/50 bg-gray-500/25 transition hover:border-primary-500/25 focus:border-primary-500 focus-visible:border-primary-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+      'peer shrink-0 rounded border border-gray-400/50 bg-gray-500/25 transition hover:border-primary-500/25 focus:border-primary-500 focus-visible:border-primary-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+      {
+        'size-4 ': size === 'sm',
+        'size-6 ': size === 'md' || !size,
+        'size-7 ': size === 'lg',
+      },
       className,
     )}
     {...props}

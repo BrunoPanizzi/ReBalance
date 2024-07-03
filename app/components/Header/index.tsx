@@ -59,16 +59,17 @@ export function NavBar({ isAuthenticated }: NavBarProps) {
   return (
     <div className="bg-gray-700/50 py-2 backdrop-blur-sm">
       <Wrapper className="flex items-center justify-between gap-4 ">
-        <img
-          src="/logo.svg"
-          alt="Stock shop logo"
-          className="h-8 w-8 sm:h-10 sm:w-10"
-        />
-        <div className="flex-1">
+        <Link to="/" className="flex items-center gap-4">
+          <img
+            src="/logo.svg"
+            alt="Rebalance logo"
+            className="h-8 w-8 sm:h-10 sm:w-10"
+          />
           <h1 className="font-display text-lg font-semibold text-emerald-100 sm:text-2xl md:text-3xl">
             ReBalance
           </h1>
-        </div>
+        </Link>
+        <div className="flex-1" />
 
         <ul className="hidden items-center gap-6 px-3 text-sm sm:flex sm:text-base">
           <li>

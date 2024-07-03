@@ -35,19 +35,19 @@ type StockData = z.infer<typeof stockDataSchema>
 
 class MarketService {
   async getStockData(symbol: string): Promise<StockData> {
+    symbol = `${symbol[0].toUpperCase()}${symbol.slice(1).toLowerCase()}`
+
     const response = await fetch(`${BASE_URL}/quote/${symbol}?token=${TOKEN}`)
 
     if (!response.ok) {
       throw new Error('Failed to fetch stock data. Error: ' + response.status)
     }
 
-    const parsedResponse = responseSchema.parse(await response.json())
+    const json = await response.json()
+
+    const parsedResponse = responseSchema.parse(json)
 
     const result = parsedResponse.results[0]
-
-    if (result.symbol !== symbol) {
-      throw new Error('Failed to fetch stock data. Symbol mismatch.')
-    }
 
     return result
   }

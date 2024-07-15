@@ -85,8 +85,6 @@ function AuthenticationModal({ children }: AuthenticationModalProps) {
 
   const { mode, setMode } = useAuthenticationModalContext()
 
-  console.log(actionData)
-
   useEffect(() => {
     if (actionData?.ok) {
       setTimeout(() => navigate('/app'), 300)

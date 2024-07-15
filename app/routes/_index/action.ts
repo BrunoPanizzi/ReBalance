@@ -22,8 +22,6 @@ export const action = async ({
 }: ActionFunctionArgs): Promise<
   TypedResponse<Result<DomainUser, ErrorT[]>>
 > => {
-  console.log('action')
-
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const formData = await request.formData()

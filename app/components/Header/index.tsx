@@ -10,6 +10,10 @@ import {
   PopoverTrigger,
 } from '../ui/popover'
 import Wrapper from '../Wrapper'
+import AuthenticationModal, {
+  LoginTrigger,
+  SignupTrigger,
+} from '~/routes/_index/AuthenticationModal'
 
 export type HeaderProps = {
   backArrow?: boolean
@@ -57,74 +61,82 @@ export type NavBarProps = {
 
 export function NavBar({ isAuthenticated }: NavBarProps) {
   return (
-    <div className="bg-gray-700/50 py-2 backdrop-blur-sm">
-      <Wrapper className="flex items-center justify-between gap-4 ">
-        <Link to="/" className="flex items-center gap-4">
-          <img
-            src="/logo.svg"
-            alt="Rebalance logo"
-            className="h-8 w-8 sm:h-10 sm:w-10"
-          />
-          <h1 className="font-display text-lg font-semibold text-emerald-100 sm:text-2xl md:text-3xl">
-            ReBalance
-          </h1>
-        </Link>
-        <div className="flex-1" />
+    <AuthenticationModal>
+      <div className="bg-gray-700/50 py-2 backdrop-blur-sm">
+        <Wrapper className="flex items-center justify-between gap-4 ">
+          <Link to="/" className="flex items-center gap-4">
+            <img
+              src="/logo.svg"
+              alt="Rebalance logo"
+              className="h-8 w-8 sm:h-10 sm:w-10"
+            />
+            <h1 className="font-display text-lg font-semibold text-emerald-100 sm:text-2xl md:text-3xl">
+              ReBalance
+            </h1>
+          </Link>
+          <div className="flex-1" />
 
-        <ul className="hidden items-center gap-6 px-3 text-sm sm:flex sm:text-base">
-          <li>
-            <Link
-              className="transition hover:text-emerald-100 hover:underline"
-              to="/sobre"
-            >
-              Sobre
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="transition hover:text-emerald-100 hover:underline"
-              to="/faq"
-            >
-              FAQ
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="transition hover:text-emerald-100 hover:underline"
-              to="/blog"
-            >
-              Blog
-            </Link>
-          </li>
-        </ul>
-        <div className="hidden self-stretch border-l-[1px] border-gray-500 sm:block" />
-        {isAuthenticated ? (
-          <Button asChild className="hidden py-1.5 xs:block" variant="default">
-            <Link to="/app">Dashboard</Link>
-          </Button>
-        ) : (
-          <>
-            <Button
-              className="hidden text-sm xs:block sm:text-base"
-              size="sm"
-              variant="ghost"
-              asChild
-            >
-              <Link to="/?mode=login">Entrar</Link>
-            </Button>
+          <ul className="hidden items-center gap-6 px-3 text-sm sm:flex sm:text-base">
+            <li>
+              <Link
+                className="transition hover:text-emerald-100 hover:underline"
+                to="/sobre"
+              >
+                Sobre
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="transition hover:text-emerald-100 hover:underline"
+                to="/faq"
+              >
+                FAQ
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="transition hover:text-emerald-100 hover:underline"
+                to="/blog"
+              >
+                Blog
+              </Link>
+            </li>
+          </ul>
+          <div className="hidden self-stretch border-l-[1px] border-gray-500 sm:block" />
+          {isAuthenticated ? (
             <Button
               asChild
-              className="hidden text-sm xs:block sm:text-base"
-              size="sm"
+              className="hidden py-1.5 xs:block"
+              variant="default"
             >
-              <Link to="/?mode=signup">Criar conta</Link>
+              <Link to="/app">Dashboard</Link>
             </Button>
-          </>
-        )}
+          ) : (
+            <>
+              <LoginTrigger>
+                <Button
+                  className="hidden text-sm xs:block sm:text-base"
+                  size="sm"
+                  variant="ghost"
+                >
+                  Entrar
+                </Button>
+              </LoginTrigger>
+              <SignupTrigger>
+                <Button
+                  className="hidden text-sm xs:block sm:text-base"
+                  size="sm"
+                >
+                  Criar conta
+                </Button>
+              </SignupTrigger>
+            </>
+          )}
 
-        <HamburguerMenu isAuthenticated={isAuthenticated} />
-      </Wrapper>
-    </div>
+          <HamburguerMenu isAuthenticated={isAuthenticated} />
+        </Wrapper>
+      </div>
+    </AuthenticationModal>
   )
 }
 
@@ -151,19 +163,23 @@ function HamburguerMenu({ isAuthenticated }: HamburguerMenuProps) {
           />
         ) : (
           <>
-            <PopoverItem
-              className="block xs:hidden"
-              title="Criar conta"
-              to="/?mode=signup"
-              icon={<></>}
-              colorful
-            />
-            <PopoverItem
-              className="block xs:hidden"
-              title="Entrar"
-              to="/?mode=login"
-              icon={<></>}
-            />
+            <SignupTrigger>
+              <PopoverItem
+                className="block text-start xs:hidden"
+                title="Criar conta"
+                onClick={() => {}}
+                icon={<></>}
+                colorful
+              />
+            </SignupTrigger>
+            <LoginTrigger>
+              <PopoverItem
+                className="block text-start xs:hidden"
+                title="Entrar"
+                onClick={() => {}}
+                icon={<></>}
+              />
+            </LoginTrigger>
           </>
         )}
 

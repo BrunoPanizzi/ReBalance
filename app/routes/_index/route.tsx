@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
-import { Form, Link, useActionData, useLoaderData } from '@remix-run/react'
+import { Link, useActionData, useLoaderData } from '@remix-run/react'
 import { motion } from 'framer-motion'
 
 import { sessionStorage } from '~/services/cookies/session.server'
@@ -9,7 +9,7 @@ import { ErrorProvider } from '~/context/ErrorContext'
 import { Button } from '~/components/ui/button'
 
 import { action } from './action'
-import AuthenticationModal from './AuthenticationModal'
+import AuthenticationModal, { SignupTrigger } from './AuthenticationModal'
 import { NavBar } from '~/components/Header'
 
 export const meta = () => {
@@ -57,68 +57,66 @@ export default function Index() {
   }
 
   return (
-    <>
-      <ErrorProvider initialErrors={errors}>
-        <AuthenticationModal />
-      </ErrorProvider>
+    <ErrorProvider initialErrors={errors}>
+      <AuthenticationModal>
+        <div className="relative h-screen bg-opacity-10">
+          <CoolBg />
 
-      <div className="relative h-screen bg-opacity-10">
-        <CoolBg />
+          <NavBar isAuthenticated={isAuthenticated} />
 
-        <NavBar isAuthenticated={isAuthenticated} />
-
-        <main className="mx-auto mt-[20vh] max-w-screen-xl text-center font-display">
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="mx-auto max-w-[75%]"
-          >
-            <motion.h2
-              variants={children}
-              className="mx-auto mb-4 max-w-screen-md text-balance text-[clamp(3rem,6vw,5rem)]/none font-bold text-emerald-50"
+          <main className="mx-auto mt-[20vh] max-w-screen-xl text-center font-display">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="mx-auto max-w-[75%]"
             >
-              Investir não precisa ser{' '}
-              <strong className="text-emerald-300 underline">difícil.</strong>
-            </motion.h2>
-            <motion.p
-              variants={children}
-              className="mb-2 text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl"
-            >
-              Defina suas carteiras e os ativos em que deseja investir que nós
-              cuidamos do resto.
-            </motion.p>
-            <motion.p
-              variants={children}
-              className="text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl"
-            >
-              Sem contas e planilhas chatas, sempre respeitando os seus
-              objetivos.
-            </motion.p>
+              <motion.h2
+                variants={children}
+                className="mx-auto mb-4 max-w-screen-md text-balance text-[clamp(3rem,6vw,5rem)]/none font-bold text-emerald-50"
+              >
+                Investir não precisa ser{' '}
+                <strong className="text-emerald-300 underline">difícil.</strong>
+              </motion.h2>
+              <motion.p
+                variants={children}
+                className="mb-2 text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl"
+              >
+                Defina suas carteiras e os ativos em que deseja investir que nós
+                cuidamos do resto.
+              </motion.p>
+              <motion.p
+                variants={children}
+                className="text-balance text-lg text-emerald-50 md:text-xl lg:text-2xl"
+              >
+                Sem contas e planilhas chatas, sempre respeitando os seus
+                objetivos.
+              </motion.p>
 
-            <motion.div className="mt-8" variants={children}>
-              {isAuthenticated ? (
-                <Button asChild size="lg" className="text-lg font-bold">
-                  <Link to="/app">Acessar o app</Link>
-                </Button>
-              ) : (
-                <Form>
-                  <Button
-                    className="rounded-lg border-2 border-emerald-400 px-8 py-2 text-2xl hover:scale-105"
-                    variant="outline"
-                    size="lg"
-                    name="mode"
-                    value="signup"
-                  >
-                    Crie sua conta agora!
+              <motion.div className="mt-8" variants={children}>
+                {isAuthenticated ? (
+                  <Button asChild size="lg" className="text-lg font-bold">
+                    <Link to="/app">Acessar o app</Link>
                   </Button>
-                </Form>
-              )}
+                ) : (
+                  <SignupTrigger>
+                    <Button
+                      className="rounded-lg border-2 border-emerald-400 px-8 py-2 text-2xl hover:scale-105"
+                      variant="outline"
+                      size="lg"
+                      name="mode"
+                      value="signup"
+                    >
+                      Crie sua conta agora!
+                    </Button>
+                  </SignupTrigger>
+                )}
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </main>
-      </div>
-    </>
+          </main>
+        </div>
+      </AuthenticationModal>
+    </ErrorProvider>
   )
 }
 

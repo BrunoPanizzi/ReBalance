@@ -1,10 +1,15 @@
-import { useEffect } from 'react'
+import {
+  ReactNode,
+  useEffect,
+  createContext,
+  useContext,
+  useState,
+} from 'react'
 import {
   Form,
   useActionData,
   useNavigate,
   useNavigation,
-  useSearchParams,
 } from '@remix-run/react'
 
 import { Dialog } from '~/components/ui/dialog'
@@ -13,12 +18,30 @@ import { InputGroup } from '~/components/FormGroups'
 
 import { action } from './action'
 
-type TextsKeys =
-  | 'modalTitle'
-  | 'changeMode'
-  | 'success'
-  | 'buttonLabel'
-  | 'next'
+type Modes = 'login' | 'signup'
+
+type AuthenticationModalContextType = {
+  mode: Modes
+  setMode: (mode: Modes) => void
+}
+
+const AuthenticationModalContext = createContext<
+  AuthenticationModalContextType | undefined
+>(undefined)
+
+function useAuthenticationModalContext(): AuthenticationModalContextType {
+  const context = useContext(AuthenticationModalContext)
+
+  if (!context) {
+    throw new Error(
+      'useAuthenticationModalContext must be used within an AuthenticationModalProvider',
+    )
+  }
+
+  return context
+}
+
+type TextsKeys = 'modalTitle' | 'changeMode' | 'success' | 'buttonLabel'
 
 const texts: {
   login: Record<TextsKeys, string>
@@ -29,28 +52,38 @@ const texts: {
     changeMode: 'Não possui conta? Crie uma',
     success: 'Login efetuado com sucesso! Entrando...',
     buttonLabel: 'Login',
-    next: 'signup',
   },
   signup: {
     modalTitle: 'Criar conta',
     changeMode: 'Já é usuário? Faça login',
     success: 'Conta criada com sucesso! Entrando...',
     buttonLabel: 'Criar conta',
-    next: 'login',
   },
 }
 
-export default function AuthenticationModal() {
+type AuthenticationModalProps = {
+  children: ReactNode
+}
+
+export default function ({ children }: AuthenticationModalProps) {
+  const [mode, setMode] = useState<Modes>('login')
+  return (
+    <AuthenticationModalContext.Provider value={{ mode, setMode }}>
+      <AuthenticationModal>{children}</AuthenticationModal>
+    </AuthenticationModalContext.Provider>
+  )
+}
+
+function AuthenticationModal({ children }: AuthenticationModalProps) {
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const mode = searchParams.get('mode')
-  const isDoingStuff = navigation.state === 'submitting'
-  const hasError = actionData?.ok === false && !isDoingStuff
+  const isSubmitting = navigation.state === 'submitting'
+  const hasError = actionData?.ok === false && !isSubmitting
   const backendError =
     hasError && actionData.error.some((e) => e.type === 'backend')
+
+  const { mode, setMode } = useAuthenticationModalContext()
 
   useEffect(() => {
     if (actionData?.ok) {
@@ -58,15 +91,8 @@ export default function AuthenticationModal() {
     }
   }, [actionData])
 
-  if (!mode || (mode !== 'login' && mode !== 'signup')) return null
-
   return (
-    <Dialog.Root
-      onOpenChange={(to) => {
-        if (!to) setSearchParams({}, { replace: true })
-      }}
-      defaultOpen
-    >
+    <Dialog.Root>
       <Dialog.Content className="max-w-sm">
         <Dialog.Header>
           <Dialog.Title>{texts[mode].modalTitle}</Dialog.Title>
@@ -75,12 +101,7 @@ export default function AuthenticationModal() {
             size="sm"
             className="justify-start p-0 text-gray-300 transition-colors hover:text-emerald-200"
             onClick={() => {
-              setSearchParams(
-                {
-                  mode: texts[mode].next,
-                },
-                { replace: true },
-              )
+              setMode(mode === 'login' ? 'signup' : 'login')
             }}
           >
             {texts[mode].changeMode}
@@ -121,11 +142,32 @@ export default function AuthenticationModal() {
               {texts[mode].success}
             </span>
           )}
-          <Button type="submit" disabled={isDoingStuff} className="mt-2">
-            {isDoingStuff ? 'Enviando...' : texts[mode].buttonLabel}
+          <Button type="submit" disabled={isSubmitting} className="mt-2">
+            {isSubmitting ? 'Enviando...' : texts[mode].buttonLabel}
           </Button>
         </Form>
       </Dialog.Content>
+      {children}
     </Dialog.Root>
+  )
+}
+
+export function LoginTrigger({ children }: { children: ReactNode }) {
+  const { setMode } = useAuthenticationModalContext()
+
+  return (
+    <Dialog.Trigger asChild onClick={() => setMode('login')}>
+      {children}
+    </Dialog.Trigger>
+  )
+}
+
+export function SignupTrigger({ children }: { children: ReactNode }) {
+  const { setMode } = useAuthenticationModalContext()
+
+  return (
+    <Dialog.Trigger asChild onClick={() => setMode('signup')}>
+      {children}
+    </Dialog.Trigger>
   )
 }

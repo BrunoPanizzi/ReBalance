@@ -1,6 +1,7 @@
 import { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useActionData, useLoaderData } from '@remix-run/react'
 import { motion } from 'framer-motion'
+import { ClientOnly } from 'remix-utils/client-only'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
@@ -60,7 +61,7 @@ export default function Index() {
     <ErrorProvider initialErrors={errors}>
       <AuthenticationModal>
         <div className="relative h-screen bg-opacity-10">
-          <CoolBg />
+          <ClientOnly>{() => <CoolBg />}</ClientOnly>
 
           <NavBar isAuthenticated={isAuthenticated} />
 

@@ -147,7 +147,7 @@ type HamburguerMenuProps = {
 function HamburguerMenu({ isAuthenticated }: HamburguerMenuProps) {
   return (
     <Popover>
-      <PopoverTrigger className="sm:hidden">
+      <PopoverTrigger asChild className="sm:hidden">
         <Button variant="ghost" className="p-1" size="icon">
           <HamburgerMenuIcon className="size-6" />
         </Button>

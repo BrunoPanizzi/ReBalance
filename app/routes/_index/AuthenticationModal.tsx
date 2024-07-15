@@ -85,6 +85,8 @@ function AuthenticationModal({ children }: AuthenticationModalProps) {
 
   const { mode, setMode } = useAuthenticationModalContext()
 
+  console.log(actionData)
+
   useEffect(() => {
     if (actionData?.ok) {
       setTimeout(() => navigate('/app'), 300)
@@ -113,6 +115,7 @@ function AuthenticationModal({ children }: AuthenticationModalProps) {
           method="post"
           id="auth-form"
         >
+          <input type="hidden" name="mode" value={mode} />
           {mode === 'signup' && (
             <InputGroup
               label="Nome de usuário"

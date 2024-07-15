@@ -22,16 +22,17 @@ export const action = async ({
 }: ActionFunctionArgs): Promise<
   TypedResponse<Result<DomainUser, ErrorT[]>>
 > => {
+  console.log('action')
+
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
-  const { searchParams } = new URL(request.url)
-  const mode = searchParams.get('mode')
+  const formData = await request.formData()
 
+  const mode = formData.get('mode')
   if (!mode || (mode !== 'login' && mode !== 'signup')) {
-    return typedError([{ type: 'unknown', message: 'Invalid mode' }])
+    return typedError([{ type: 'mode', message: 'Modo inválido' }])
   }
 
-  const formData = await request.formData()
   const rawForm = Object.fromEntries(formData)
 
   const formValidator =

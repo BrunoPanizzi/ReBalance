@@ -1,9 +1,4 @@
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from '@remix-run/react'
+import { Link, useFetcher, useSearchParams } from '@remix-run/react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { brl, currencyToNumber } from '~/lib/formatting'
@@ -13,14 +8,10 @@ import { AmountForm } from '~/components/AmountForm'
 
 import { loader as suggestionsLoader } from '~/routes/app.$walletId.suggestions'
 
-import { loader } from '../loader'
-
 import { useOnAssetsUpdated } from './useOnAssetsUpdate'
 import { Results } from './Results'
 
 export default function Investing() {
-  const { type } = useLoaderData<typeof loader>()
-
   const [searchParams] = useSearchParams()
   const hasAmount = searchParams.has('amount')
   const initialAmount = hasAmount
@@ -36,10 +27,7 @@ export default function Investing() {
 
   const handleSubmit = () => {
     fetcher.submit(
-      {
-        type,
-        amount: currencyToNumber(value),
-      },
+      { amount: currencyToNumber(value) },
       {
         method: 'GET',
         navigate: false,

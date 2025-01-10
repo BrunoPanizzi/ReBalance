@@ -7,6 +7,8 @@ import AssetService, {
 } from '~/services/assetService/index.server'
 
 import { Result, typedError, typedOk } from '~/types/Result'
+import walletService from '~/services/walletService'
+import { AssetPurchaseSuggestionUseCase } from '~/services/assetsPurchaseSuggestionsUseCase/index.server'
 
 type Purchases = Record<string, number>
 
@@ -45,54 +47,21 @@ export const loader = async ({
     return typedError('Amount should be greater than 0')
   }
 
-  const walletType = searchParams.get('type')
+  const { assets } = await walletService.getFullWallet(user.uid, walletId)
 
-  if (!walletType || !assetType.find((a) => a === walletType)) {
-    return typedError('invalir type')
-  }
-
-  const userAssets = await AssetService.getAssetsByWalletWithPrices(
-    user.uid,
-    walletId,
-    walletType as AssetType,
-  )
-
-  if (userAssets.length === 0) {
+  if (assets.length === 0) {
     return typedError('Wallet has no assets')
   }
 
-  let assets = userAssets.map((s) => ({ ...s }))
-
-  const purchases: Purchases = {}
-
-  let remainingAmount = amount
-
-  // TODO: when type is `fixed-value` don't buy whole assets, buy fractions
-  while (true) {
-    const smallestTotalValue = assets.reduce(
-      (a, s) => (s.totalValue < a.totalValue ? s : a),
-      assets[0],
-    )
-
-    if (smallestTotalValue.price > remainingAmount) {
-      break
-    }
-
-    if (purchases[smallestTotalValue.name]) {
-      purchases[smallestTotalValue.name]++
-    } else {
-      purchases[smallestTotalValue.name] = 1
-    }
-
-    smallestTotalValue.amount++
-    smallestTotalValue.totalValue += smallestTotalValue.price
-    remainingAmount -= smallestTotalValue.price
-  }
+  const { change, purchases } = new AssetPurchaseSuggestionUseCase().execute(
+    assets,
+    amount,
+  )
 
   return typedOk({
     totalAmount: amount,
-    investedAmount: amount - remainingAmount,
-    change: remainingAmount,
+    investedAmount: amount - change,
+    change: change,
     assetsBought: Object.keys(purchases).length, // assets bought is the number of different tickers
     purchases,
   })

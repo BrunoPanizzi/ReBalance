@@ -1,6 +1,12 @@
+import { useState } from 'react'
 import { Link, Outlet, useLoaderData } from '@remix-run/react'
+import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 import colors from 'tailwindcss/colors.js'
 
+import { cn } from '~/lib/utils'
+
+import { Checkbox } from '~/components/ui/checkbox'
+import { EasyTooltip } from '~/components/ui/tooltip'
 import { Button } from '~/components/ui/button'
 
 import FloatingHeader from '~/components/Header'
@@ -18,16 +24,13 @@ import NewWalletModal from './NewWalletModal'
 import ChangeColorModal from './ChangeWalletColor'
 import ChangeNameModal from './ChangeWalletName'
 import RebalancePercentagesModal from './RebalanceModal'
-import { useState } from 'react'
-import { Checkbox } from '~/components/ui/checkbox'
-import { cn } from '~/lib/utils'
 
 export { loader, action }
 
 export default function App() {
-  const { user, wallets } = useLoaderData<typeof loader>()
+  const { user, fullWallets } = useLoaderData<typeof loader>()
 
-  const showGraph = wallets.filter((w) => w.totalValue > 0).length > 0
+  const showGraph = fullWallets.filter((w) => w.totalValue > 0).length > 0
 
   return (
     <>
@@ -59,41 +62,7 @@ export default function App() {
       />
 
       <Wrapper cols={2}>
-        <div className="flex flex-col gap-2 @container/list">
-          <ListHeader />
-
-          {wallets.length > 0 ? (
-            wallets.map((w) => <WalletCard wallet={w} key={w.id} />)
-          ) : (
-            <div className="mb-6 flex flex-wrap items-center justify-center gap-x-4">
-              <div className="w-1/2 max-w-36 text-orange-400/90">
-                <EmptyWallet />
-              </div>
-              <div className="">
-                <p className="text-lg font-semibold text-orange-100">
-                  Você ainda não possui nenhuma carteira
-                </p>
-                <p className="mb-2 ">
-                  <Link
-                    to="/app?new"
-                    className="text-lg font-bold text-primary-100 underline underline-offset-2 transition hover:text-primary-300"
-                  >
-                    Clique aqui e crie uma!
-                  </Link>
-                </p>
-                <small className="text-sm">
-                  Precisa de ajuda? Veja{' '}
-                  <Link
-                    to="/blog/carteiras"
-                    className="text-primary-200 underline"
-                  >
-                    como as carteiras funcionam.
-                  </Link>
-                </small>
-              </div>
-            </div>
-          )}
-        </div>
+        <WalletsList />
 
         <div className="@container">
           <h2 className="mb-2 h-8 flex-1 text-xl font-semibold text-emerald-50 @md:h-auto @md:text-2xl">
@@ -114,8 +83,81 @@ export default function App() {
   )
 }
 
+function WalletsList() {
+  const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
+
+  if (fullWallets.length === 0) {
+    return (
+      <div className="mb-6 flex flex-wrap items-center justify-center gap-x-4">
+        <div className="w-1/2 max-w-36 text-orange-400/90">
+          <EmptyWallet />
+        </div>
+        <div className="">
+          <p className="text-lg font-semibold text-orange-100">
+            Você ainda não possui nenhuma carteira
+          </p>
+          <p className="mb-2 ">
+            <Link
+              to="/app?new"
+              className="text-lg font-bold text-primary-100 underline underline-offset-2 transition hover:text-primary-300"
+            >
+              Clique aqui e crie uma!
+            </Link>
+          </p>
+          <small className="text-sm">
+            Precisa de ajuda? Veja{' '}
+            <Link to="/blog/carteiras" className="text-primary-200 underline">
+              como as carteiras funcionam.
+            </Link>
+          </small>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-2 @container/list">
+      <ListHeader />
+
+      {fullWallets.map((w) => (
+        <WalletCard wallet={w} key={w.id} />
+      ))}
+
+      {partialWallets.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <header className="flex items-center gap-2">
+            <h3 className="mt-2 flex-1 text-lg font-semibold text-orange-100 @md/list:text-xl">
+              Carteiras incompletas:
+            </h3>
+            <EasyTooltip
+              label="Devido a problemas internos, não conseguimos calcular o valor
+              total dessas carteiras. Tente novamente em instantes."
+            >
+              <QuestionMarkCircledIcon className="size-5 text-orange-200" />
+            </EasyTooltip>
+          </header>
+          {partialWallets.map((w) => (
+            <WalletCard wallet={{ ...w, color: 'gray' }} key={w.id} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DistribuitonGraph() {
-  const { wallets } = useLoaderData<typeof loader>()
+  const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
+
+  // TODO: abstract this logic, also appears in RebalanceModal.tsx
+  const wallets = [
+    ...fullWallets,
+    ...partialWallets.map((w) => ({
+      ...w,
+      totalValue: 0,
+      realPercentage: 0,
+      assets: [],
+    })),
+  ]
 
   const [isIdeal, setIsIdeal] = useState(false)
 
@@ -153,13 +195,5 @@ function DistribuitonGraph() {
         />
       </div>
     </>
-  )
-}
-
-export function ErrorBoundary() {
-  return (
-    <div>
-      <span>something went wrong lol</span>
-    </div>
   )
 }

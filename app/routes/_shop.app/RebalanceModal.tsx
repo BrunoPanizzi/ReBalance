@@ -35,7 +35,17 @@ type RebalanceContext = {
 const rebalanceContext = createContext<RebalanceContext | null>(null)
 
 function RebalanceContextProvider({ children }: { children: ReactElement }) {
-  const { wallets: originalWallets } = useLoaderData<typeof loader>()
+  const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
+  const originalWallets = [
+    ...fullWallets,
+    ...partialWallets.map((w) => ({
+      ...w,
+      totalValue: 0,
+      realPercentage: 0,
+      assets: [],
+    })),
+  ]
+
   const fetcher = useFetcher({ key: 'rebalance' })
   const isSubmitting = fetcher.state === 'submitting'
 

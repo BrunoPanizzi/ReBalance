@@ -70,6 +70,7 @@ class AssetService {
         ),
       )
     } else if (walletType === 'fixed-value') {
+      throw new Error('hahahaha')
       assetssWithPrices = assets.map((a) => {
         // simple == to catch undefined too
         if (a.price == null)

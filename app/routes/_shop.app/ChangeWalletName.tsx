@@ -17,7 +17,7 @@ import { loader } from './loader'
 import { action, extractValue } from './action'
 
 export default function ChangeNameModal() {
-  const { wallets } = useLoaderData<typeof loader>()
+  const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const actionResult = extractValue(actionData, 'PATCH')
 
@@ -46,7 +46,9 @@ export default function ChangeNameModal() {
 
   if (!walletId) return null
 
-  const thisWallet = wallets.find((w) => w.id === walletId)
+  const thisWallet = [...fullWallets, ...partialWallets].find(
+    (w) => w.id === walletId,
+  )
   if (!thisWallet) {
     setSearchParams({}, { replace: true })
     return null

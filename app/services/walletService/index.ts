@@ -12,6 +12,7 @@ import AssetService, {
   DomainAsset,
   AssetWithPrice,
 } from '../assetService/index.server'
+import { error, ok } from '~/types/Result'
 
 type PersistanceWallet = Wallet
 
@@ -98,32 +99,55 @@ class WalletService {
     return wallets.map(toDomain)
   }
 
-  async getFullWallets(uid: string): Promise<FullWalletWithAssets[]> {
+  async getFullWallets(
+    uid: string,
+  ): Promise<{
+    fullWallets: FullWalletWithAssets[]
+    partialWallets: DomainWallet[]
+  }> {
     const wallets = await this.getWallets(uid)
 
     // fills total value and assets, missign realPercentage
     const walletsWithAssets = await Promise.all(
-      wallets.map((w) =>
-        AssetService.getAssetsByWalletWithPrices(uid, w.id, w.type).then(
-          (assets) => ({
+      wallets.map(async (w) => {
+        try {
+          const assets = await AssetService.getAssetsByWalletWithPrices(
+            uid,
+            w.id,
+            w.type,
+          )
+          return ok({
             ...w,
             totalValue: assets.reduce((a, s) => a + s.totalValue, 0),
             assets,
-          }),
-        ),
-      ),
+          })
+        } catch (e) {
+          return error(w)
+        }
+      }),
     )
 
-    const totalTotalValue = walletsWithAssets.reduce(
+    const successfullWallets = walletsWithAssets
+      .filter((w) => w.ok)
+      .map((w) => w.value)
+
+    const errorWallets = walletsWithAssets
+      .filter((w) => !w.ok)
+      .map((w) => w.error)
+
+    const totalTotalValue = successfullWallets.reduce(
       (a, w) => a + w.totalValue,
       0,
     )
 
     // add realPercentage
-    return walletsWithAssets.map((w) => ({
-      ...w,
-      realPercentage: w.totalValue / totalTotalValue,
-    }))
+    return {
+      fullWallets: successfullWallets.map((w) => ({
+        ...w,
+        realPercentage: (w.totalValue / totalTotalValue) * 100,
+      })),
+      partialWallets: errorWallets,
+    }
   }
 
   async createWallet(uid: string, wallet: NewWallet): Promise<DomainWallet> {

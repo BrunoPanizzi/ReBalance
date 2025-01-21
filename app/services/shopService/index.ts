@@ -22,12 +22,19 @@ class ShopService {
     amount: number,
     blackListedIds: string[] = [],
   ): Promise<ShoppingList> {
-    const wallets = await WalletService.getFullWallets(uid)
-    const whiteListWallets = wallets.filter(
+    const { fullWallets, partialWallets } =
+      await WalletService.getFullWallets(uid)
+
+    // TODO: handle this error in UI
+    if (partialWallets.length !== 0) {
+      throw new Error('Fix errors in partial wallets')
+    }
+
+    const whiteListWallets = fullWallets.filter(
       (w) => !blackListedIds.find((id) => w.id === id),
     )
 
-    const totalValue = wallets.reduce((acc, w) => acc + w.totalValue, 0)
+    const totalValue = fullWallets.reduce((acc, w) => acc + w.totalValue, 0)
 
     return {
       prevTotalValue: totalValue,

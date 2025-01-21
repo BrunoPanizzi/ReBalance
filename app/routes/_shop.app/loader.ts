@@ -12,7 +12,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     throw redirect('/')
   }
 
-  const wallets = await WalletService.getFullWallets(user.uid)
-
-  return json({ user, wallets })
+  const { partialWallets, fullWallets } = await WalletService.getFullWallets(
+    user.uid,
+  )
+  return json({ user, partialWallets, fullWallets })
 }

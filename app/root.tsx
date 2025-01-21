@@ -9,6 +9,7 @@ import {
   useMatches,
 } from '@remix-run/react'
 
+// @ts-expect-error
 import stylesheet from '~/tailwind.css'
 
 import NavigationIndicator from './components/NavigationIndicator'

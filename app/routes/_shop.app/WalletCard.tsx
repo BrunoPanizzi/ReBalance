@@ -9,7 +9,7 @@ import { Link, useFetcher, useSearchParams } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
 
-import { FullWalletWithAssets } from '~/services/walletService'
+import { DomainWallet, FullWalletWithAssets } from '~/services/walletService'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -21,8 +21,17 @@ import {
 import { toast } from '~/components/ui/use-toast'
 
 import { action, extractValue } from './action'
+import { Colors } from '~/constants/availableColors'
 
-type WalletProps = { wallet: FullWalletWithAssets }
+type WalletProps = {
+  // basically either a FullWalletWithAssets or a DomainWallet, but they might be gray too
+  wallet: (
+    | Omit<FullWalletWithAssets, 'color'>
+    | Omit<DomainWallet, 'color'>
+  ) & {
+    color: Colors | 'gray'
+  }
+}
 
 export default function WalletCard({ wallet }: WalletProps) {
   const [_, setSearchParams] = useSearchParams()
@@ -102,13 +111,15 @@ export default function WalletCard({ wallet }: WalletProps) {
         <span className="mr-2 text-sm sm:text-base">
           ideal: {percentage(wallet.idealPercentage)}
         </span>
-        <span className="inline-block text-sm sm:text-base">
-          atual: {percentage(wallet.realPercentage)}
-        </span>
+        {'realPercentage' in wallet && (
+          <span className="inline-block text-sm sm:text-base">
+            atual: {percentage(wallet.realPercentage)}
+          </span>
+        )}
       </span>
 
       <span className="row-span-2 text-xl font-bold text-primary-200">
-        <span>{brl(wallet.totalValue)}</span>
+        {'totalValue' in wallet ? brl(wallet.totalValue) : 'R$ ----'}
       </span>
     </Link>
   )

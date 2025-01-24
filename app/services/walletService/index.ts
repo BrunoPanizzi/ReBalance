@@ -1,7 +1,8 @@
 import { SQL, and, eq, sql } from 'drizzle-orm'
 
-import { db } from '~/services/db/index.server'
+import { error, ok } from '~/types/Result'
 
+import { db } from '~/services/db/index.server'
 import {
   wallet as walletTable,
   walletSchema,
@@ -12,7 +13,6 @@ import AssetService, {
   DomainAsset,
   AssetWithPrice,
 } from '../assetService/index.server'
-import { error, ok } from '~/types/Result'
 
 type PersistanceWallet = Wallet
 
@@ -75,18 +75,24 @@ class WalletService {
    *
    * The `realPercentage` field is always set to -1, becuase it is not calculated.
    */
-  async getFullWallet(uid: string, id: string): Promise<FullWalletWithAssets> {
+  async getFullWallet(
+    uid: string,
+    id: string,
+  ): Promise<FullWalletWithAssets & { assetsWithoutPrice: DomainAsset[] }> {
     const wallet = await this.getWallet(uid, id)
 
-    const assets = await AssetService.getAssetsByWalletWithPrices(
-      uid,
-      id,
-      wallet.type,
-    )
+    const [assets, assetsWithoutPrice] =
+      await AssetService.getAssetsByWalletWithPrices(uid, id, wallet.type)
 
     const totalValue = assets.reduce((a, s) => a + s.totalValue, 0)
 
-    return { ...wallet, assets, totalValue, realPercentage: -1 }
+    return {
+      ...wallet,
+      assets,
+      assetsWithoutPrice,
+      totalValue,
+      realPercentage: -1,
+    }
   }
 
   async getWallets(uid: string): Promise<DomainWallet[]> {
@@ -99,9 +105,7 @@ class WalletService {
     return wallets.map(toDomain)
   }
 
-  async getFullWallets(
-    uid: string,
-  ): Promise<{
+  async getFullWallets(uid: string): Promise<{
     fullWallets: FullWalletWithAssets[]
     partialWallets: DomainWallet[]
   }> {
@@ -111,11 +115,8 @@ class WalletService {
     const walletsWithAssets = await Promise.all(
       wallets.map(async (w) => {
         try {
-          const assets = await AssetService.getAssetsByWalletWithPrices(
-            uid,
-            w.id,
-            w.type,
-          )
+          const [assets, assetsWithoutPrice] =
+            await AssetService.getAssetsByWalletWithPrices(uid, w.id, w.type)
           return ok({
             ...w,
             totalValue: assets.reduce((a, s) => a + s.totalValue, 0),

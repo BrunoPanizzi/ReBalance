@@ -55,37 +55,52 @@ class AssetService {
     uid: string,
     walletId: string,
     walletType: AssetType,
-  ): Promise<AssetWithPrice[]> {
+  ): Promise<[AssetWithPrice[], DomainAsset[]]> {
     const assets = await this.getAssetsByWallet(uid, walletId)
 
-    let assetssWithPrices
+    let priceGetter: (asset: DomainAsset) => Promise<number>
+
     if (walletType === 'br-stock') {
-      assetssWithPrices = await Promise.all(
-        assets.map((a) =>
-          MarketService.getStockData(a.name).then(({ regularMarketPrice }) => ({
-            ...a,
-            price: regularMarketPrice,
-            totalValue: a.amount * regularMarketPrice,
-          })),
-        ),
-      )
+      priceGetter = async ({ name }) => {
+        const { regularMarketPrice } = await MarketService.getStockData(name)
+        return regularMarketPrice
+      }
     } else if (walletType === 'fixed-value') {
-      throw new Error('hahahaha')
-      assetssWithPrices = assets.map((a) => {
-        // simple == to catch undefined too
-        if (a.price == null)
+      priceGetter = async ({ price }) => {
+        if (price == null)
           throw new Error(
-            `Asset ${a.id} of type ${a.type} does not have price.`,
+            "Fixed value wallet's assets should have a price when created",
           )
 
-        return {
-          ...a,
-          price: a.price,
-          totalValue: a.price * a.amount,
-        }
-      })
+        return price
+      }
     } else {
       throw new Error(`Wallet type ${walletType} is not supported yet.`)
+    }
+
+    const mapped = await Promise.all(
+      assets.map(async (a) => {
+        try {
+          const price = await priceGetter(a)
+          return {
+            ...a,
+            price,
+            totalValue: a.amount * price,
+          }
+        } catch (e) {
+          return a
+        }
+      }),
+    )
+
+    let assetssWithPrices: Omit<AssetWithPrice, 'percentage'>[] = []
+    let assetsWithoutPrices: DomainAsset[] = []
+    for (const asset of mapped) {
+      if (asset.price != null) {
+        assetssWithPrices.push(asset as AssetWithPrice)
+      } else {
+        assetsWithoutPrices.push(asset)
+      }
     }
 
     const totalValue = assetssWithPrices.reduce((a, s) => a + s.totalValue, 0)
@@ -96,7 +111,7 @@ class AssetService {
         percentage: s.totalValue / totalValue,
       }))
 
-    return assetsWithPricesAndPercentages
+    return [assetsWithPricesAndPercentages, assetsWithoutPrices]
   }
 
   async createAsset(

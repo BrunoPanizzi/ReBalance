@@ -30,7 +30,7 @@ export const asset = pgTable('asset', {
   name: varchar('name').notNull(),
   type: assetTypeEnum('asset_type').notNull(),
   amount: real('amount').default(0).notNull(),
-  price: real('price').default(0),
+  price: real('price'),
 
   walletId: uuid('wallet_id')
     .references(() => wallet.id)

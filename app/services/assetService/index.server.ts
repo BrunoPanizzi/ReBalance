@@ -120,7 +120,7 @@ class AssetService {
         type: newAsset.type,
         name: newAsset.name,
         amount: newAsset.amount,
-        price: newAsset.price ?? 0,
+        price: newAsset.price,
       })
       .returning()
 

@@ -145,7 +145,7 @@ class WalletService {
     return {
       fullWallets: successfullWallets.map((w) => ({
         ...w,
-        realPercentage: (w.totalValue / totalTotalValue) * 100,
+        realPercentage: w.totalValue / totalTotalValue,
       })),
       partialWallets: errorWallets,
     }

@@ -2,12 +2,12 @@ import { roundTo } from '~/lib/roundTo'
 
 import WalletService, { FullWalletWithAssets } from '../walletService'
 
-type ShoppingList = {
+export type ShoppingList = {
   prevTotalValue: number
   newTotalValue: number
   purchases: Purchase[]
 }
-type Purchase = {
+export type Purchase = {
   wallet: FullWalletWithAssets
   amount: number
 }

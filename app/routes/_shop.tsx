@@ -5,12 +5,13 @@ import {
   ChevronDownIcon,
   Cross1Icon,
 } from '@radix-ui/react-icons'
-import { useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import { cn } from '~/lib/utils'
 import { brl, currencyToNumber, percentage } from '~/lib/formatting'
 
 import { FullWalletWithAssets } from '~/services/walletService'
+import { ShoppingList } from '~/services/shopService'
 
 import { loader } from './suggestions'
 
@@ -18,21 +19,82 @@ import Wrapper from '~/components/Wrapper'
 import { Button } from '~/components/ui/button'
 import { AmountForm } from '~/components/AmountForm'
 
+type ShopContext = {
+  isExpanded: boolean
+  setIsExpanded: (value: boolean) => void
+  value: string
+  setValue: (value: string) => void
+  shopRecommendations: ShoppingList | null
+  removeRecommendation: (id: string) => void
+  fetchRecommendations: () => void
+  isSubmitting: boolean
+}
+
+const shopContext = createContext<ShopContext | null>(null)
+
+export function useShop(): ShopContext {
+  const context = useContext(shopContext)
+  if (!context) {
+    throw new Error('useShop must be used within a ShopProvider')
+  }
+  return context
+}
+
 export default function Shop() {
   const matches = useMatches()
 
+  const fetcherKey = useMemo(() => 'suggestions' + Math.random(), [])
+
+  const fetcher = useFetcher<typeof loader>({
+    key: fetcherKey,
+  })
+  const [data, setData] = useState<ShoppingList | null>(fetcher.data || null)
+
   const [isExpanded, setIsExpanded] = useState(false)
+  const [value, setValue] = useState('')
+
+  const fetchRecommendations = () => {
+    fetcher.submit(
+      { amount: currencyToNumber(value), blackListedIds: [] },
+      { method: 'GET', navigate: false, action: 'suggestions' },
+    )
+  }
+
+  const removeRecommendation = (id: string) => {
+    setData((data) => {
+      if (!data) return null
+      return {
+        ...data,
+        purchases: data.purchases.filter((p) => p.wallet.id !== id),
+      }
+    })
+  }
 
   const isWalletPage = matches.some(
     (m) => m.id === 'routes/_shop.app_.$walletId',
   )
+
+  useEffect(() => {
+    setData(fetcher.data || null)
+  }, [fetcher.data])
 
   if (isWalletPage && !isExpanded) {
     return <Outlet />
   }
 
   return (
-    <>
+    <shopContext.Provider
+      value={{
+        isExpanded,
+        setIsExpanded,
+        value,
+        setValue,
+        shopRecommendations: data || null,
+        fetchRecommendations,
+        removeRecommendation,
+        isSubmitting: fetcher.state !== 'idle',
+      }}
+    >
       <Outlet />
       <Wrapper className="pointer-events-none fixed left-1/2 top-0 block min-h-screen w-full -translate-x-1/2">
         <div
@@ -40,7 +102,7 @@ export default function Shop() {
           className="pointer-events-auto absolute bottom-6 right-3 rounded-xl border border-primary-600 bg-gray-700 shadow-md transition-all data-[expanded=true]:bottom-16 sm:right-0"
         >
           {isExpanded ? (
-            <ExpandedShop onClose={() => setIsExpanded(false)} />
+            <ExpandedShop />
           ) : (
             <button
               onClick={() => setIsExpanded(true)}
@@ -51,36 +113,39 @@ export default function Shop() {
           )}
         </div>
       </Wrapper>
-    </>
+    </shopContext.Provider>
   )
 }
 
 type ExpandedShopProps = {
-  onClose: () => void
+  // onClose: () => void
 }
 
-function ExpandedShop({ onClose }: ExpandedShopProps) {
-  const fetcherKey = useMemo(() => 'suggestions' + Math.random(), [])
-
-  const fetcher = useFetcher<typeof loader>({
-    key: fetcherKey,
-  })
-  const data = fetcher.data
-
-  const [value, setValue] = useState('')
-
-  const isSubmitting = fetcher.state !== 'idle'
+function ExpandedShop({}: ExpandedShopProps) {
+  const {
+    setIsExpanded,
+    value,
+    setValue,
+    isSubmitting,
+    shopRecommendations,
+    fetchRecommendations,
+  } = useShop()
 
   return (
     <div className="min-w-64 max-w-96 p-4">
       <header className="mb-4 grid grid-cols-[1fr_auto] items-center gap-x-2">
         <h2 className="text-xl font-bold text-primary-200">
-          {data ? `Investir ${value}` : 'Área de aporte'}
+          {shopRecommendations ? `Investir ${value}` : 'Área de aporte'}
         </h2>
-        <Button onClick={onClose} className="group" size="icon" variant="ghost">
+        <Button
+          onClick={() => setIsExpanded(false)}
+          className="group"
+          size="icon"
+          variant="ghost"
+        >
           <Cross1Icon className="size-3 stroke-gray-400 transition-colors group-hover:stroke-red-400" />
         </Button>
-        {data === undefined && (
+        {shopRecommendations === undefined && (
           <p className="col-span-2 text-sm">
             Insira quanto você deseja aportar que nós distribuiremos essa
             quantia entre suas carteiras.
@@ -88,27 +153,22 @@ function ExpandedShop({ onClose }: ExpandedShopProps) {
         )}
       </header>
 
-      {data === undefined ? (
+      {shopRecommendations === null ? (
         <AmountForm
           value={value}
           setValue={setValue}
           isSubmitting={isSubmitting}
-          handleSubmit={() =>
-            fetcher.submit(
-              { amount: currencyToNumber(value), blackListedIds: [] },
-              { method: 'GET', navigate: false, action: 'suggestions' },
-            )
-          }
+          handleSubmit={fetchRecommendations}
         />
       ) : (
         <div className="flex max-h-96 flex-col gap-2 overflow-y-scroll">
-          {data.purchases.map((p) => (
+          {shopRecommendations.purchases.map((p) => (
             <WalletPurchaseCard
               key={p.wallet.id}
               wallet={p.wallet}
               investedAmount={p.amount}
-              prevTotalValue={data.prevTotalValue}
-              newTotalValue={data.newTotalValue}
+              prevTotalValue={shopRecommendations.prevTotalValue}
+              newTotalValue={shopRecommendations.newTotalValue}
             />
           ))}
         </div>
@@ -130,6 +190,7 @@ function WalletPurchaseCard({
   newTotalValue,
   investedAmount,
 }: WalletPurchaseCardProps) {
+  const { removeRecommendation } = useShop()
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -198,7 +259,11 @@ function WalletPurchaseCard({
             </span>
           </Link>
         </Button>
-        <Button size="sm" variant="destructive">
+        <Button
+          onClick={() => removeRecommendation(wallet.id)}
+          size="sm"
+          variant="destructive"
+        >
           Remover
         </Button>
       </footer>

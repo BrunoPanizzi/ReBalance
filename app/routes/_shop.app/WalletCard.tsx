@@ -8,6 +8,7 @@ import {
 import { Link, useFetcher, useSearchParams } from '@remix-run/react'
 
 import { brl, percentage } from '~/lib/formatting'
+import { assetTypeLabels } from '~/lib/enumDisplayValues'
 
 import { DomainWallet, FullWalletWithAssets } from '~/services/walletService'
 
@@ -103,7 +104,7 @@ export default function WalletCard({ wallet }: WalletProps) {
         </div>
 
         <span className="select-none rounded-full bg-primary-400 px-2 text-xs text-primary-950 @md/list:text-sm">
-          {wallet.type}
+          {assetTypeLabels[wallet.type]}
         </span>
       </span>
 

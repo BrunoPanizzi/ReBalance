@@ -1,5 +1,7 @@
 import { useLoaderData, MetaFunction } from '@remix-run/react'
 
+import { assetTypeLabels } from '~/lib/enumDisplayValues'
+
 import FloatingHeader from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
@@ -26,7 +28,7 @@ export default function WalletPage() {
         title={wallet.title}
         leftSide={
           <span className="rounded-full bg-primary-400 px-2 text-sm text-primary-950">
-            {wallet.type}
+            {assetTypeLabels[wallet.type]}
           </span>
         }
       />

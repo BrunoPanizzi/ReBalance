@@ -6,9 +6,8 @@ import {
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
-import { AssetType } from '~/services/assetService/index.server'
-
 import { percentage } from '~/lib/formatting'
+import { assetTypeLabels } from '~/lib/enumDisplayValues'
 
 import { ErrorProvider } from '~/context/ErrorContext'
 
@@ -108,25 +107,29 @@ function TypeSelect() {
         <Select.Content>
           <Select.Group>
             <Select.Label>🇧🇷 Brasil</Select.Label>
-            <Select.Item value="br-stock">Ações</Select.Item>
+            <Select.Item value="br-stock">
+              {assetTypeLabels['br-stock']}
+            </Select.Item>
             <Select.Item value="br-bond" disabled>
-              Renda fixa
+              {assetTypeLabels['br-bond']}
             </Select.Item>
           </Select.Group>
           <Select.Separator />
           <Select.Group>
             <Select.Label>🇺🇸 Exterior</Select.Label>
             <Select.Item value="usa-stock" disabled>
-              Ações americanas
+              {assetTypeLabels['usa-stock']}
             </Select.Item>
             <Select.Item value="usa-bond" disabled>
-              Renda fixa americana
+              {assetTypeLabels['usa-bond']}
             </Select.Item>
           </Select.Group>
           <Select.Separator />
           <Select.Group>
             <Select.Label>Outros</Select.Label>
-            <Select.Item value="fixed-value">Valor fixo</Select.Item>
+            <Select.Item value="fixed-value">
+              {assetTypeLabels['fixed-value']}
+            </Select.Item>
           </Select.Group>
         </Select.Content>
       </Select.Root>

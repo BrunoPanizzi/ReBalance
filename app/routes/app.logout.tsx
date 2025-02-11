@@ -1,12 +1,13 @@
-import { ActionFunctionArgs, redirect } from '@remix-run/node'
-import { Form, useNavigate, useNavigation } from '@remix-run/react'
+import type { Route } from './+types/app.logout'
+import { redirect } from 'react-router'
+import { Form, useNavigate, useNavigation } from 'react-router'
 
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData()
 
   const shouldLogOut = formData.get('shouldLogOut')

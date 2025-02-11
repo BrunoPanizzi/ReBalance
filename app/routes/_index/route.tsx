@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs } from '@remix-run/node'
-import { Link, useActionData, useLoaderData } from '@remix-run/react'
+import type { Route } from './+types/route'
+import { Link } from 'react-router'
 import { motion } from 'framer-motion'
 import { ClientOnly } from 'remix-utils/client-only'
 
@@ -21,7 +21,7 @@ export const meta = () => {
 }
 export { action }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   return {
     isAuthenticated: !!session.data.user,
@@ -30,9 +30,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const rand = (min: number, max: number) => Math.random() * (max - min) + min
 
-export default function Index() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
+export default function Index({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
+  const { isAuthenticated } = loaderData
 
   const errors = !actionData?.ok ? actionData?.error : []
 

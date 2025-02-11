@@ -1,9 +1,10 @@
-import { LoaderFunctionArgs, json, redirect } from '@remix-run/node'
+import type { Route } from './+types/route'
+import { redirect } from 'react-router'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import WalletService from '~/services/walletService/index.server'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -15,5 +16,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { partialWallets, fullWallets } = await WalletService.getFullWallets(
     user.uid,
   )
-  return json({ user, partialWallets, fullWallets })
+  return { user, partialWallets, fullWallets }
 }

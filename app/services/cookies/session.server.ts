@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from '@remix-run/node'
+import { createCookieSessionStorage } from 'react-router';
 
 import { DomainUser } from '../auth/authService.server'
 

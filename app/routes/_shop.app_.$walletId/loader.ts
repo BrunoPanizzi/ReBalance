@@ -1,9 +1,9 @@
-import { LoaderFunctionArgs, json } from '@remix-run/node'
+import type { Route } from './+types/route'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 import WalletService from '~/services/walletService/index.server'
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   const user = session.get('user')
 
@@ -21,5 +21,5 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Error('wallet not found')
   }
 
-  return json(wallet)
+  return wallet
 }

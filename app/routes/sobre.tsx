@@ -1,14 +1,13 @@
-import { LoaderFunctionArgs } from '@remix-run/node'
-import { MetaFunction, useLoaderData } from '@remix-run/react'
+import { Route } from './+types/sobre'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
 import { NavBar } from '~/components/Header'
 import Wrapper from '~/components/Wrapper'
 
-export const meta: MetaFunction = () => [{ title: 'Sobre o ReBalance' }]
+export const meta: Route.MetaFunction = () => [{ title: 'Sobre o ReBalance' }]
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const userSession = await sessionStorage.getSession(
     request.headers.get('Cookie'),
   )
@@ -17,8 +16,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 }
 
-export default function Sobre() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
+export default function Sobre({ loaderData }: Route.ComponentProps) {
+  const { isAuthenticated } = loaderData
 
   return (
     <>

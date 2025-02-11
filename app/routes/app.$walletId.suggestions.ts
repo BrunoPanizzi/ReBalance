@@ -1,14 +1,15 @@
-import { LoaderFunctionArgs, TypedResponse, redirect } from '@remix-run/node'
+import type { Route } from './+types/app.$walletId.suggestions'
+import { redirect } from 'react-router'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
-import { Result, typedError, typedOk } from '~/types/Result'
+import { error, ok, Result } from '~/types/Result'
 import walletService from '~/services/walletService/index.server'
 import { AssetPurchaseSuggestionUseCase } from '~/services/assetsPurchaseSuggestionsUseCase/index.server'
 
 type Purchases = Record<string, number>
 
-type LoaderResponse = Result<
+export type LoaderResponse = Result<
   {
     totalAmount: number
     investedAmount: number
@@ -22,7 +23,7 @@ type LoaderResponse = Result<
 export const loader = async ({
   params,
   request,
-}: LoaderFunctionArgs): Promise<TypedResponse<LoaderResponse>> => {
+}: Route.LoaderArgs): Promise<LoaderResponse> => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   const user = session.get('user')
 
@@ -40,13 +41,13 @@ export const loader = async ({
   const amount = Number(searchParams.get('amount'))
 
   if (isNaN(amount) || amount < 0) {
-    return typedError('Amount should be greater than 0')
+    return error('Amount should be greater than 0')
   }
 
   const { assets } = await walletService.getFullWallet(user.uid, walletId)
 
   if (assets.length === 0) {
-    return typedError('Wallet has no assets')
+    return error('Wallet has no assets')
   }
 
   const { change, purchases } = new AssetPurchaseSuggestionUseCase().execute(
@@ -54,7 +55,7 @@ export const loader = async ({
     amount,
   )
 
-  return typedOk({
+  return ok({
     totalAmount: amount,
     investedAmount: amount - change,
     change: change,

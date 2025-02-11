@@ -1,4 +1,4 @@
-import { Form, Link, useLoaderData } from '@remix-run/react'
+import { Form, Link, useLoaderData } from 'react-router'
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 
 import { brl } from '~/lib/formatting'
@@ -13,7 +13,7 @@ import { PurchasesList } from './PurchasesList'
 import { BarChart } from './BarChart'
 
 type ResultsProps = {
-  data: ReturnType<typeof useLoaderData<typeof suggestionsLoader>> | undefined
+  data: Awaited<ReturnType<typeof suggestionsLoader>> | undefined
   // ideally we shoudn't rely on this method of clearing the suggestions
   // the best approach would be to reset the loader, as in this discussion:
   // https://github.com/remix-run/remix/discussions/2749

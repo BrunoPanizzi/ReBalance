@@ -2,11 +2,11 @@ import {
   Form,
   useFetcher,
   useLoaderData,
+  useActionData,
   useNavigation,
   useSearchParams,
-} from '@remix-run/react'
+} from 'react-router'
 import { useEffect, useState } from 'react'
-import { useTypedActionData } from 'remix-typedjson'
 
 import { cn } from '~/lib/utils'
 import { brl, currencyToNumber } from '~/lib/formatting'
@@ -69,7 +69,7 @@ function ContentMux() {
 
 function FixedValue() {
   const { type } = useLoaderData<typeof loader>()
-  const actionData = useTypedActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const errors = actionResult?.ok === false && actionResult.error
@@ -181,7 +181,7 @@ function SuggestionsList() {
     key: 'recommendations',
   })
 
-  const actionData = useTypedActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const message = actionResult?.ok

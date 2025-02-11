@@ -1,4 +1,5 @@
-import { ActionFunctionArgs, redirect } from '@remix-run/node'
+import type { Route } from './+types/route'
+import { redirect } from 'react-router'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
@@ -14,7 +15,6 @@ import { ErrorT } from '~/context/ErrorContext'
 
 import { createMatcher } from '~/lib/actionMatcher'
 import { currencyToNumber } from '~/lib/formatting'
-import { typedjson } from 'remix-typedjson'
 
 const currencySchema = (params?: z.CustomErrorParams) =>
   z
@@ -193,7 +193,7 @@ const match = createMatcher<SubActionArgs>()({
   DELETE: deleteAction,
 })
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+export const action = async ({ request, params }: Route.ActionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -217,5 +217,5 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     formData,
   })
 
-  return typedjson(matchResult)
+  return matchResult
 }

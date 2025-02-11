@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Cross2Icon } from '@radix-ui/react-icons'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from 'react-router';
 import { useState } from 'react'
 
 import { brl } from '~/lib/formatting'

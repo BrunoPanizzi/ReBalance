@@ -5,12 +5,7 @@ import {
   useContext,
   useState,
 } from 'react'
-import {
-  Form,
-  useActionData,
-  useNavigate,
-  useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useNavigate, useNavigation } from 'react-router';
 
 import { Dialog } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'

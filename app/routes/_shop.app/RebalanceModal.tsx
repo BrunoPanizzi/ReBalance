@@ -1,9 +1,4 @@
-import {
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-  useSearchParams,
-} from '@remix-run/react'
+import { useFetcher, useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import { ReactElement, createContext, useContext, useState } from 'react'
 
 import { percentage } from '~/lib/formatting'

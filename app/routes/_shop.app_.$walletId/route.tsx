@@ -1,4 +1,4 @@
-import { useLoaderData, MetaFunction } from '@remix-run/react'
+import type { Route } from './+types/route'
 
 import { assetTypeLabels } from '~/lib/enumDisplayValues'
 
@@ -13,12 +13,12 @@ import Information from './Information'
 
 export { loader, action }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data?.title }]
+export const meta: Route.MetaFunction = ({ data }) => {
+  return [{ title: data.title }]
 }
 
-export default function WalletPage() {
-  const wallet = useLoaderData<typeof loader>()
+export default function WalletPage({ loaderData }: Route.ComponentProps) {
+  const wallet = loaderData
 
   return (
     <>

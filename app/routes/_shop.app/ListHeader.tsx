@@ -5,7 +5,7 @@ import {
   PlusIcon,
   UpdateIcon,
 } from '@radix-ui/react-icons'
-import { useNavigate, useRevalidator } from '@remix-run/react'
+import { useNavigate, useRevalidator } from 'react-router';
 import { useEffect, useRef } from 'react'
 
 import { cn } from '~/lib/utils'

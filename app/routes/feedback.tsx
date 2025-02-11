@@ -1,9 +1,9 @@
-import { ActionFunctionArgs, TypedResponse } from '@remix-run/node'
-import { Form, useActionData, useNavigation } from '@remix-run/react'
+import type { Route } from './+types/feedback'
+import { Form, useNavigation, useActionData } from 'react-router'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
-import { Result, typedError, typedOk } from '~/types/Result'
+import { Result, error, ok } from '~/types/Result'
 
 import { options as feedbackOptions } from '~/services/feedbackService/feedbackTypes'
 import FeedbackService, {
@@ -21,7 +21,7 @@ import { Checkbox } from '~/components/ui/checkbox'
 import { Select } from '~/components/ui/select'
 import { toast } from '~/components/ui/use-toast'
 
-export const meta = () => [{ title: 'Feedback' }]
+export const meta: Route.MetaFunction = () => [{ title: 'Feedback' }]
 
 const formSchema = z
   .object({
@@ -46,9 +46,7 @@ const formSchema = z
 
 export const action = async ({
   request,
-}: ActionFunctionArgs): Promise<
-  TypedResponse<Result<DomainFeedback, ErrorT[]>>
-> => {
+}: Route.ActionArgs): Promise<Result<DomainFeedback, ErrorT[]>> => {
   await new Promise((res): any => setTimeout(res, 1000))
 
   const parsed = formSchema.safeParse(
@@ -56,7 +54,7 @@ export const action = async ({
   )
 
   if (!parsed.success) {
-    return typedError(
+    return error(
       parsed.error.errors.map((e) => ({
         message: e.message,
         type: e.path.toString(),
@@ -74,9 +72,9 @@ export const action = async ({
       email,
     })
 
-    return typedOk(createdFeedback)
+    return ok(createdFeedback)
   } catch (e) {
-    return typedError([{ message: 'Erro desconhecido', type: 'unknown' }])
+    return error([{ message: 'Erro desconhecido', type: 'unknown' }])
   }
 }
 
@@ -137,9 +135,7 @@ function BackgroundDots() {
   return <canvas id="canva" className="absolute inset-0 -z-30 h-full w-full" />
 }
 
-export default function Feedback() {
-  const actionData = useActionData<typeof action>()
-
+export default function Feedback({ actionData }: Route.ComponentProps) {
   useEffect(() => {
     if (actionData?.ok) {
       toast({

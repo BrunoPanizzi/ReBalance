@@ -1,4 +1,4 @@
-import { Link, useFetcher, useSearchParams } from '@remix-run/react'
+import { Link, useFetcher, useSearchParams } from 'react-router';
 import { useEffect, useMemo, useState } from 'react'
 
 import { brl, currencyToNumber } from '~/lib/formatting'

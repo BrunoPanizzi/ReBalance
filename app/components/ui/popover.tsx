@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router';
 
 import { cn } from '~/lib/utils'
 

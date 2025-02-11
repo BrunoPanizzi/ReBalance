@@ -1,4 +1,4 @@
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from 'react-router';
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 
 import { brl } from '~/lib/formatting'

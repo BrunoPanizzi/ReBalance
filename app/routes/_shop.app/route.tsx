@@ -1,5 +1,6 @@
+import type { Route } from './+types/route'
 import { useState } from 'react'
-import { Link, Outlet, useLoaderData } from '@remix-run/react'
+import { Link, Outlet, useLoaderData } from 'react-router'
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 import colors from 'tailwindcss/colors.js'
 
@@ -27,8 +28,8 @@ import RebalancePercentagesModal from './RebalanceModal'
 
 export { loader, action }
 
-export default function App() {
-  const { user, fullWallets } = useLoaderData<typeof loader>()
+export default function App({ loaderData }: Route.ComponentProps) {
+  const { user, fullWallets } = loaderData
 
   const showGraph = fullWallets.filter((w) => w.totalValue > 0).length > 0
 

@@ -1,6 +1,5 @@
-import { useRevalidator } from '@remix-run/react'
+import { useRevalidator, useActionData } from 'react-router'
 import { useEffect } from 'react'
-import { useTypedActionData } from 'remix-typedjson'
 
 import { extractValue } from '~/lib/actionMatcher'
 
@@ -12,7 +11,7 @@ import { action } from '../action'
 export function useOnAssetsUpdated(handleClear: () => void) {
   const { revalidate } = useRevalidator()
 
-  const actionData = useTypedActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const actionResult = extractValue(actionData, 'PUT')
 
   useEffect(() => {

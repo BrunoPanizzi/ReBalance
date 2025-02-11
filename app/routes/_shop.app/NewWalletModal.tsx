@@ -1,6 +1,10 @@
-import { Form, useNavigation, useSearchParams } from '@remix-run/react'
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from 'react-router'
 import { useEffect, useState } from 'react'
-import { useTypedActionData } from 'remix-typedjson'
 
 import { percentage } from '~/lib/formatting'
 import { assetTypeLabels } from '~/lib/enumDisplayValues'
@@ -22,7 +26,7 @@ import { ColorSelection } from './ColorSelection'
 export default function NewWalletModal() {
   const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const actionData = useTypedActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const success = actionResult?.ok

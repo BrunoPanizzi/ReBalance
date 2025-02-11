@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
+import type { Route } from './+types/blog'
+import { Link } from 'react-router'
 
 import { sessionStorage } from '~/services/cookies/session.server'
 
@@ -8,7 +8,7 @@ import Wrapper from '~/components/Wrapper'
 import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const userSession = await sessionStorage.getSession(
     request.headers.get('Cookie'),
   )
@@ -17,8 +17,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 }
 
-export default function Blog() {
-  const { isAuthenticated } = useLoaderData<typeof loader>()
+export default function Blog({ loaderData }: Route.ComponentProps) {
+  const { isAuthenticated } = loaderData
 
   return (
     <div>

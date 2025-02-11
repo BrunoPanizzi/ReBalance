@@ -5,8 +5,7 @@ import {
   Pencil2Icon,
   TrashIcon,
 } from '@radix-ui/react-icons'
-import { Link, useSearchParams } from '@remix-run/react'
-import { useTypedFetcher } from 'remix-typedjson'
+import { Link, useFetcher, useSearchParams } from 'react-router'
 
 import { brl, percentage } from '~/lib/formatting'
 import { assetTypeLabels } from '~/lib/enumDisplayValues'
@@ -41,7 +40,7 @@ type WalletProps = {
 
 export default function WalletCard({ wallet }: WalletProps) {
   const [_, setSearchParams] = useSearchParams()
-  const fetcher = useTypedFetcher<typeof action>({ key: wallet.id + 'DELETE' })
+  const fetcher = useFetcher<typeof action>({ key: wallet.id + 'DELETE' })
   const actionResult = extractValue(fetcher.data, 'DELETE')
 
   function deleteWallet() {

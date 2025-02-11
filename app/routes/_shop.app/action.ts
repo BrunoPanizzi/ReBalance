@@ -1,6 +1,6 @@
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
+import type { Route } from './+types/route'
+import { redirect } from 'react-router'
 import { z } from 'zod'
-import { typedjson } from 'remix-typedjson'
 
 import { colorsSchema } from '~/constants/availableColors'
 import { ErrorT } from '~/context/ErrorContext'
@@ -185,7 +185,7 @@ export const match = createMatcher<Args>()({
   PUT: putAction,
 })
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const user = session.get('user')
@@ -205,5 +205,5 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     matchResult.value
   }
 
-  return typedjson(matchResult)
+  return matchResult
 }

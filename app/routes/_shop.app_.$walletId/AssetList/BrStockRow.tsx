@@ -1,6 +1,6 @@
 import { CheckIcon, DotsVerticalIcon, TrashIcon } from '@radix-ui/react-icons'
 import { memo, useEffect, useState } from 'react'
-import { useFetcher } from '@remix-run/react'
+import { useFetcher } from 'react-router';
 
 import { brl, percentage } from '~/lib/formatting'
 import { cn } from '~/lib/utils'

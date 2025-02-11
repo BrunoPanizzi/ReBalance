@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json } from '@remix-run/node'
+import { Route } from './+types/suggestions'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
@@ -9,7 +9,7 @@ const searchParamsSchema = z.object({
   blackListedIds: z.array(z.string()),
 })
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   const user = session.get('user')
 
@@ -30,5 +30,5 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     blackListedIds,
   )
 
-  return json(purchases)
+  return purchases
 }

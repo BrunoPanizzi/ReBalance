@@ -1,4 +1,4 @@
-import { useLoaderData, useSearchParams } from '@remix-run/react'
+import { useLoaderData, useSearchParams } from 'react-router'
 import { PlusIcon, QuestionMarkCircledIcon } from '@radix-ui/react-icons'
 
 import { EasyTooltip } from '~/components/ui/tooltip'

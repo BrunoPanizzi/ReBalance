@@ -1,4 +1,5 @@
-import { ActionFunctionArgs, TypedResponse, json } from '@remix-run/node'
+import type { Route } from './+types/route'
+import { data } from 'react-router'
 import { z } from 'zod'
 
 import { sessionStorage } from '~/services/cookies/session.server'
@@ -7,7 +8,7 @@ import { DomainUser } from '~/services/auth/authService.server'
 
 import { ErrorT } from '~/context/ErrorContext'
 
-import { Result, typedError } from '~/types/Result'
+import { Result, error } from '~/types/Result'
 
 const loginFormValidator = z.object({
   email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
@@ -17,18 +18,14 @@ const signupFormValidator = loginFormValidator.extend({
   userName: z.string().min(1, 'Nome de usuário é obrigatório'),
 })
 
-export const action = async ({
-  request,
-}: ActionFunctionArgs): Promise<
-  TypedResponse<Result<DomainUser, ErrorT[]>>
-> => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
 
   const formData = await request.formData()
 
   const mode = formData.get('mode')
   if (!mode || (mode !== 'login' && mode !== 'signup')) {
-    return typedError([{ type: 'mode', message: 'Modo inválido' }])
+    return error([{ type: 'mode', message: 'Modo inválido' }])
   }
 
   const rawForm = Object.fromEntries(formData)
@@ -40,7 +37,7 @@ export const action = async ({
   const userInfo = formValidator.safeParse(rawForm)
 
   if (!userInfo.success) {
-    return typedError(
+    return error(
       userInfo.error.errors.map((e) => ({
         type: e.path.join('.'),
         message: e.message,
@@ -51,24 +48,24 @@ export const action = async ({
   const response = await method(userInfo.data)
 
   if (!response.ok) {
-    let error
+    let err
     if (response.error === 'User already exists')
-      error = {
+      err = {
         type: 'email',
         message: 'Email já cadastrado',
       }
     else
-      error = {
+      err = {
         type: 'backend',
         message: response.error,
       }
 
-    return typedError([error])
+    return error([err])
   }
 
   session.set('user', response.value)
 
-  return json(response, {
+  return data(response, {
     headers: {
       'Set-Cookie': await sessionStorage.commitSession(session),
     },

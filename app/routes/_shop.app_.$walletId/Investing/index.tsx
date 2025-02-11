@@ -30,7 +30,6 @@ export default function Investing() {
       { amount: currencyToNumber(value) },
       {
         method: 'GET',
-        navigate: false,
         action: 'suggestions',
       },
     )

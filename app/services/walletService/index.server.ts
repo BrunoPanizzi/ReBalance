@@ -215,13 +215,13 @@ class WalletService {
 
     sqlChunks.push(sql`where "id" in (${finalIds})`)
 
-    sqlChunks.push(sql`returning *, ideal_percentage as "idealPercentage"`)
+    sqlChunks.push(
+      sql`returning *, ideal_percentage as "idealPercentage", asset_type as "type"`,
+    )
 
     const finalSql = sql.join(sqlChunks, sql.raw(' '))
 
     const res = await db.execute(finalSql)
-
-    console.log(res)
 
     return res.map((w) => toDomain(walletSchema.parse(w)))
   }

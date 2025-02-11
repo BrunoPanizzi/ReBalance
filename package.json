@@ -48,6 +48,8 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.5.1",
+    "@remix-run/fs-routes": "^2.15.3",
+    "@remix-run/route-config": "^2.15.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/d3": "^7.4.3",
     "@types/react": "^18.2.20",

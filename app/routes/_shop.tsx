@@ -56,7 +56,7 @@ export default function Shop() {
   const fetchRecommendations = () => {
     fetcher.submit(
       { amount: currencyToNumber(value), blackListedIds: [] },
-      { method: 'GET', navigate: false, action: 'suggestions' },
+      { method: 'GET', action: 'suggestions' },
     )
   }
 

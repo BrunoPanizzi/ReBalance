@@ -1,13 +1,9 @@
 import { LoaderFunctionArgs, TypedResponse, redirect } from '@remix-run/node'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import AssetService, {
-  AssetType,
-  assetType,
-} from '~/services/assetService/index.server'
 
 import { Result, typedError, typedOk } from '~/types/Result'
-import walletService from '~/services/walletService'
+import walletService from '~/services/walletService/index.server'
 import { AssetPurchaseSuggestionUseCase } from '~/services/assetsPurchaseSuggestionsUseCase/index.server'
 
 type Purchases = Record<string, number>

@@ -5,12 +5,17 @@ import {
   Pencil2Icon,
   TrashIcon,
 } from '@radix-ui/react-icons'
-import { Link, useFetcher, useSearchParams } from '@remix-run/react'
+import { Link, useSearchParams } from '@remix-run/react'
+import { useTypedFetcher } from 'remix-typedjson'
 
 import { brl, percentage } from '~/lib/formatting'
 import { assetTypeLabels } from '~/lib/enumDisplayValues'
+import { extractValue } from '~/lib/actionMatcher'
 
-import { DomainWallet, FullWalletWithAssets } from '~/services/walletService'
+import {
+  DomainWallet,
+  FullWalletWithAssets,
+} from '~/services/walletService/index.server'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -21,7 +26,7 @@ import {
 } from '~/components/ui/popover'
 import { toast } from '~/components/ui/use-toast'
 
-import { action, extractValue } from './action'
+import { type action } from './action'
 import { Colors } from '~/constants/availableColors'
 
 type WalletProps = {
@@ -36,7 +41,7 @@ type WalletProps = {
 
 export default function WalletCard({ wallet }: WalletProps) {
   const [_, setSearchParams] = useSearchParams()
-  const fetcher = useFetcher<typeof action>({ key: wallet.id + 'DELETE' })
+  const fetcher = useTypedFetcher<typeof action>({ key: wallet.id + 'DELETE' })
   const actionResult = extractValue(fetcher.data, 'DELETE')
 
   function deleteWallet() {

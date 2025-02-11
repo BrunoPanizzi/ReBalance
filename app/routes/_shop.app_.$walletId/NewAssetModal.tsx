@@ -1,15 +1,16 @@
 import {
   Form,
-  useActionData,
   useFetcher,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
+import { useTypedActionData } from 'remix-typedjson'
 
 import { cn } from '~/lib/utils'
 import { brl, currencyToNumber } from '~/lib/formatting'
+import { extractValue } from '~/lib/actionMatcher'
 
 import { useDebouncedState } from '~/hooks/useDebouncedState'
 
@@ -24,7 +25,7 @@ import { toast } from '~/components/ui/use-toast'
 
 import { InputGroup } from '~/components/FormGroups'
 
-import { action, extractValue } from './action'
+import { action } from './action'
 import { loader } from './loader'
 
 export function NewAssetModal() {
@@ -68,7 +69,7 @@ function ContentMux() {
 
 function FixedValue() {
   const { type } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const errors = actionResult?.ok === false && actionResult.error
@@ -180,7 +181,7 @@ function SuggestionsList() {
     key: 'recommendations',
   })
 
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const message = actionResult?.ok

@@ -1,19 +1,22 @@
 import { ActionFunctionArgs, json, redirect } from '@remix-run/node'
 import { z } from 'zod'
-
-import { createMatcher } from '~/lib/actionMatcher'
+import { typedjson } from 'remix-typedjson'
 
 import { colorsSchema } from '~/constants/availableColors'
 import { ErrorT } from '~/context/ErrorContext'
 
 import { type Result, ok, error } from '~/types/Result'
 
-import WalletService, { DomainWallet } from '~/services/walletService'
+import { createMatcher } from '~/lib/actionMatcher'
+
+import WalletService, {
+  type DomainWallet,
+} from '~/services/walletService/index.server'
 import { sessionStorage } from '~/services/cookies/session.server'
-import { DomainUser } from '~/services/auth/authService.server'
+import type { DomainUser } from '~/services/auth/authService.server'
 import { assetType } from '~/services/assetService/index.server'
 
-type Args = {
+export type Args = {
   user: DomainUser
   formData: FormData
 }
@@ -41,7 +44,7 @@ const postFormSchema = z.object({
     required_error: 'Selecione uma cor',
   }),
 })
-async function postAction({
+export async function postAction({
   formData,
   user,
 }: Args): Promise<Result<DomainWallet, ErrorT[]>> {
@@ -71,7 +74,7 @@ async function postAction({
   }
 }
 
-async function deleteAction({
+export async function deleteAction({
   user,
   formData,
 }: Args): Promise<Result<null, string>> {
@@ -99,7 +102,7 @@ const patchFormSchema = z
   .refine((a) => a.color || a.title, {
     message: 'At least one param other than walletId should be provided',
   })
-async function patchAction({
+export async function patchAction({
   user,
   formData,
 }: Args): Promise<Result<DomainWallet, ErrorT[]>> {
@@ -139,7 +142,7 @@ const putJSONSchema = z.array(
     idealPercentage: z.number().nonnegative(),
   }),
 )
-async function putAction({
+export async function putAction({
   formData,
   user,
 }: Args): Promise<Result<DomainWallet[], string>> {
@@ -175,13 +178,12 @@ async function putAction({
   }
 }
 
-const { match, extractValue } = createMatcher<Args>()({
+export const match = createMatcher<Args>()({
   POST: postAction,
   DELETE: deleteAction,
   PATCH: patchAction,
   PUT: putAction,
 })
-export { extractValue }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
@@ -199,5 +201,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     user,
   })
 
-  return json(matchResult)
+  if (matchResult.method === 'POST') {
+    matchResult.value
+  }
+
+  return typedjson(matchResult)
 }

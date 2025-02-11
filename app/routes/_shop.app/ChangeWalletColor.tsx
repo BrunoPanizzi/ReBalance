@@ -6,6 +6,9 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import { useEffect } from 'react'
+import { useTypedActionData } from 'remix-typedjson'
+
+import { extractValue } from '~/lib/actionMatcher'
 
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
@@ -15,11 +18,12 @@ import { BaseGroup } from '~/components/FormGroups'
 import { ColorSelection } from './ColorSelection'
 
 import { loader } from './loader'
-import { action, extractValue } from './action'
+import { type action } from './action'
 
 export default function ChangeColorModal() {
   const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
+
   const actionResult = extractValue(actionData, 'PATCH')
 
   const navigation = useNavigation()

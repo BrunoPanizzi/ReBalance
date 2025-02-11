@@ -9,7 +9,7 @@ import { ReactElement, createContext, useContext, useState } from 'react'
 import { percentage } from '~/lib/formatting'
 import { cn } from '~/lib/utils'
 
-import { FullWalletWithAssets } from '~/services/walletService'
+import { FullWalletWithAssets } from '~/services/walletService/index.server'
 
 import { Dialog } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'

@@ -1,7 +1,6 @@
 import type { LinksFunction } from '@remix-run/node'
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -9,8 +8,7 @@ import {
   useMatches,
 } from '@remix-run/react'
 
-// @ts-expect-error
-import stylesheet from '~/tailwind.css'
+import stylesheet from '~/tailwind.css?url'
 
 import NavigationIndicator from './components/NavigationIndicator'
 import { Toaster } from './components/ui/toaster'
@@ -62,7 +60,6 @@ export default function App() {
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
         <Toaster />
         <div id="modal-root"></div>
       </body>

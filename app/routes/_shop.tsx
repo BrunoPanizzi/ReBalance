@@ -10,7 +10,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { cn } from '~/lib/utils'
 import { brl, currencyToNumber, percentage } from '~/lib/formatting'
 
-import { FullWalletWithAssets } from '~/services/walletService'
+import { FullWalletWithAssets } from '~/services/walletService/index.server'
 import { ShoppingList } from '~/services/shopService'
 
 import { loader } from './suggestions'

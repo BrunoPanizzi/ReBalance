@@ -1,13 +1,10 @@
-import {
-  Form,
-  useActionData,
-  useNavigation,
-  useSearchParams,
-} from '@remix-run/react'
+import { Form, useNavigation, useSearchParams } from '@remix-run/react'
 import { useEffect, useState } from 'react'
+import { useTypedActionData } from 'remix-typedjson'
 
 import { percentage } from '~/lib/formatting'
 import { assetTypeLabels } from '~/lib/enumDisplayValues'
+import { extractValue } from '~/lib/actionMatcher'
 
 import { ErrorProvider } from '~/context/ErrorContext'
 
@@ -19,13 +16,13 @@ import { toast } from '~/components/ui/use-toast'
 
 import { BaseGroup, InputGroup } from '~/components/FormGroups'
 
-import { action, extractValue } from './action'
+import { type action } from './action'
 import { ColorSelection } from './ColorSelection'
 
 export default function NewWalletModal() {
   const navigation = useNavigation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
   const actionResult = extractValue(actionData, 'POST')
 
   const success = actionResult?.ok

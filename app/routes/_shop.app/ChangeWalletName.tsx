@@ -1,11 +1,13 @@
 import {
   Form,
-  useActionData,
   useLoaderData,
   useNavigation,
   useSearchParams,
 } from '@remix-run/react'
 import { useEffect } from 'react'
+import { useTypedActionData } from 'remix-typedjson'
+
+import { extractValue } from '~/lib/actionMatcher'
 
 import { Button } from '~/components/ui/button'
 import { Dialog } from '~/components/ui/dialog'
@@ -14,11 +16,11 @@ import { toast } from '~/components/ui/use-toast'
 import { InputGroup } from '~/components/FormGroups'
 
 import { loader } from './loader'
-import { action, extractValue } from './action'
+import { type action } from './action'
 
 export default function ChangeNameModal() {
   const { fullWallets, partialWallets } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
   const actionResult = extractValue(actionData, 'PATCH')
 
   const navigation = useNavigation()

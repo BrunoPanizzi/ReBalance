@@ -1,6 +1,8 @@
 import { roundTo } from '~/lib/roundTo'
 
-import WalletService, { FullWalletWithAssets } from '../walletService'
+import WalletService, {
+  FullWalletWithAssets,
+} from '../walletService/index.server'
 
 export type ShoppingList = {
   prevTotalValue: number

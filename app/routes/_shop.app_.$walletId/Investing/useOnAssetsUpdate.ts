@@ -1,15 +1,18 @@
-import { useActionData, useRevalidator } from '@remix-run/react'
+import { useRevalidator } from '@remix-run/react'
 import { useEffect } from 'react'
+import { useTypedActionData } from 'remix-typedjson'
+
+import { extractValue } from '~/lib/actionMatcher'
 
 import { toast } from '~/components/ui/use-toast'
 
-import { action, extractValue } from '../action'
+import { action } from '../action'
 
 // This function is used to handle the toast messages when the assets are updated
 export function useOnAssetsUpdated(handleClear: () => void) {
   const { revalidate } = useRevalidator()
 
-  const actionData = useActionData<typeof action>()
+  const actionData = useTypedActionData<typeof action>()
   const actionResult = extractValue(actionData, 'PUT')
 
   useEffect(() => {

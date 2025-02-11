@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, json, redirect } from '@remix-run/node'
 
 import { sessionStorage } from '~/services/cookies/session.server'
-import WalletService from '~/services/walletService'
+import WalletService from '~/services/walletService/index.server'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))

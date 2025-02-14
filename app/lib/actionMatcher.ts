@@ -33,7 +33,7 @@
  *
  */
 
-type MatchResult3<
+type MatchResult<
   T extends Record<string, (arg: A) => R>,
   R extends Promise<U>,
   U,
@@ -55,7 +55,7 @@ export function createMatcher<A>() {
       defaultFn = () => {
         throw new Error('bad input')
       },
-    ): Promise<MatchResult3<T, R, U, A>> {
+    ): Promise<MatchResult<T, R, U, A>> {
       if (matches[matching] === undefined) {
         defaultFn()
       }
@@ -82,7 +82,7 @@ export function extractValue<
   A,
   K extends keyof T | (string & {}),
 >(
-  result: MatchResult3<T, R, U, A> | undefined | null,
+  result: MatchResult<T, R, U, A> | undefined | null,
   key: K,
 ): Awaited<ReturnType<T[K]>> | undefined {
   if (!result) return
@@ -91,22 +91,6 @@ export function extractValue<
     return result.value as Awaited<ReturnType<T[K]>>
   }
 }
-
-const matcher = createMatcher<string>()({
-  POST: async (arg: string) => 'hello',
-  DELETE: async (arg: string) => -69,
-  PATCH: async (arg: string) => false as false,
-})
-
-const matched = await matcher('PATCH', 'whatever')
-
-if (matched.method === 'DELETE') {
-  matched.value
-}
-
-const m3 = Math.random() > 0.5 ? undefined : matched
-
-const a = extractValue(m3, 'DELETE')
 
 /* Failed attempt at simplifying the code, but couldn't get it to work
 type Matches<R extends Record<string, R[string]>, Args> = {

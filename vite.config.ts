@@ -6,7 +6,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   build: { sourcemap: false },
   plugins: [
-    reactRouterHonoServer({ runtime: 'aws', dev: { export: 'handler' } }),
+    reactRouterHonoServer({ runtime: 'node' }),
     reactRouter(),
     tsConfigPaths(),
   ],

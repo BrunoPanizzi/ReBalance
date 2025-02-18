@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "bun build.ts",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "bun run ./dist/index.js",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "migrate": "drizzle-kit generate:pg --config=drizzle.config.ts",
     "typecheck": "react-router typegen && tsc"
